@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FARM CORE
+-- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FARM V1 & V2
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -396,39 +396,55 @@ local function AddSlider(parent, label, min, max, default, callback)
 end
 
 -- ===== GLOBAL FLAGS =====
-_G.RAY_Fish_Auto    = false
-_G.RAY_AutoEquipRod = false
-_G.RAY_AutoSell     = false
-_G.RAY_TP_Event     = false
-_G.RAY_InfJump      = false
-_G.RAY_Fullbright   = false
-_G.RAY_EnableWalk   = false
-_G.RAY_WalkSpeed    = 16
-_G.RAY_FreezePos    = false
-_G.RAY_FreezeSet    = false
-_G.RAY_FreezeCFrame = nil
+_G.RAY_Fish_Auto      = false
+_G.RAY_AutoEquipRod   = false
+_G.RAY_AutoSell       = false
+_G.RAY_TP_Event       = false
+_G.RAY_InfJump        = false
+_G.RAY_Fullbright     = false
+_G.RAY_EnableWalk     = false
+_G.RAY_WalkSpeed      = 16
+_G.RAY_FreezePos      = false
+_G.RAY_FreezeSet      = false
+_G.RAY_FreezeCFrame   = nil
 
-_G.RAY_DelayCast   = 0.05
-_G.RAY_DelayFinish = 0.10
+_G.RAY_Fish_AutoV2    = false
 
--- ===== GUI LAYOUT =====
+_G.RAY_DelayCast      = 0.05
+_G.RAY_DelayFinish    = 0.10
+_G.RAY_DelayCast_V2   = 0.00
+_G.RAY_DelayFinish_V2 = 0.10
 
-AddSection(pageFishing, "Auto Fishing Status", "Control auto fish & delay")
-AddToggle(pageFishing, "Auto Fish", false, function(v) _G.RAY_Fish_Auto = v end)
-AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
-AddSlider(pageFishing, "Delay Cast", 0, 0.5, _G.RAY_DelayCast, function(v)
+-- ===== GUI LAYOUT: FISHING =====
+
+AddSection(pageFishing, "Auto Fishing V1", "Automatic fishing with safety")
+AddToggle(pageFishing, "Auto Fish V1", false, function(v) _G.RAY_Fish_Auto = v end)
+AddSlider(pageFishing, "Delay Cast V1", 0, 0.5, _G.RAY_DelayCast, function(v)
     _G.RAY_DelayCast = v
 end)
-AddSlider(pageFishing, "Delay Finish", 0, 0.5, _G.RAY_DelayFinish, function(v)
+AddSlider(pageFishing, "Delay Complete V1", 0, 0.5, _G.RAY_DelayFinish, function(v)
     _G.RAY_DelayFinish = v
 end)
+AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
 
+AddSection(pageFishing, "Auto Fishing V2", "Blatant / fast mode")
+AddToggle(pageFishing, "Auto Fish V2", false, function(v) _G.RAY_Fish_AutoV2 = v end)
+AddSlider(pageFishing, "Delay Cast V2", 0, 0.5, _G.RAY_DelayCast_V2, function(v)
+    _G.RAY_DelayCast_V2 = v
+end)
+AddSlider(pageFishing, "Delay Complete V2", 0, 0.5, _G.RAY_DelayFinish_V2, function(v)
+    _G.RAY_DelayFinish_V2 = v
+end)
+
+-- Backpack
 AddSection(pageBackpack, "Auto Sell Features", "Manage auto sell behaviour")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
+-- Teleport
 AddSection(pageTeleport, "Teleport Core", "Players / islands / events")
 AddToggle(pageTeleport, "Teleport To Event", false, function(v) _G.RAY_TP_Event = v end)
 
+-- Misc
 AddSection(pageMisc, "Utility Player", "Walkspeed, jumps, visuals")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump", false, function(v) _G.RAY_InfJump = v end)
@@ -449,14 +465,22 @@ local function DoFinish()
     -- ReplicatedStorage.Remotes.Complete:FireServer()
 end
 
+-- V1: aman
 Safety.SafeLoop(0.2, function()
     if not _G.RAY_Fish_Auto then return end
-
     DoCast()
     Safety.HumanWait(_G.RAY_DelayCast, _G.RAY_DelayCast + 0.03)
-
     DoFinish()
     Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
+end)
+
+-- V2: blatantly cepat
+Safety.SafeLoop(0.05, function()
+    if not _G.RAY_Fish_AutoV2 then return end
+    DoCast()
+    Safety.HumanWait(_G.RAY_DelayCast_V2, _G.RAY_DelayCast_V2 + 0.01)
+    DoFinish()
+    Safety.HumanWait(_G.RAY_DelayFinish_V2, _G.RAY_DelayFinish_V2 + 0.02)
 end)
 
 -- ===== AUTO SELL (KERANGKA) =====
