@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + LOGO MINIMIZE (STABLE)
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + LOGO MINIMIZE (PAKAI ID 131638212929753)
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -57,12 +57,11 @@ gui.Parent = plr:WaitForChild("PlayerGui")
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "RAYMOD_Logo"
 logoButton.Size = UDim2.new(0, 48, 0, 48)
-logoButton.Position = UDim2.new(0, 10, 1, -58) -- kiri bawah; ubah kalau mau
+logoButton.Position = UDim2.new(1, -60, 0, 10) -- kanan atas biar jelas
 logoButton.BackgroundTransparency = 1
 logoButton.Visible = false
 logoButton.ZIndex = 999
--- pakai icon Roblox yang pasti valid; nanti bisa ganti ke logo sendiri
-logoButton.Image = "rbxassetid://6031071053"  -- [web:583][web:575]
+logoButton.Image = "rbxassetid://131638212929753"
 logoButton.Parent = gui
 
 local main = Instance.new("Frame")
@@ -215,7 +214,6 @@ local function CreateTabButton(text, pageName)
     btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
 end
 
-local pageInfo      = CreatePage("Info")
 local pageFishing   = CreatePage("Fishing")
 local pageShop      = CreatePage("Shop")
 local pageBackpack  = CreatePage("Backpack")
@@ -224,7 +222,6 @@ local pageQuest     = CreatePage("Quest")
 local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
 
-CreateTabButton("│ Info",      "Info")
 CreateTabButton("│ Fishing",   "Fishing")
 CreateTabButton("│ Shop",      "Shop")
 CreateTabButton("│ Backpack",  "Backpack")
@@ -235,7 +232,7 @@ CreateTabButton("│ Misc",      "Misc")
 
 SwitchPage("Fishing")
 
--- ===== GUI COMPONENT HELPERS =====
+-- ===== GUI HELPERS =====
 
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
@@ -667,4 +664,4 @@ Safety.SafeLoop(1.0, function()
     lighting.FogEnd = 1e5
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (logo minimize stable).")
+Notify("RAYMOD FISHIT V2 loaded (logo minimize).")
