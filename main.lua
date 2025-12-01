@@ -1,10 +1,11 @@
--- RAYMOD FISHIT V1 | FULL GUI + AUTO FISH SIKLUS BENAR
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
+local VirtualUser = game:GetService("VirtualUser")
 
 -- ===== SAFETY =====
 
@@ -28,13 +29,19 @@ end
 local function Notify(msg)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
-            Title = "RAYMOD FISHIT",
+            Title = "RAYMOD FISHIT V2",
             Text = msg,
             Duration = 3
         })
     end)
 end
 _G.RAY_Safety = Safety
+
+-- ===== ANTI AFK =====
+plr.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
 
 -- ===== GUI BASE =====
 
@@ -73,7 +80,7 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -110, 1, 0)
 title.Position = UDim2.new(0, 16, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "RAYMOD FISHIT V1"
+title.Text = "RAYMOD FISHIT V2"
 title.TextColor3 = Color3.fromRGB(240, 246, 255)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
@@ -102,6 +109,7 @@ mini.Font = Enum.Font.GothamBold
 mini.TextSize = 18
 mini.Parent = top
 Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 6)
+
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1, 0, 1, -34)
 content.Position = UDim2.new(0, 0, 0, 34)
@@ -167,12 +175,8 @@ local function CreatePage(name)
     return Page
 end
 local function SwitchPage(name)
-    for _,p in pairs(Pages) do
-        p.Visible = false
-    end
-    if Pages[name] then
-        Pages[name].Visible = true
-    end
+    for _,p in pairs(Pages) do p.Visible = false end
+    if Pages[name] then Pages[name].Visible = true end
 end
 local function CreateTabButton(text, pageName)
     local btn = Instance.new("TextButton")
@@ -196,6 +200,7 @@ local pageTeleport  = CreatePage("Teleport")
 local pageQuest     = CreatePage("Quest")
 local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
+
 CreateTabButton("│ Info",      "Info")
 CreateTabButton("│ Fishing",   "Fishing")
 CreateTabButton("│ Shop",      "Shop")
@@ -204,9 +209,11 @@ CreateTabButton("│ Teleport",  "Teleport")
 CreateTabButton("│ Quest",     "Quest")
 CreateTabButton("│ Boat",      "Boat")
 CreateTabButton("│ Misc",      "Misc")
+
 SwitchPage("Fishing")
 
--- ===== GUI COMPONENTS =====
+-- ===== GUI COMPONENT HELPERS =====
+
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
@@ -244,7 +251,6 @@ local function AddSection(parent, titleText, subText)
         sub.TextXAlignment = Enum.TextXAlignment.Left
         sub.Parent = frame
     end
-
     return frame
 end
 
@@ -341,10 +347,15 @@ end
 
 -- ===== GLOBAL FLAGS =====
 
-_G.RAY_Fish_Auto      = false
-_G.RAY_AutoEquipRod   = false
+_G.RAY_Fish_Auto      = false   -- V1 normal
+_G.RAY_Fish_AutoV2    = false   -- V2 blatant
+_G.RAY_AutoCatch      = false
+
 _G.RAY_AutoSell       = false
-_G.RAY_TP_Event       = false
+_G.RAY_SellDelay      = 30
+
+_G.RAY_TP_Location    = "Spawn"
+
 _G.RAY_InfJump        = false
 _G.RAY_Fullbright     = false
 _G.RAY_EnableWalk     = false
@@ -353,14 +364,12 @@ _G.RAY_FreezePos      = false
 _G.RAY_FreezeSet      = false
 _G.RAY_FreezeCFrame   = nil
 
-_G.RAY_Fish_AutoV2    = false
+_G.RAY_DelayCast      = 0.9   -- FishDelay normal
+_G.RAY_DelayFinish    = 0.2   -- CatchDelay normal
+_G.RAY_DelayCast_V2   = 0.9   -- FishDelay blatant
+_G.RAY_DelayFinish_V2 = 0.2   -- CatchDelay blatant
 
-_G.RAY_DelayCast      = 0.3
-_G.RAY_DelayFinish    = 1.2
-_G.RAY_DelayCast_V2   = 0.05
-_G.RAY_DelayFinish_V2 = 0.2
-
--- ===== FISH IT REMOTES =====
+-- ===== NETWORK EVENTS (ENGINE V4) =====
 
 local Net = ReplicatedStorage
     :WaitForChild("Packages")
@@ -368,91 +377,193 @@ local Net = ReplicatedStorage
     :WaitForChild("sleitnick_net@0.2.0")
     :WaitForChild("net")
 
-local RF_UpdateAutoFishingState = Net:WaitForChild("RF/UpdateAutoFishingState")
-local RF_ChargeFishingRod       = Net:WaitForChild("RF/ChargeFishingRod")
-local RF_RequestMinigame        = Net:WaitForChild("RF/RequestFishingMinigameStarted")
-local RE_FishingCompleted       = Net:WaitForChild("RE/FishingCompleted")
-local RE_EquipToolFromHotbar    = Net:WaitForChild("RE/EquipToolFromHotbar")
-local RF_SellAllItems           = Net:FindFirstChild("RF/SellAllItems")
+local Events = {
+    fishing = Net:WaitForChild("RE/FishingCompleted"),
+    sell    = Net:WaitForChild("RF/SellAllItems"),
+    charge  = Net:WaitForChild("RF/ChargeFishingRod"),
+    minigame= Net:WaitForChild("RF/RequestFishingMinigameStarted"),
+    cancel  = Net:WaitForChild("RF/CancelFishingInputs"),
+    equip   = Net:WaitForChild("RE/EquipToolFromHotbar"),
+    unequip = Net:WaitForChild("RE/UnequipToolFromHotbar"),
+}
 
--- ===== GUI: FISHING =====
+-- ===== TELEPORT LOCATIONS =====
 
-AddSection(pageFishing, "Auto Fishing V1", "Legit auto fish with delay")
-AddToggle(pageFishing, "Auto Fish V1", false, function(v) _G.RAY_Fish_Auto = v end)
+local LOCATIONS = {
+    ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]      = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]  = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]    = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]        = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]  = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]   = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]     = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]    = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]           = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"]=CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]   = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
+}
 
-AddDelayBox(pageFishing, "Delay Cast V1 (s)", _G.RAY_DelayCast, function(v)
+local function TeleportTo(name)
+    local cf = LOCATIONS[name]
+    if not cf then
+        Notify("TP: lokasi tidak dikenal")
+        return
+    end
+    local char = plr.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    hrp.CFrame = cf
+end
+
+-- ===== GUI: FISHING TAB =====
+
+AddSection(pageFishing, "Legit Auto Fishing (V1)", "Pola normal, aman, delay diatur")
+AddToggle(pageFishing, "Auto Fish (Legit)", false, function(v) _G.RAY_Fish_Auto = v end)
+
+AddDelayBox(pageFishing, "Fish Delay V1 (s)", _G.RAY_DelayCast, function(v)
     _G.RAY_DelayCast = v
 end)
-
-AddDelayBox(pageFishing, "Delay Complete V1 (s)", _G.RAY_DelayFinish, function(v)
+AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
     _G.RAY_DelayFinish = v
 end)
 
-AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
+AddSection(pageFishing, "Blatant Auto Fishing (V2)", "2x cast paralel + spam reel")
+AddToggle(pageFishing, "Auto Fish (Blatant)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
 
-AddSection(pageFishing, "Auto Fishing V2", "Blatant / fast mode")
-AddToggle(pageFishing, "Auto Fish V2", false, function(v) _G.RAY_Fish_AutoV2 = v end)
-
-AddDelayBox(pageFishing, "Delay Cast V2 (s)", _G.RAY_DelayCast_V2, function(v)
+AddDelayBox(pageFishing, "Fish Delay V2 (s)", _G.RAY_DelayCast_V2, function(v)
     _G.RAY_DelayCast_V2 = v
 end)
-
-AddDelayBox(pageFishing, "Delay Complete V2 (s)", _G.RAY_DelayFinish_V2, function(v)
+AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v)
     _G.RAY_DelayFinish_V2 = v
 end)
 
--- BACKPACK / MISC
-AddSection(pageBackpack, "Auto Sell", "Sell backpack contents")
+AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
+AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v) _G.RAY_AutoCatch = v end)
+
+-- ===== GUI: BACKPACK / AUTO SELL =====
+
+AddSection(pageBackpack, "Auto Sell", "Sell semua (favorit aman kalau pakai hub lain)")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
-AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze")
+AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
+    _G.RAY_SellDelay = v
+end)
+
+-- ===== GUI: TELEPORT =====
+
+AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
+for name, _ in pairs(LOCATIONS) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -4, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.Parent = pageTeleport
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(function()
+        TeleportTo(name)
+    end)
+end
+
+-- ===== GUI: MISC =====
+
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
 
--- ===== AUTO FISH CORE (URUTAN BENAR) =====
+-- ===== ENGINE AUTO FISH (DARI V4) =====
 
-local function DoCast()
+local isFishing = false
+
+local function castRod_V1()
     pcall(function()
-        RF_UpdateAutoFishingState:InvokeServer(false)
+        Events.equip:FireServer(1)
+        task.wait(0.05)
+        Events.charge:InvokeServer(1755848498.4834)
+        task.wait(0.02)
+        Events.minigame:InvokeServer(1.2854545116425, 1)
     end)
-    if _G.RAY_AutoEquipRod then
-        pcall(function()
-            RE_EquipToolFromHotbar:FireServer(1)
+end
+
+local function reelIn_V1()
+    pcall(function()
+        Events.fishing:FireServer()
+    end)
+end
+
+local function NormalCycle_V1()
+    if isFishing then return end
+    isFishing = true
+    castRod_V1()
+    task.wait(_G.RAY_DelayCast)
+    reelIn_V1()
+    task.wait(_G.RAY_DelayFinish)
+    isFishing = false
+end
+
+local function BlatantCycle_V2()
+    if isFishing then return end
+    isFishing = true
+
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.01)
+
+        task.spawn(function()
+            Events.charge:InvokeServer(1755848498.4834)
+            task.wait(0.01)
+            Events.minigame:InvokeServer(1.2854545116425, 1)
         end)
+
+        task.wait(0.05)
+
+        task.spawn(function()
+            Events.charge:InvokeServer(1755848498.4834)
+            task.wait(0.01)
+            Events.minigame:InvokeServer(1.2854545116425, 1)
+        end)
+    end)
+
+    task.wait(_G.RAY_DelayCast_V2)
+
+    for i = 1, 5 do
+        pcall(function()
+            Events.fishing:FireServer()
+        end)
+        task.wait(0.01)
     end
-    pcall(function()
-        RF_ChargeFishingRod:InvokeServer()
-    end)
-    pcall(function()
-        -- argumen pertama bisa diacak sekitar -0.4 s.d. -0.7 kalau pengen variasi
-        RF_RequestMinigame:InvokeServer(-0.5718742609, 0.5, workspace:GetServerTimeNow())
-    end)
+
+    task.wait(_G.RAY_DelayFinish_V2 * 0.5)
+    isFishing = false
 end
 
-local function DoFinish()
-    pcall(function()
-        RE_FishingCompleted:FireServer()
-    end)
-end
-
-Safety.SafeLoop(0.2, function()
-    if not _G.RAY_Fish_Auto then return end
-    DoCast()
-    Safety.HumanWait(_G.RAY_DelayCast, _G.RAY_DelayCast + 0.03)
-    DoFinish()
-    Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
-end)
 Safety.SafeLoop(0.05, function()
-    if not _G.RAY_Fish_AutoV2 then return end
-    DoCast()
-    Safety.HumanWait(_G.RAY_DelayCast_V2, _G.RAY_DelayCast_V2 + 0.01)
-    DoFinish()
-    Safety.HumanWait(_G.RAY_DelayFinish_V2, _G.RAY_DelayFinish_V2 + 0.02)
+    if _G.RAY_Fish_AutoV2 then
+        BlatantCycle_V2()
+    elseif _G.RAY_Fish_Auto then
+        NormalCycle_V1()
+    end
 end)
 
--- ===== AUTO SELL, WALK, FREEZE, DLL tetap =====
+-- AUTO CATCH
+Safety.SafeLoop(0.05, function()
+    if not _G.RAY_AutoCatch then return end
+    if isFishing then return end
+    pcall(function()
+        Events.fishing:FireServer()
+    end)
+    task.wait(_G.RAY_DelayFinish)
+end)
+
+-- ===== AUTO SELL =====
 
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
@@ -460,24 +571,31 @@ Safety.SafeLoop(1.0, function()
         sellCount = 0
         return
     end
+
     sellCount += 1
-    if sellCount > 50 then
+    if sellCount > 999 then
         _G.RAY_AutoSell = false
-        Notify("AutoSell dimatikan (safety).")
+        Notify("AutoSell dimatikan (limit).")
         return
     end
-    if RF_SellAllItems then
+
+    if Events.sell then
         pcall(function()
-            RF_SellAllItems:InvokeServer()
+            Events.sell:InvokeServer()
         end)
     end
-    Safety.HumanWait(2.0, 4.0)
+
+    Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
 end)
+
+-- ===== WALK / FREEZE / VISUAL =====
+
 Safety.SafeLoop(0.1, function()
     local char = plr.Character
     if not char then return end
     local hum = char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
+
     if _G.RAY_EnableWalk then
         local base = _G.RAY_WalkSpeed
         local jitter = math.random(-1, 1)
@@ -486,11 +604,13 @@ Safety.SafeLoop(0.1, function()
         hum.WalkSpeed = 16
     end
 end)
+
 Safety.SafeLoop(0.05, function()
     local char = plr.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
+
     if _G.RAY_FreezePos then
         if not _G.RAY_FreezeSet then
             _G.RAY_FreezeCFrame = hrp.CFrame
@@ -505,6 +625,7 @@ Safety.SafeLoop(0.05, function()
         end
     end
 end)
+
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_InfJump then return end
     local char = plr.Character
@@ -514,6 +635,7 @@ Safety.SafeLoop(0.05, function()
         hum:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
+
 Safety.SafeLoop(1.0, function()
     if not _G.RAY_Fullbright then return end
     local lighting = game:GetService("Lighting")
@@ -522,4 +644,4 @@ Safety.SafeLoop(1.0, function()
     lighting.FogEnd = 1e5
 end)
 
-Notify("RAYMOD FISHIT V1 loaded.")
+Notify("RAYMOD FISHIT V2 loaded (engine V4).")
