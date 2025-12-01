@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FARM V1 & V2
+-- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FARM V1 & V2 (TEXTBOX DELAY)
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -212,7 +212,8 @@ CreateTabButton("│ Misc",      "Misc")
 
 SwitchPage("Fishing")
 
--- COMPONENTS
+-- ===== COMPONENT BUILDERS =====
+
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
@@ -302,7 +303,7 @@ local function AddToggle(parent, label, default, callback)
     return function() return state end
 end
 
-local function AddSlider(parent, label, min, max, default, callback)
+local function AddDelayBox(parent, label, defaultValue, onChange)
     local row = Instance.new("Frame")
     row.Size = UDim2.new(1, -4, 0, 34)
     row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
@@ -321,81 +322,35 @@ local function AddSlider(parent, label, min, max, default, callback)
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.Parent = row
 
-    local valueLabel = Instance.new("TextLabel")
-    valueLabel.Size = UDim2.new(0.4, -10, 1, 0)
-    valueLabel.Position = UDim2.new(0.6, 0, 0, 0)
-    valueLabel.BackgroundTransparency = 1
-    valueLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
-    valueLabel.Font = Enum.Font.Gotham
-    valueLabel.TextSize = 13
-    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-    valueLabel.Parent = row
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(0.4, -14, 0, 24)
+    box.Position = UDim2.new(0.6, 4, 0.5, -12)
+    box.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
+    box.TextColor3 = Color3.fromRGB(230, 230, 255)
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 13
+    box.ClearTextOnFocus = false
+    box.TextXAlignment = Enum.TextXAlignment.Center
+    box.Parent = row
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
 
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(1, -20, 0, 4)
-    bar.Position = UDim2.new(0, 10, 1, -10)
-    bar.BackgroundColor3 = Color3.fromRGB(70, 72, 110)
-    bar.BorderSizePixel = 0
-    bar.Parent = row
-    Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+    box.Text = tostring(defaultValue)
 
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0, 10, 0, 10)
-    knob.BackgroundColor3 = Color3.fromRGB(255, 80, 170)
-    knob.BorderSizePixel = 0
-    knob.Parent = bar
-    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
-
-    local current = default or min
-    local function apply(v)
-        current = math.clamp(v, min, max)
-        local alpha = (max == min) and 0 or (current - min) / (max - min)
-        knob.Position = UDim2.new(alpha, -5, 0.5, -5)
-        valueLabel.Text = string.format("%.2f s", current)
-        if callback then task.spawn(callback, current) end
-    end
-
-    apply(current)
-
-    local dragging = false
-
-    local function updateFromInput(input)
-        local relX = (input.Position.X - bar.AbsolutePosition.X)
-        local alpha = math.clamp(relX / bar.AbsoluteSize.X, 0, 1)
-        local v = min + (max - min) * alpha
-        apply(v)
-    end
-
-    knob.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            updateFromInput(input)
+    box.FocusLost:Connect(function(enter)
+        if not enter then return end
+        local num = tonumber(box.Text)
+        if not num or num < 0 then
+            box.Text = tostring(defaultValue)
+            return
+        end
+        if onChange then
+            onChange(num)
         end
     end)
-
-    knob.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    bar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            updateFromInput(input)
-        end
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-        if not dragging then return end
-        if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
-        updateFromInput(input)
-    end)
-
-    return function() return current end
 end
 
 -- ===== GLOBAL FLAGS =====
+
 _G.RAY_Fish_Auto      = false
 _G.RAY_AutoEquipRod   = false
 _G.RAY_AutoSell       = false
@@ -419,32 +374,36 @@ _G.RAY_DelayFinish_V2 = 0.10
 
 AddSection(pageFishing, "Auto Fishing V1", "Automatic fishing with safety")
 AddToggle(pageFishing, "Auto Fish V1", false, function(v) _G.RAY_Fish_Auto = v end)
-AddSlider(pageFishing, "Delay Cast V1", 0, 0.5, _G.RAY_DelayCast, function(v)
+
+AddDelayBox(pageFishing, "Delay Cast V1 (s)", _G.RAY_DelayCast, function(v)
     _G.RAY_DelayCast = v
 end)
-AddSlider(pageFishing, "Delay Complete V1", 0, 0.5, _G.RAY_DelayFinish, function(v)
+
+AddDelayBox(pageFishing, "Delay Complete V1 (s)", _G.RAY_DelayFinish, function(v)
     _G.RAY_DelayFinish = v
 end)
+
 AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
 
 AddSection(pageFishing, "Auto Fishing V2", "Blatant / fast mode")
 AddToggle(pageFishing, "Auto Fish V2", false, function(v) _G.RAY_Fish_AutoV2 = v end)
-AddSlider(pageFishing, "Delay Cast V2", 0, 0.5, _G.RAY_DelayCast_V2, function(v)
+
+AddDelayBox(pageFishing, "Delay Cast V2 (s)", _G.RAY_DelayCast_V2, function(v)
     _G.RAY_DelayCast_V2 = v
 end)
-AddSlider(pageFishing, "Delay Complete V2", 0, 0.5, _G.RAY_DelayFinish_V2, function(v)
+
+AddDelayBox(pageFishing, "Delay Complete V2 (s)", _G.RAY_DelayFinish_V2, function(v)
     _G.RAY_DelayFinish_V2 = v
 end)
 
--- Backpack
+-- ===== GUI LAYOUT: BACKPACK / TELEPORT / MISC =====
+
 AddSection(pageBackpack, "Auto Sell Features", "Manage auto sell behaviour")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
--- Teleport
 AddSection(pageTeleport, "Teleport Core", "Players / islands / events")
 AddToggle(pageTeleport, "Teleport To Event", false, function(v) _G.RAY_TP_Event = v end)
 
--- Misc
 AddSection(pageMisc, "Utility Player", "Walkspeed, jumps, visuals")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump", false, function(v) _G.RAY_InfJump = v end)
@@ -474,7 +433,7 @@ Safety.SafeLoop(0.2, function()
     Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
 end)
 
--- V2: blatantly cepat
+-- V2: blatant cepat
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_Fish_AutoV2 then return end
     DoCast()
