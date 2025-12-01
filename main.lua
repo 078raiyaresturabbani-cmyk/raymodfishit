@@ -199,7 +199,6 @@ local function CreateTabButton(text, pageName)
     btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
 end
 
--- pages
 local pageInfo      = CreatePage("Info")
 local pageFishing   = CreatePage("Fishing")
 local pageShop      = CreatePage("Shop")
@@ -384,12 +383,14 @@ local Net = ReplicatedStorage
     :WaitForChild("sleitnick_net@0.2.0")
     :WaitForChild("net")
 
-local RF_ChargeFishingRod      = Net:WaitForChild("RF/ChargeFishingRod")
-local RE_FishingCompleted      = Net:WaitForChild("RE/FishingCompleted")
-local RE_EquipToolFromHotbar   = Net:WaitForChild("RE/EquipToolFromHotbar")
-local RF_SellAllItems          = Net:FindFirstChild("RF/SellAllItems")
+local RF_UpdateAutoFishingState = Net:WaitForChild("RF/UpdateAutoFishingState")
+local RF_ChargeFishingRod       = Net:WaitForChild("RF/ChargeFishingRod")
+local RF_RequestMinigame        = Net:WaitForChild("RF/RequestFishingMinigameStarted")
+local RE_FishingCompleted       = Net:WaitForChild("RE/FishingCompleted")
+local RE_EquipToolFromHotbar    = Net:WaitForChild("RE/EquipToolFromHotbar")
+local RF_SellAllItems           = Net:FindFirstChild("RF/SellAllItems")
 
--- ===== GUI: FISHING TAB =====
+-- ===== GUI: FISHING =====
 
 AddSection(pageFishing, "Auto Fishing V1", "Legit auto fish with delay")
 AddToggle(pageFishing, "Auto Fish V1", false, function(v) _G.RAY_Fish_Auto = v end)
@@ -417,10 +418,6 @@ end)
 
 -- BACKPACK / MISC
 
-local pageBackpack = Pages["Backpack"]
-local pageTeleport = Pages["Teleport"]
-local pageMisc     = Pages["Misc"]
-
 AddSection(pageBackpack, "Auto Sell", "Sell backpack contents")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
@@ -433,6 +430,11 @@ AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v 
 -- ===== AUTO FISH CORE =====
 
 local function DoCast()
+    -- matikan auto fish bawaan tiap siklus
+    pcall(function()
+        RF_UpdateAutoFishingState:InvokeServer(false)
+    end)
+
     if _G.RAY_AutoEquipRod then
         pcall(function()
             RE_EquipToolFromHotbar:FireServer(1)
@@ -442,6 +444,10 @@ local function DoCast()
     pcall(function()
         RF_ChargeFishingRod:InvokeServer()
     end)
+
+    pcall(function()
+        RF_RequestMinigame:InvokeServer(-0.5718742609, 0.5, workspace:GetServerTimeNow())
+    end)
 end
 
 local function DoFinish()
@@ -450,7 +456,7 @@ local function DoFinish()
     end)
 end
 
--- V1: safer
+-- V1 (aman)
 Safety.SafeLoop(0.2, function()
     if not _G.RAY_Fish_Auto then return end
     DoCast()
@@ -459,7 +465,7 @@ Safety.SafeLoop(0.2, function()
     Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
 end)
 
--- V2: faster
+-- V2 (lebih cepat)
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_Fish_AutoV2 then return end
     DoCast()
