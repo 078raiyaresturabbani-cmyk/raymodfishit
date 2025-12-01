@@ -1,9 +1,12 @@
--- RAYMOD FISHIT V1 | GUI + SAFETY LAYER
+-- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FARM CORE
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIS = game:GetService("UserInputService")
 
--- ===== SAFETY MODULE (RANDOM DELAY / SAFE LOOP) =====
+-- ===== SAFETY MODULE =====
+
 local Safety = {}
 
 function Safety.HumanWait(min, max)
@@ -36,7 +39,6 @@ gui.Name = "RAYMOD_FISHIT_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = plr:WaitForChild("PlayerGui")
 
--- MAIN WINDOW
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 640, 0, 360)
 main.Position = UDim2.new(0.5, -320, 0.5, -180)
@@ -54,7 +56,6 @@ do
     stroke.Thickness = 2
 end
 
--- TOPBAR
 local top = Instance.new("Frame")
 top.Size = UDim2.new(1, 0, 0, 34)
 top.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
@@ -109,7 +110,6 @@ mini.MouseButton1Click:Connect(function()
     mini.Text = minimized and "+" or "-"
 end)
 
--- SIDEBAR
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0, 150, 1, -16)
 sidebar.Position = UDim2.new(0, 10, 0, 8)
@@ -133,7 +133,6 @@ sideHeader.Font = Enum.Font.GothamBold
 sideHeader.TextSize = 14
 sideHeader.Parent = sidebar
 
--- PAGE HOLDER
 local pageHolder = Instance.new("Frame")
 pageHolder.Size = UDim2.new(1, -180, 1, -16)
 pageHolder.Position = UDim2.new(0, 170, 0, 8)
@@ -303,7 +302,100 @@ local function AddToggle(parent, label, default, callback)
     return function() return state end
 end
 
--- ===== GLOBAL FLAGS (SEMUA FITUR) =====
+local function AddSlider(parent, label, min, max, default, callback)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -4, 0, 34)
+    row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    row.BorderSizePixel = 0
+    row.Parent = parent
+    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0.6, -10, 1, 0)
+    lbl.Position = UDim2.new(0, 10, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = label
+    lbl.TextColor3 = Color3.fromRGB(220, 225, 255)
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 13
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = row
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Size = UDim2.new(0.4, -10, 1, 0)
+    valueLabel.Position = UDim2.new(0.6, 0, 0, 0)
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.Parent = row
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, -20, 0, 4)
+    bar.Position = UDim2.new(0, 10, 1, -10)
+    bar.BackgroundColor3 = Color3.fromRGB(70, 72, 110)
+    bar.BorderSizePixel = 0
+    bar.Parent = row
+    Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 10, 0, 10)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 80, 170)
+    knob.BorderSizePixel = 0
+    knob.Parent = bar
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+    local current = default or min
+    local function apply(v)
+        current = math.clamp(v, min, max)
+        local alpha = (max == min) and 0 or (current - min) / (max - min)
+        knob.Position = UDim2.new(alpha, -5, 0.5, -5)
+        valueLabel.Text = string.format("%.2f s", current)
+        if callback then task.spawn(callback, current) end
+    end
+
+    apply(current)
+
+    local dragging = false
+
+    local function updateFromInput(input)
+        local relX = (input.Position.X - bar.AbsolutePosition.X)
+        local alpha = math.clamp(relX / bar.AbsoluteSize.X, 0, 1)
+        local v = min + (max - min) * alpha
+        apply(v)
+    end
+
+    knob.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateFromInput(input)
+        end
+    end)
+
+    knob.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            updateFromInput(input)
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if not dragging then return end
+        if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
+        updateFromInput(input)
+    end)
+
+    return function() return current end
+end
+
+-- ===== GLOBAL FLAGS =====
 _G.RAY_Fish_Auto    = false
 _G.RAY_AutoEquipRod = false
 _G.RAY_AutoSell     = false
@@ -312,38 +404,63 @@ _G.RAY_InfJump      = false
 _G.RAY_Fullbright   = false
 _G.RAY_EnableWalk   = false
 _G.RAY_WalkSpeed    = 16
+_G.RAY_FreezePos    = false
+_G.RAY_FreezeSet    = false
+_G.RAY_FreezeCFrame = nil
 
--- ===== GUI LAYOUT (LINK TO FLAGS) =====
+_G.RAY_DelayCast   = 0.05
+_G.RAY_DelayFinish = 0.10
 
--- Fishing
+-- ===== GUI LAYOUT =====
+
 AddSection(pageFishing, "Auto Fishing Status", "Control auto fish & delay")
 AddToggle(pageFishing, "Auto Fish", false, function(v) _G.RAY_Fish_Auto = v end)
 AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
+AddSlider(pageFishing, "Delay Cast", 0, 0.5, _G.RAY_DelayCast, function(v)
+    _G.RAY_DelayCast = v
+end)
+AddSlider(pageFishing, "Delay Finish", 0, 0.5, _G.RAY_DelayFinish, function(v)
+    _G.RAY_DelayFinish = v
+end)
 
--- Backpack
 AddSection(pageBackpack, "Auto Sell Features", "Manage auto sell behaviour")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
--- Teleport
 AddSection(pageTeleport, "Teleport Core", "Players / islands / events")
 AddToggle(pageTeleport, "Teleport To Event", false, function(v) _G.RAY_TP_Event = v end)
 
--- Misc
 AddSection(pageMisc, "Utility Player", "Walkspeed, jumps, visuals")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump", false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright", false, function(v) _G.RAY_Fullbright = v end)
+AddToggle(pageMisc, "Freeze Position", false, function(v) _G.RAY_FreezePos = v end)
 
--- ===== SAFETY LOOPS (MASIH PSEUDO, TINGGAL ISI LOGIC GAME) =====
+-- ===== AUTO FARM CORE (ISI REMOTE SENDIRI) =====
 
--- Auto Fish
+local function DoCast()
+    -- TODO: isi dengan RemoteEvent / Function cast dari Fish It
+    -- contoh:
+    -- ReplicatedStorage.Remotes.Cast:FireServer()
+end
+
+local function DoFinish()
+    -- TODO: isi dengan RemoteEvent / Function complete dari Fish It
+    -- contoh:
+    -- ReplicatedStorage.Remotes.Complete:FireServer()
+end
+
 Safety.SafeLoop(0.2, function()
     if not _G.RAY_Fish_Auto then return end
-    -- TODO: panggil fungsi Auto Fish kamu di sini (cast + complete)
-    Safety.HumanWait(0.7, 1.4)
+
+    DoCast()
+    Safety.HumanWait(_G.RAY_DelayCast, _G.RAY_DelayCast + 0.03)
+
+    DoFinish()
+    Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
 end)
 
--- Auto Sell
+-- ===== AUTO SELL (KERANGKA) =====
+
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
     if not _G.RAY_AutoSell then
@@ -358,11 +475,12 @@ Safety.SafeLoop(1.0, function()
         return
     end
 
-    -- TODO: panggil fungsi jual semua backpack di sini
+    -- TODO: isi Remote jual semua backpack di sini
     Safety.HumanWait(2.0, 4.0)
 end)
 
--- Walkspeed + Utility
+-- ===== WALK / FREEZE / MISC =====
+
 Safety.SafeLoop(0.1, function()
     local char = plr.Character
     if not char then return end
@@ -378,7 +496,27 @@ Safety.SafeLoop(0.1, function()
     end
 end)
 
--- Infinite Jump
+Safety.SafeLoop(0.05, function()
+    local char = plr.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    if _G.RAY_FreezePos then
+        if not _G.RAY_FreezeSet then
+            _G.RAY_FreezeCFrame = hrp.CFrame
+            _G.RAY_FreezeSet = true
+        end
+        hrp.Anchored = true
+        hrp.CFrame = _G.RAY_FreezeCFrame
+    else
+        if _G.RAY_FreezeSet then
+            hrp.Anchored = false
+            _G.RAY_FreezeSet = false
+        end
+    end
+end)
+
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_InfJump then return end
     local char = plr.Character
@@ -389,14 +527,10 @@ Safety.SafeLoop(0.05, function()
     end
 end)
 
--- Fullbright (simple)
 Safety.SafeLoop(1.0, function()
-    if not _G.RAY_Fullbright then
-        return
-    end
+    if not _G.RAY_Fullbright then return end
     local lighting = game:GetService("Lighting")
     lighting.Brightness = 2
     lighting.ClockTime = 14
     lighting.FogEnd = 1e5
 end)
-
