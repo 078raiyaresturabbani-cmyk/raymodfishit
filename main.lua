@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + LOGO MINIMIZE
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + LOGO MINIMIZE (STABLE)
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -61,7 +61,8 @@ logoButton.Position = UDim2.new(0, 10, 1, -58) -- kiri bawah; ubah kalau mau
 logoButton.BackgroundTransparency = 1
 logoButton.Visible = false
 logoButton.ZIndex = 999
-logoButton.Image = "rbxassetid://131638212929753"
+-- pakai icon Roblox yang pasti valid; nanti bisa ganti ke logo sendiri
+logoButton.Image = "rbxassetid://6031071053"  -- [web:583][web:575]
 logoButton.Parent = gui
 
 local main = Instance.new("Frame")
@@ -666,4 +667,4 @@ Safety.SafeLoop(1.0, function()
     lighting.FogEnd = 1e5
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (logo minimize).")
+Notify("RAYMOD FISHIT V2 loaded (logo minimize stable).")
