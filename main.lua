@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FISH V1/V2 (TEXTBOX DELAY)
+-- RAYMOD FISHIT V1 | FULL GUI + AUTO FISH V1/V2 (TEXTBOX DELAY)
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -6,7 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 
--- ===== SAFETY MODULE =====
+-- ===== SAFETY =====
 
 local Safety = {}
 
@@ -28,8 +28,6 @@ function Safety.SafeLoop(step, fn)
     end)
 end
 
-_G.RAY_Safety = Safety
-
 local function Notify(msg)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
@@ -40,7 +38,9 @@ local function Notify(msg)
     end)
 end
 
--- ===== GUI SETUP =====
+_G.RAY_Safety = Safety
+
+-- ===== GUI BASE =====
 
 local old = plr.PlayerGui:FindFirstChild("RAYMOD_FISHIT_GUI")
 if old then old:Destroy() end
@@ -196,13 +196,10 @@ local function CreateTabButton(text, pageName)
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-    btn.MouseButton1Click:Connect(function()
-        SwitchPage(pageName)
-    end)
+    btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
 end
 
--- PAGES
+-- pages
 local pageInfo      = CreatePage("Info")
 local pageFishing   = CreatePage("Fishing")
 local pageShop      = CreatePage("Shop")
@@ -223,7 +220,7 @@ CreateTabButton("│ Misc",      "Misc")
 
 SwitchPage("Fishing")
 
--- ===== COMPONENT BUILDERS =====
+-- ===== COMPONENT HELPERS =====
 
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
@@ -354,9 +351,7 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
             box.Text = tostring(defaultValue)
             return
         end
-        if onChange then
-            onChange(num)
-        end
+        if onChange then onChange(num) end
     end)
 end
 
@@ -376,12 +371,12 @@ _G.RAY_FreezeCFrame   = nil
 
 _G.RAY_Fish_AutoV2    = false
 
-_G.RAY_DelayCast      = 0.05
-_G.RAY_DelayFinish    = 0.10
-_G.RAY_DelayCast_V2   = 0.00
-_G.RAY_DelayFinish_V2 = 0.10
+_G.RAY_DelayCast      = 0.2
+_G.RAY_DelayFinish    = 0.8
+_G.RAY_DelayCast_V2   = 0.05
+_G.RAY_DelayFinish_V2 = 0.2
 
--- ===== FISH IT REMOTES (DARI SIMPLESPY) =====
+-- ===== FISH IT REMOTES =====
 
 local Net = ReplicatedStorage
     :WaitForChild("Packages")
@@ -389,17 +384,15 @@ local Net = ReplicatedStorage
     :WaitForChild("sleitnick_net@0.2.0")
     :WaitForChild("net")
 
-local RF_UpdateAutoFishingState = Net:WaitForChild("RF/UpdateAutoFishingState")
-local RE_EquipToolFromHotbar    = Net:WaitForChild("RE/EquipToolFromHotbar")
-local RF_ChargeFishingRod       = Net:WaitForChild("RF/ChargeFishingRod")
-local RE_FishingCompleted       = Net:WaitForChild("RE/FishingCompleted")
+local RF_ChargeFishingRod      = Net:WaitForChild("RF/ChargeFishingRod")
+local RE_FishingCompleted      = Net:WaitForChild("RE/FishingCompleted")
+local RE_EquipToolFromHotbar   = Net:WaitForChild("RE/EquipToolFromHotbar")
+local RF_SellAllItems          = Net:FindFirstChild("RF/SellAllItems")
 
--- ===== GUI LAYOUT: FISHING =====
+-- ===== GUI: FISHING TAB =====
 
-AddSection(pageFishing, "Auto Fishing V1", "Automatic fishing with delay")
-AddToggle(pageFishing, "Auto Fish V1", false, function(v)
-    _G.RAY_Fish_Auto = v
-end)
+AddSection(pageFishing, "Auto Fishing V1", "Legit auto fish with delay")
+AddToggle(pageFishing, "Auto Fish V1", false, function(v) _G.RAY_Fish_Auto = v end)
 
 AddDelayBox(pageFishing, "Delay Cast V1 (s)", _G.RAY_DelayCast, function(v)
     _G.RAY_DelayCast = v
@@ -409,14 +402,10 @@ AddDelayBox(pageFishing, "Delay Complete V1 (s)", _G.RAY_DelayFinish, function(v
     _G.RAY_DelayFinish = v
 end)
 
-AddToggle(pageFishing, "Auto Equip Rod", false, function(v)
-    _G.RAY_AutoEquipRod = v
-end)
+AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
 
 AddSection(pageFishing, "Auto Fishing V2", "Blatant / fast mode")
-AddToggle(pageFishing, "Auto Fish V2", false, function(v)
-    _G.RAY_Fish_AutoV2 = v
-end)
+AddToggle(pageFishing, "Auto Fish V2", false, function(v) _G.RAY_Fish_AutoV2 = v end)
 
 AddDelayBox(pageFishing, "Delay Cast V2 (s)", _G.RAY_DelayCast_V2, function(v)
     _G.RAY_DelayCast_V2 = v
@@ -426,28 +415,24 @@ AddDelayBox(pageFishing, "Delay Complete V2 (s)", _G.RAY_DelayFinish_V2, functio
     _G.RAY_DelayFinish_V2 = v
 end)
 
--- ===== GUI LAYOUT: BACKPACK / TELEPORT / MISC =====
+-- BACKPACK / MISC
 
-AddSection(pageBackpack, "Auto Sell Features", "Manage auto sell behaviour")
+local pageBackpack = Pages["Backpack"]
+local pageTeleport = Pages["Teleport"]
+local pageMisc     = Pages["Misc"]
+
+AddSection(pageBackpack, "Auto Sell", "Sell backpack contents")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
-AddSection(pageTeleport, "Teleport Core", "Players / islands / events")
-AddToggle(pageTeleport, "Teleport To Event", false, function(v) _G.RAY_TP_Event = v end)
-
-AddSection(pageMisc, "Utility Player", "Walkspeed, jumps, visuals")
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
-AddToggle(pageMisc, "Infinite Jump", false, function(v) _G.RAY_InfJump = v end)
-AddToggle(pageMisc, "Fullbright", false, function(v) _G.RAY_Fullbright = v end)
-AddToggle(pageMisc, "Freeze Position", false, function(v) _G.RAY_FreezePos = v end)
+AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
+AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
+AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
 
--- ===== AUTO FISHING IMPLEMENTATION =====
+-- ===== AUTO FISH CORE =====
 
 local function DoCast()
-    -- matikan auto fishing bawaan, pakai versi RAYMOD
-    pcall(function()
-        RF_UpdateAutoFishingState:InvokeServer(false)
-    end)
-
     if _G.RAY_AutoEquipRod then
         pcall(function()
             RE_EquipToolFromHotbar:FireServer(1)
@@ -465,29 +450,25 @@ local function DoFinish()
     end)
 end
 
--- V1: aman
+-- V1: safer
 Safety.SafeLoop(0.2, function()
     if not _G.RAY_Fish_Auto then return end
-
     DoCast()
     Safety.HumanWait(_G.RAY_DelayCast, _G.RAY_DelayCast + 0.03)
-
     DoFinish()
     Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
 end)
 
--- V2: blatantly cepat
+-- V2: faster
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_Fish_AutoV2 then return end
-
     DoCast()
     Safety.HumanWait(_G.RAY_DelayCast_V2, _G.RAY_DelayCast_V2 + 0.01)
-
     DoFinish()
     Safety.HumanWait(_G.RAY_DelayFinish_V2, _G.RAY_DelayFinish_V2 + 0.02)
 end)
 
--- ===== AUTO SELL (KERANGKA, REMOTE SUDAH ADA) =====
+-- ===== AUTO SELL =====
 
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
@@ -499,14 +480,15 @@ Safety.SafeLoop(1.0, function()
     sellCount += 1
     if sellCount > 50 then
         _G.RAY_AutoSell = false
-        warn("RAYMOD: AutoSell safety off")
-        Notify("AutoSell dimatikan (safety limit).")
+        Notify("AutoSell dimatikan (safety).")
         return
     end
 
-    pcall(function()
-        Net:WaitForChild("RF/SellAllItems"):InvokeServer()
-    end)
+    if RF_SellAllItems then
+        pcall(function()
+            RF_SellAllItems:InvokeServer()
+        end)
+    end
 
     Safety.HumanWait(2.0, 4.0)
 end)
