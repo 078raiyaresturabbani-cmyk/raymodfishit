@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + AUTO FAVORITE + GPU SAVER
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -369,6 +369,10 @@ _G.RAY_DelayFinish    = 0.2   -- CatchDelay normal
 _G.RAY_DelayCast_V2   = 0.9   -- FishDelay blatant
 _G.RAY_DelayFinish_V2 = 0.2   -- CatchDelay blatant
 
+_G.RAY_AutoFavorite   = false
+_G.RAY_FavoriteRarity = "Mythic"
+_G.RAY_GpuSaver       = false
+
 -- ===== NETWORK EVENTS (ENGINE V4) =====
 
 local Net = ReplicatedStorage
@@ -378,13 +382,14 @@ local Net = ReplicatedStorage
     :WaitForChild("net")
 
 local Events = {
-    fishing = Net:WaitForChild("RE/FishingCompleted"),
-    sell    = Net:WaitForChild("RF/SellAllItems"),
-    charge  = Net:WaitForChild("RF/ChargeFishingRod"),
-    minigame= Net:WaitForChild("RF/RequestFishingMinigameStarted"),
-    cancel  = Net:WaitForChild("RF/CancelFishingInputs"),
-    equip   = Net:WaitForChild("RE/EquipToolFromHotbar"),
-    unequip = Net:WaitForChild("RE/UnequipToolFromHotbar"),
+    fishing  = Net:WaitForChild("RE/FishingCompleted"),
+    sell     = Net:WaitForChild("RF/SellAllItems"),
+    charge   = Net:WaitForChild("RF/ChargeFishingRod"),
+    minigame = Net:WaitForChild("RF/RequestFishingMinigameStarted"),
+    cancel   = Net:WaitForChild("RF/CancelFishingInputs"),
+    equip    = Net:WaitForChild("RE/EquipToolFromHotbar"),
+    unequip  = Net:WaitForChild("RE/UnequipToolFromHotbar"),
+    favorite = Net:WaitForChild("RE/FavoriteItem"),
 }
 
 -- ===== TELEPORT LOCATIONS =====
@@ -419,6 +424,155 @@ local function TeleportTo(name)
     hrp.CFrame = cf
 end
 
+-- ===== AUTO FAVORITE (MYTHIC / SECRET) =====
+
+local ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+local Replion = require(ReplicatedStorage.Packages.Replion)
+local PlayerData = Replion.Client:WaitReplion("Data")
+
+local RarityTiers = {
+    Common = 1,
+    Uncommon = 2,
+    Rare = 3,
+    Epic = 4,
+    Legendary = 5,
+    Mythic = 6,
+    Secret = 7
+}
+
+local function getRarityValue(rarity)
+    return RarityTiers[rarity] or 0
+end
+
+local function getFishRarity(itemData)
+    if not itemData or not itemData.Data then return "Common" end
+    return itemData.Data.Rarity or "Common"
+end
+
+local favoritedItems = {}
+
+local function isItemFavorited(uuid)
+    local success, result = pcall(function()
+        local items = PlayerData:GetExpect("Inventory").Items
+        for _, item in ipairs(items) do
+            if item.UUID == uuid then
+                return item.Favorited == true
+            end
+        end
+        return false
+    end)
+    return success and result or false
+end
+
+local function autoFavoriteByRarity()
+    if not _G.RAY_AutoFavorite then return end
+
+    local targetRarity = _G.RAY_FavoriteRarity
+    local targetValue = getRarityValue(targetRarity)
+    if targetValue < 6 then
+        targetValue = 6 -- minimal Mythic
+    end
+
+    local favorited = 0
+
+    pcall(function()
+        local items = PlayerData:GetExpect("Inventory").Items
+        if not items or #items == 0 then return end
+
+        for _, item in ipairs(items) do
+            local data = ItemUtility:GetItemData(item.Id)
+            if data and data.Data then
+                local rarity = getFishRarity(data)
+                local rarityValue = getRarityValue(rarity)
+                if rarityValue >= targetValue and rarityValue >= 6 then
+                    if not isItemFavorited(item.UUID) and not favoritedItems[item.UUID] then
+                        Events.favorite:FireServer(item.UUID)
+                        favoritedItems[item.UUID] = true
+                        favorited += 1
+                        task.wait(0.3)
+                    end
+                end
+            end
+        end
+    end)
+
+    if favorited > 0 then
+        Notify("Auto Favorite: "..favorited.." item.")
+    end
+end
+
+Safety.SafeLoop(10, function()
+    if _G.RAY_AutoFavorite then
+        autoFavoriteByRarity()
+    end
+end)
+
+-- ===== GPU SAVER =====
+
+local gpuActive = false
+local whiteScreenGui = nil
+
+local function enableGPU()
+    if gpuActive then return end
+    gpuActive = true
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        game.Lighting.GlobalShadows = false
+        game.Lighting.FogEnd = 1
+        if setfpscap then setfpscap(8) end
+    end)
+
+    whiteScreenGui = Instance.new("ScreenGui")
+    whiteScreenGui.ResetOnSpawn = false
+    whiteScreenGui.DisplayOrder = 999999
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    frame.Parent = whiteScreenGui
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 400, 0, 100)
+    label.Position = UDim2.new(0.5, -200, 0.5, -50)
+    label.BackgroundTransparency = 1
+    label.Text = "GPU SAVER ACTIVE\nAuto Fish Running..."
+    label.TextColor3 = Color3.new(0, 1, 0)
+    label.TextSize = 24
+    label.Font = Enum.Font.GothamBold
+    label.TextXAlignment = Enum.TextXAlignment.Center
+    label.Parent = frame
+
+    whiteScreenGui.Parent = game.CoreGui
+end
+
+local function disableGPU()
+    if not gpuActive then return end
+    gpuActive = false
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        game.Lighting.GlobalShadows = true
+        game.Lighting.FogEnd = 100000
+        if setfpscap then setfpscap(0) end
+    end)
+    if whiteScreenGui then
+        whiteScreenGui:Destroy()
+        whiteScreenGui = nil
+    end
+end
+
+Safety.SafeLoop(0.5, function()
+    if _G.RAY_GpuSaver then
+        if not gpuActive then enableGPU() end
+    else
+        if gpuActive then disableGPU() end
+    end
+end)
+
+-- ===== GUI: INFO =====
+
+AddSection(pageInfo, "RAYMOD FISHIT V2", "Instant Catch Engine + Teleport + Auto Sell + Auto Favorite + GPU Saver")
+-- (bisa tambah paragraph info pakai TextLabel kalau mau)
+
 -- ===== GUI: FISHING TAB =====
 
 AddSection(pageFishing, "Legit Auto Fishing (V1)", "Pola normal, aman, delay diatur")
@@ -444,13 +598,21 @@ end)
 AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
 AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v) _G.RAY_AutoCatch = v end)
 
--- ===== GUI: BACKPACK / AUTO SELL =====
+-- ===== GUI: BACKPACK / AUTO SELL / FAVORITE =====
 
-AddSection(pageBackpack, "Auto Sell", "Sell semua (favorit aman kalau pakai hub lain)")
+AddSection(pageBackpack, "Auto Sell", "Sell semua (favorit tetap aman)")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
 AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
     _G.RAY_SellDelay = v
+end)
+
+AddSection(pageBackpack, "Auto Favorite", "Mark Mythic/Secret sebagai favorit")
+AddToggle(pageBackpack, "Auto Favorite Mythic/Secret", false, function(v)
+    _G.RAY_AutoFavorite = v
+end)
+AddToggle(pageBackpack, "Target Secret Only", false, function(v)
+    _G.RAY_FavoriteRarity = v and "Secret" or "Mythic"
 end)
 
 -- ===== GUI: TELEPORT =====
@@ -473,11 +635,12 @@ end
 
 -- ===== GUI: MISC =====
 
-AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright")
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, GPU saver")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
+AddToggle(pageMisc, "GPU Saver Mode",   false, function(v) _G.RAY_GpuSaver = v end)
 
 -- ===== ENGINE AUTO FISH (DARI V4) =====
 
@@ -585,7 +748,7 @@ Safety.SafeLoop(1.0, function()
         end)
     end
 
-    Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
+    Safety.HumanWait(math.max(1, _G.RAY_SellDelay - 1), _G.RAY_SellDelay + 1)
 end)
 
 -- ===== WALK / FREEZE / VISUAL =====
@@ -644,4 +807,4 @@ Safety.SafeLoop(1.0, function()
     lighting.FogEnd = 1e5
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (engine V4).")
+Notify("RAYMOD FISHIT V2 loaded (full features).")
