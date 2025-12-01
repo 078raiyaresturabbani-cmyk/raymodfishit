@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V1 | FULL GUI + AUTO FISH V1/V2 (TEXTBOX DELAY)
+-- RAYMOD FISHIT V1 | FULL GUI + AUTO FISH SIKLUS BENAR
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -9,13 +9,11 @@ local StarterGui = game:GetService("StarterGui")
 -- ===== SAFETY =====
 
 local Safety = {}
-
 function Safety.HumanWait(min, max)
     local r = math.random()
     local t = min + (max - min) * r
     task.wait(t)
 end
-
 function Safety.SafeLoop(step, fn)
     task.spawn(function()
         while task.wait(step) do
@@ -27,7 +25,6 @@ function Safety.SafeLoop(step, fn)
         end
     end)
 end
-
 local function Notify(msg)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
@@ -37,7 +34,6 @@ local function Notify(msg)
         })
     end)
 end
-
 _G.RAY_Safety = Safety
 
 -- ===== GUI BASE =====
@@ -58,7 +54,6 @@ main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.Parent = gui
-
 do
     local corner = Instance.new("UICorner", main)
     corner.CornerRadius = UDim.new(0, 14)
@@ -107,7 +102,6 @@ mini.Font = Enum.Font.GothamBold
 mini.TextSize = 18
 mini.Parent = top
 Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 6)
-
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1, 0, 1, -34)
 content.Position = UDim2.new(0, 0, 0, 34)
@@ -153,7 +147,6 @@ pageHolder.Parent = content
 Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
 
 local Pages = {}
-
 local function CreatePage(name)
     local Page = Instance.new("ScrollingFrame")
     Page.Name = name
@@ -165,17 +158,14 @@ local function CreatePage(name)
     Page.CanvasSize = UDim2.new(0,0,0,0)
     Page.Visible = false
     Page.Parent = pageHolder
-
     local layout = Instance.new("UIListLayout", Page)
     layout.Padding = UDim.new(0, 6)
     layout.FillDirection = Enum.FillDirection.Vertical
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
-
     Pages[name] = Page
     return Page
 end
-
 local function SwitchPage(name)
     for _,p in pairs(Pages) do
         p.Visible = false
@@ -184,7 +174,6 @@ local function SwitchPage(name)
         Pages[name].Visible = true
     end
 end
-
 local function CreateTabButton(text, pageName)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -20, 0, 28)
@@ -207,7 +196,6 @@ local pageTeleport  = CreatePage("Teleport")
 local pageQuest     = CreatePage("Quest")
 local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
-
 CreateTabButton("│ Info",      "Info")
 CreateTabButton("│ Fishing",   "Fishing")
 CreateTabButton("│ Shop",      "Shop")
@@ -216,11 +204,9 @@ CreateTabButton("│ Teleport",  "Teleport")
 CreateTabButton("│ Quest",     "Quest")
 CreateTabButton("│ Boat",      "Boat")
 CreateTabButton("│ Misc",      "Misc")
-
 SwitchPage("Fishing")
 
--- ===== COMPONENT HELPERS =====
-
+-- ===== GUI COMPONENTS =====
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
@@ -342,7 +328,6 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
 
     box.Text = tostring(defaultValue)
-
     box.FocusLost:Connect(function(enter)
         if not enter then return end
         local num = tonumber(box.Text)
@@ -370,8 +355,8 @@ _G.RAY_FreezeCFrame   = nil
 
 _G.RAY_Fish_AutoV2    = false
 
-_G.RAY_DelayCast      = 0.2
-_G.RAY_DelayFinish    = 0.8
+_G.RAY_DelayCast      = 0.3
+_G.RAY_DelayFinish    = 1.2
 _G.RAY_DelayCast_V2   = 0.05
 _G.RAY_DelayFinish_V2 = 0.2
 
@@ -417,7 +402,6 @@ AddDelayBox(pageFishing, "Delay Complete V2 (s)", _G.RAY_DelayFinish_V2, functio
 end)
 
 -- BACKPACK / MISC
-
 AddSection(pageBackpack, "Auto Sell", "Sell backpack contents")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
@@ -427,25 +411,22 @@ AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v en
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
 
--- ===== AUTO FISH CORE =====
+-- ===== AUTO FISH CORE (URUTAN BENAR) =====
 
 local function DoCast()
-    -- matikan auto fish bawaan tiap siklus
     pcall(function()
         RF_UpdateAutoFishingState:InvokeServer(false)
     end)
-
     if _G.RAY_AutoEquipRod then
         pcall(function()
             RE_EquipToolFromHotbar:FireServer(1)
         end)
     end
-
     pcall(function()
         RF_ChargeFishingRod:InvokeServer()
     end)
-
     pcall(function()
+        -- argumen pertama bisa diacak sekitar -0.4 s.d. -0.7 kalau pengen variasi
         RF_RequestMinigame:InvokeServer(-0.5718742609, 0.5, workspace:GetServerTimeNow())
     end)
 end
@@ -456,7 +437,6 @@ local function DoFinish()
     end)
 end
 
--- V1 (aman)
 Safety.SafeLoop(0.2, function()
     if not _G.RAY_Fish_Auto then return end
     DoCast()
@@ -464,8 +444,6 @@ Safety.SafeLoop(0.2, function()
     DoFinish()
     Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
 end)
-
--- V2 (lebih cepat)
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_Fish_AutoV2 then return end
     DoCast()
@@ -474,7 +452,7 @@ Safety.SafeLoop(0.05, function()
     Safety.HumanWait(_G.RAY_DelayFinish_V2, _G.RAY_DelayFinish_V2 + 0.02)
 end)
 
--- ===== AUTO SELL =====
+-- ===== AUTO SELL, WALK, FREEZE, DLL tetap =====
 
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
@@ -482,31 +460,24 @@ Safety.SafeLoop(1.0, function()
         sellCount = 0
         return
     end
-
     sellCount += 1
     if sellCount > 50 then
         _G.RAY_AutoSell = false
         Notify("AutoSell dimatikan (safety).")
         return
     end
-
     if RF_SellAllItems then
         pcall(function()
             RF_SellAllItems:InvokeServer()
         end)
     end
-
     Safety.HumanWait(2.0, 4.0)
 end)
-
--- ===== WALK / FREEZE / MISC =====
-
 Safety.SafeLoop(0.1, function()
     local char = plr.Character
     if not char then return end
     local hum = char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
-
     if _G.RAY_EnableWalk then
         local base = _G.RAY_WalkSpeed
         local jitter = math.random(-1, 1)
@@ -515,13 +486,11 @@ Safety.SafeLoop(0.1, function()
         hum.WalkSpeed = 16
     end
 end)
-
 Safety.SafeLoop(0.05, function()
     local char = plr.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     if _G.RAY_FreezePos then
         if not _G.RAY_FreezeSet then
             _G.RAY_FreezeCFrame = hrp.CFrame
@@ -536,7 +505,6 @@ Safety.SafeLoop(0.05, function()
         end
     end
 end)
-
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_InfJump then return end
     local char = plr.Character
@@ -546,7 +514,6 @@ Safety.SafeLoop(0.05, function()
         hum:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
-
 Safety.SafeLoop(1.0, function()
     if not _G.RAY_Fullbright then return end
     local lighting = game:GetService("Lighting")
