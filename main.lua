@@ -1,9 +1,10 @@
--- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FARM V1 & V2 (TEXTBOX DELAY)
+-- RAYMOD FISHIT V1 | FULL GUI + SAFETY + AUTO FISH V1/V2 (TEXTBOX DELAY)
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 
 -- ===== SAFETY MODULE =====
 
@@ -28,6 +29,16 @@ function Safety.SafeLoop(step, fn)
 end
 
 _G.RAY_Safety = Safety
+
+local function Notify(msg)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "RAYMOD FISHIT",
+            Text = msg,
+            Duration = 3
+        })
+    end)
+end
 
 -- ===== GUI SETUP =====
 
@@ -370,10 +381,25 @@ _G.RAY_DelayFinish    = 0.10
 _G.RAY_DelayCast_V2   = 0.00
 _G.RAY_DelayFinish_V2 = 0.10
 
+-- ===== FISH IT REMOTES (DARI SIMPLESPY) =====
+
+local Net = ReplicatedStorage
+    :WaitForChild("Packages")
+    :WaitForChild("_Index")
+    :WaitForChild("sleitnick_net@0.2.0")
+    :WaitForChild("net")
+
+local RF_UpdateAutoFishingState = Net:WaitForChild("RF/UpdateAutoFishingState")
+local RE_EquipToolFromHotbar    = Net:WaitForChild("RE/EquipToolFromHotbar")
+local RF_ChargeFishingRod       = Net:WaitForChild("RF/ChargeFishingRod")
+local RE_FishingCompleted       = Net:WaitForChild("RE/FishingCompleted")
+
 -- ===== GUI LAYOUT: FISHING =====
 
-AddSection(pageFishing, "Auto Fishing V1", "Automatic fishing with safety")
-AddToggle(pageFishing, "Auto Fish V1", false, function(v) _G.RAY_Fish_Auto = v end)
+AddSection(pageFishing, "Auto Fishing V1", "Automatic fishing with delay")
+AddToggle(pageFishing, "Auto Fish V1", false, function(v)
+    _G.RAY_Fish_Auto = v
+end)
 
 AddDelayBox(pageFishing, "Delay Cast V1 (s)", _G.RAY_DelayCast, function(v)
     _G.RAY_DelayCast = v
@@ -383,10 +409,14 @@ AddDelayBox(pageFishing, "Delay Complete V1 (s)", _G.RAY_DelayFinish, function(v
     _G.RAY_DelayFinish = v
 end)
 
-AddToggle(pageFishing, "Auto Equip Rod", false, function(v) _G.RAY_AutoEquipRod = v end)
+AddToggle(pageFishing, "Auto Equip Rod", false, function(v)
+    _G.RAY_AutoEquipRod = v
+end)
 
 AddSection(pageFishing, "Auto Fishing V2", "Blatant / fast mode")
-AddToggle(pageFishing, "Auto Fish V2", false, function(v) _G.RAY_Fish_AutoV2 = v end)
+AddToggle(pageFishing, "Auto Fish V2", false, function(v)
+    _G.RAY_Fish_AutoV2 = v
+end)
 
 AddDelayBox(pageFishing, "Delay Cast V2 (s)", _G.RAY_DelayCast_V2, function(v)
     _G.RAY_DelayCast_V2 = v
@@ -410,39 +440,54 @@ AddToggle(pageMisc, "Infinite Jump", false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright", false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position", false, function(v) _G.RAY_FreezePos = v end)
 
--- ===== AUTO FARM CORE (ISI REMOTE SENDIRI) =====
+-- ===== AUTO FISHING IMPLEMENTATION =====
 
 local function DoCast()
-    -- TODO: isi dengan RemoteEvent / Function cast dari Fish It
-    -- contoh:
-    -- ReplicatedStorage.Remotes.Cast:FireServer()
+    -- matikan auto fishing bawaan, pakai versi RAYMOD
+    pcall(function()
+        RF_UpdateAutoFishingState:InvokeServer(false)
+    end)
+
+    if _G.RAY_AutoEquipRod then
+        pcall(function()
+            RE_EquipToolFromHotbar:FireServer(1)
+        end)
+    end
+
+    pcall(function()
+        RF_ChargeFishingRod:InvokeServer()
+    end)
 end
 
 local function DoFinish()
-    -- TODO: isi dengan RemoteEvent / Function complete dari Fish It
-    -- contoh:
-    -- ReplicatedStorage.Remotes.Complete:FireServer()
+    pcall(function()
+        RE_FishingCompleted:FireServer()
+    end)
 end
 
 -- V1: aman
 Safety.SafeLoop(0.2, function()
     if not _G.RAY_Fish_Auto then return end
+
     DoCast()
     Safety.HumanWait(_G.RAY_DelayCast, _G.RAY_DelayCast + 0.03)
+
     DoFinish()
     Safety.HumanWait(_G.RAY_DelayFinish, _G.RAY_DelayFinish + 0.05)
 end)
 
--- V2: blatant cepat
+-- V2: blatantly cepat
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_Fish_AutoV2 then return end
+
     DoCast()
     Safety.HumanWait(_G.RAY_DelayCast_V2, _G.RAY_DelayCast_V2 + 0.01)
+
     DoFinish()
     Safety.HumanWait(_G.RAY_DelayFinish_V2, _G.RAY_DelayFinish_V2 + 0.02)
 end)
 
--- ===== AUTO SELL (KERANGKA) =====
+-- ===== AUTO SELL (KERANGKA, REMOTE SUDAH ADA) =====
 
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
@@ -455,10 +500,14 @@ Safety.SafeLoop(1.0, function()
     if sellCount > 50 then
         _G.RAY_AutoSell = false
         warn("RAYMOD: AutoSell safety off")
+        Notify("AutoSell dimatikan (safety limit).")
         return
     end
 
-    -- TODO: isi Remote jual semua backpack di sini
+    pcall(function()
+        Net:WaitForChild("RF/SellAllItems"):InvokeServer()
+    end)
+
     Safety.HumanWait(2.0, 4.0)
 end)
 
@@ -517,3 +566,5 @@ Safety.SafeLoop(1.0, function()
     lighting.ClockTime = 14
     lighting.FogEnd = 1e5
 end)
+
+Notify("RAYMOD FISHIT V1 loaded.")
