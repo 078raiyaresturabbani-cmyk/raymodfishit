@@ -57,11 +57,11 @@ gui.Parent = plr:WaitForChild("PlayerGui")
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "RAYMOD_Logo"
 logoButton.Size = UDim2.new(0, 48, 0, 48)
-logoButton.Position = UDim2.new(0, 10, 1, -58) -- kiri bawah
+logoButton.Position = UDim2.new(0, 10, 1, -58) -- kiri bawah; ubah kalau mau
 logoButton.BackgroundTransparency = 1
 logoButton.Visible = false
 logoButton.ZIndex = 999
-logoButton.Image = "rbxassetid://111660163306314"
+logoButton.Image = "rbxassetid://131638212929753"
 logoButton.Parent = gui
 
 local main = Instance.new("Frame")
