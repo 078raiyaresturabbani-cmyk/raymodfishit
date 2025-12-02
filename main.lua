@@ -1,5 +1,5 @@
 -- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4
--- AUTO SAVE DELAY + REDUCE MAP + BOAT SPEED + ANTI AFK
+-- AUTO SAVE DELAY + REDUCE MAP + BOAT SPEED + HIDE NAME + ANTI AFK
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -193,7 +193,9 @@ local function CreateTabButton(text, pageName)
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
+    btn.MouseButton1Click:Connect(function()
+        SwitchPage(pageName)
+    end)
 end
 
 local pageFishing   = CreatePage("Fishing")
@@ -410,6 +412,8 @@ _G.RAY_ReduceRadius   = 150
 _G.RAY_BoatSpeedEnabled = false
 _G.RAY_BoatSpeedValue   = 120
 
+_G.RAY_HideName         = false
+
 -- ===== NETWORK EVENTS (ENGINE V4) =====
 
 local Net = ReplicatedStorage
@@ -531,7 +535,7 @@ end)
 
 -- ===== GUI: MISC =====
 
-AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, reduce map")
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, reduce map, hide name")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
@@ -543,6 +547,10 @@ end)
 
 AddDelayBox(pageMisc, "Reduce Map Radius", _G.RAY_ReduceRadius, function(v)
     _G.RAY_ReduceRadius = v
+end)
+
+AddToggle(pageMisc, "Hide Player Names", false, function(v)
+    _G.RAY_HideName = v
 end)
 
 -- ===== ENGINE AUTO FISH (V4) =====
@@ -786,4 +794,23 @@ RunService.Heartbeat:Connect(function()
     boat.PrimaryPart.AssemblyLinearVelocity = flat.Unit * speed
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (auto save + reduce map + boat speed).")
+-- ===== HIDE NAME ENGINE =====
+
+local function SetCharNameVisible(char, visible)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    hum.DisplayDistanceType = visible
+        and Enum.HumanoidDisplayDistanceType.Viewer
+        or  Enum.HumanoidDisplayDistanceType.None
+end
+
+Safety.SafeLoop(1.0, function()
+    for _, p in ipairs(Players:GetPlayers()) do
+        local char = p.Character
+        if char then
+            SetCharNameVisible(char, not _G.RAY_HideName)
+        end
+    end
+end)
+
+Notify("RAYMOD FISHIT V2 loaded (auto save + reduce map + boat speed + hide name).")
