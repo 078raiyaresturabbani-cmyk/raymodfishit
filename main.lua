@@ -1,4 +1,5 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + AUTO SAVE DELAY + REDUCE MAP
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4
+-- AUTO SAVE DELAY + REDUCE MAP + BOAT SPEED + ANTI AFK
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -7,6 +8,7 @@ local UIS = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local VirtualUser = game:GetService("VirtualUser")
 local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 
 -- ===== SAFETY =====
 
@@ -405,6 +407,9 @@ _G.RAY_FreezeCFrame   = nil
 _G.RAY_ReduceMap      = false
 _G.RAY_ReduceRadius   = 150
 
+_G.RAY_BoatSpeedEnabled = false
+_G.RAY_BoatSpeedValue   = 120
+
 -- ===== NETWORK EVENTS (ENGINE V4) =====
 
 local Net = ReplicatedStorage
@@ -512,6 +517,18 @@ for name, _ in pairs(LOCATIONS) do
     end)
 end
 
+-- ===== GUI: BOAT =====
+
+AddSection(pageBoat, "Boat Speed", "Boost kecepatan boat lokal")
+
+AddToggle(pageBoat, "Enable Boat Speed", false, function(v)
+    _G.RAY_BoatSpeedEnabled = v
+end)
+
+AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
+    _G.RAY_BoatSpeedValue = v
+end)
+
 -- ===== GUI: MISC =====
 
 AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, reduce map")
@@ -583,7 +600,7 @@ local function BlatantCycle_V2()
 
     task.wait(_G.RAY_DelayCast_V2)
 
-    for i = 1, 5 do
+    for _ = 1, 5 do
         pcall(function()
             Events.fishing:FireServer()
         end)
@@ -735,4 +752,38 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (auto save + reduce map).")
+-- ===== BOAT SPEED ENGINE =====
+
+local function GetBoatSeat()
+    local char = plr.Character
+    if not char then return nil end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return nil end
+
+    local seatPart = hum.SeatPart
+    if seatPart and seatPart:IsA("VehicleSeat") then
+        local model = seatPart:FindFirstAncestorOfClass("Model")
+        if model and model.PrimaryPart then
+            return seatPart, model
+        end
+    end
+    return nil
+end
+
+RunService.Heartbeat:Connect(function()
+    if not _G.RAY_BoatSpeedEnabled then return end
+
+    local seat, boat = GetBoatSeat()
+    if not (seat and boat and boat.PrimaryPart) then return end
+
+    local speed = _G.RAY_BoatSpeedValue or 120
+    if speed <= 0 then return end
+
+    local dir = seat.CFrame.LookVector
+    local flat = Vector3.new(dir.X, 0, dir.Z)
+    if flat.Magnitude < 0.01 then return end
+
+    boat.PrimaryPart.AssemblyLinearVelocity = flat.Unit * speed
+end)
+
+Notify("RAYMOD FISHIT V2 loaded (auto save + reduce map + boat speed).")
