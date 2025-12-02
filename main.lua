@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + AUTO SAVE DELAY
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + AUTO SAVE DELAY + REDUCE MAP
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -39,6 +39,7 @@ end
 _G.RAY_Safety = Safety
 
 -- ===== ANTI AFK =====
+
 plr.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
@@ -211,7 +212,7 @@ CreateTabButton("│ Misc",      "Misc")
 
 SwitchPage("Fishing")
 
--- ===== CONFIG AUTO SAVE =====
+-- ===== CONFIG AUTO SAVE (DELAY) =====
 
 local CFG_PATH = "raymod_fishit_config.json"
 
@@ -384,13 +385,15 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     end)
 end
 
--- ===== GLOBAL FLAGS (lain) =====
+-- ===== GLOBAL FLAGS LAIN =====
 
 _G.RAY_Fish_Auto      = false
 _G.RAY_Fish_AutoV2    = false
 _G.RAY_AutoCatch      = false
 _G.RAY_AutoSell       = false
+
 _G.RAY_TP_Location    = "Spawn"
+
 _G.RAY_InfJump        = false
 _G.RAY_Fullbright     = false
 _G.RAY_EnableWalk     = false
@@ -398,6 +401,9 @@ _G.RAY_WalkSpeed      = 16
 _G.RAY_FreezePos      = false
 _G.RAY_FreezeSet      = false
 _G.RAY_FreezeCFrame   = nil
+
+_G.RAY_ReduceMap      = false
+_G.RAY_ReduceRadius   = 150
 
 -- ===== NETWORK EVENTS (ENGINE V4) =====
 
@@ -508,13 +514,21 @@ end
 
 -- ===== GUI: MISC =====
 
-AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright")
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, reduce map")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
 
--- ===== ENGINE AUTO FISH (DARI V4) =====
+AddToggle(pageMisc, "Reduce Map (FPS)", false, function(v)
+    _G.RAY_ReduceMap = v
+end)
+
+AddDelayBox(pageMisc, "Reduce Map Radius", _G.RAY_ReduceRadius, function(v)
+    _G.RAY_ReduceRadius = v
+end)
+
+-- ===== ENGINE AUTO FISH (V4) =====
 
 local isFishing = false
 
@@ -589,6 +603,7 @@ Safety.SafeLoop(0.05, function()
 end)
 
 -- AUTO CATCH
+
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_AutoCatch then return end
     if isFishing then return end
@@ -679,4 +694,45 @@ Safety.SafeLoop(1.0, function()
     lighting.FogEnd = 1e5
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (auto save delay).")
+-- ===== REDUCE MAP ENGINE =====
+
+local function ShouldSkipPart(part)
+    if part:IsDescendantOf(plr.Character) then return true end
+    if part.Parent and part.Parent:IsA("Tool") then return true end
+    return false
+end
+
+Safety.SafeLoop(1.0, function()
+    if not _G.RAY_ReduceMap then
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.LocalTransparencyModifier = 0
+            end
+        end
+        return
+    end
+
+    local char = plr.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local radius = _G.RAY_ReduceRadius or 150
+
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and not ShouldSkipPart(obj) then
+            local ok, dist = pcall(function()
+                return (obj.Position - hrp.Position).Magnitude
+            end)
+            if ok then
+                if dist > radius then
+                    obj.LocalTransparencyModifier = 1
+                    obj.CanCollide = false
+                else
+                    obj.LocalTransparencyModifier = 0
+                end
+            end
+        end
+    end
+end)
+
+Notify("RAYMOD FISHIT V2 loaded (auto save + reduce map).")
