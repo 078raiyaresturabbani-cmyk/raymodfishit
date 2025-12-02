@@ -1,4 +1,4 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + LOGO MINIMIZE (PAKAI ID 131638212929753)
+-- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4 + AUTO SAVE DELAY
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local VirtualUser = game:GetService("VirtualUser")
+local HttpService = game:GetService("HttpService")
 
 -- ===== SAFETY =====
 
@@ -52,17 +53,6 @@ local gui = Instance.new("ScreenGui")
 gui.Name = "RAYMOD_FISHIT_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = plr:WaitForChild("PlayerGui")
-
--- LOGO BUTTON (tampil saat minimize)
-local logoButton = Instance.new("ImageButton")
-logoButton.Name = "RAYMOD_Logo"
-logoButton.Size = UDim2.new(0, 48, 0, 48)
-logoButton.Position = UDim2.new(1, -60, 0, 10) -- kanan atas biar jelas
-logoButton.BackgroundTransparency = 1
-logoButton.Visible = false
-logoButton.ZIndex = 999
-logoButton.Image = "rbxassetid://131638212929753"
-logoButton.Parent = gui
 
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 640, 0, 360)
@@ -130,19 +120,8 @@ content.Parent = main
 local minimized = false
 mini.MouseButton1Click:Connect(function()
     minimized = not minimized
-    if minimized then
-        main.Visible = false
-        logoButton.Visible = true
-    else
-        main.Visible = true
-        logoButton.Visible = false
-    end
-end)
-
-logoButton.MouseButton1Click:Connect(function()
-    minimized = false
-    main.Visible = true
-    logoButton.Visible = false
+    content.Visible = not minimized
+    mini.Text = minimized and "+" or "-"
 end)
 
 local sidebar = Instance.new("Frame")
@@ -231,6 +210,46 @@ CreateTabButton("│ Boat",      "Boat")
 CreateTabButton("│ Misc",      "Misc")
 
 SwitchPage("Fishing")
+
+-- ===== CONFIG AUTO SAVE =====
+
+local CFG_PATH = "raymod_fishit_config.json"
+
+_G.RAY_DelayCast      = 0.9
+_G.RAY_DelayFinish    = 0.2
+_G.RAY_DelayCast_V2   = 0.9
+_G.RAY_DelayFinish_V2 = 0.2
+_G.RAY_SellDelay      = 30
+
+local function LoadConfig()
+    if isfile and readfile and isfile(CFG_PATH) then
+        local ok, data = pcall(function()
+            return HttpService:JSONDecode(readfile(CFG_PATH))
+        end)
+        if ok and type(data) == "table" then
+            _G.RAY_DelayCast      = data.DelayCast      or _G.RAY_DelayCast
+            _G.RAY_DelayFinish    = data.DelayFinish    or _G.RAY_DelayFinish
+            _G.RAY_DelayCast_V2   = data.DelayCast_V2   or _G.RAY_DelayCast_V2
+            _G.RAY_DelayFinish_V2 = data.DelayFinish_V2 or _G.RAY_DelayFinish_V2
+            _G.RAY_SellDelay      = data.SellDelay      or _G.RAY_SellDelay
+        end
+    end
+end
+
+local function SaveConfig()
+    if writefile then
+        local data = {
+            DelayCast      = _G.RAY_DelayCast,
+            DelayFinish    = _G.RAY_DelayFinish,
+            DelayCast_V2   = _G.RAY_DelayCast_V2,
+            DelayFinish_V2 = _G.RAY_DelayFinish_V2,
+            SellDelay      = _G.RAY_SellDelay,
+        }
+        writefile(CFG_PATH, HttpService:JSONEncode(data))
+    end
+end
+
+LoadConfig()
 
 -- ===== GUI HELPERS =====
 
@@ -365,17 +384,13 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     end)
 end
 
--- ===== GLOBAL FLAGS =====
+-- ===== GLOBAL FLAGS (lain) =====
 
 _G.RAY_Fish_Auto      = false
 _G.RAY_Fish_AutoV2    = false
 _G.RAY_AutoCatch      = false
-
 _G.RAY_AutoSell       = false
-_G.RAY_SellDelay      = 30
-
 _G.RAY_TP_Location    = "Spawn"
-
 _G.RAY_InfJump        = false
 _G.RAY_Fullbright     = false
 _G.RAY_EnableWalk     = false
@@ -383,11 +398,6 @@ _G.RAY_WalkSpeed      = 16
 _G.RAY_FreezePos      = false
 _G.RAY_FreezeSet      = false
 _G.RAY_FreezeCFrame   = nil
-
-_G.RAY_DelayCast      = 0.9
-_G.RAY_DelayFinish    = 0.2
-_G.RAY_DelayCast_V2   = 0.9
-_G.RAY_DelayFinish_V2 = 0.2
 
 -- ===== NETWORK EVENTS (ENGINE V4) =====
 
@@ -446,9 +456,11 @@ AddToggle(pageFishing, "Auto Fish (Legit)", false, function(v) _G.RAY_Fish_Auto 
 
 AddDelayBox(pageFishing, "Fish Delay V1 (s)", _G.RAY_DelayCast, function(v)
     _G.RAY_DelayCast = v
+    SaveConfig()
 end)
 AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
     _G.RAY_DelayFinish = v
+    SaveConfig()
 end)
 
 AddSection(pageFishing, "Blatant Auto Fishing (V2)", "2x cast paralel + spam reel")
@@ -456,9 +468,11 @@ AddToggle(pageFishing, "Auto Fish (Blatant)", false, function(v) _G.RAY_Fish_Aut
 
 AddDelayBox(pageFishing, "Fish Delay V2 (s)", _G.RAY_DelayCast_V2, function(v)
     _G.RAY_DelayCast_V2 = v
+    SaveConfig()
 end)
 AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v)
     _G.RAY_DelayFinish_V2 = v
+    SaveConfig()
 end)
 
 AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
@@ -471,6 +485,7 @@ AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
 AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
     _G.RAY_SellDelay = v
+    SaveConfig()
 end)
 
 -- ===== GUI: TELEPORT =====
@@ -664,4 +679,4 @@ Safety.SafeLoop(1.0, function()
     lighting.FogEnd = 1e5
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (logo minimize).")
+Notify("RAYMOD FISHIT V2 loaded (auto save delay).")
