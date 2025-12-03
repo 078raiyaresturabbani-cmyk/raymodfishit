@@ -438,10 +438,10 @@ _G.RAY_HideName         = false
 _G.RAY_GhostfinQuest    = false
 
 local GHOSFIN_CF = CFrame.new(
-    -3601, -283.180725, -1611,
-     0.877389133, -6.38600355e-08, -0.479779422,
-     6.3318339e-08, 1, -1.73104766e-08,
-     0.479779422, -1.51908104e-08, 0.87738913
+    -3708.77563, -135.073914, -1012.4093,
+    -0.944233716, -5.7476135e-09, 0.329275966,
+     4.86078999e-09, 1, 3.13941371e-08,
+    -0.329275966, 3.12439461e-08, -0.944233716
 )
 
 -- ===== NETWORK EVENTS =====
@@ -554,9 +554,9 @@ for name, _ in pairs(LOCATIONS) do
     btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
 end
 
--- ===== GUI: QUEST (GHOSTFIN) =====
+-- ===== GUI: QUEST (GHOSTFIN / SISYPHUS ROOM) =====
 
-AddSection(pageQuest, "Ghostfin Quest", "Helper posisi Ghostfin")
+AddSection(pageQuest, "Ghostfin Quest", "Helper posisi Ghostfin / Sisyphus Room")
 AddToggle(pageQuest, "Ghostfin Quest", false, function(v)
     _G.RAY_GhostfinQuest = v
 end)
@@ -566,7 +566,7 @@ AddSection(pageQuest, "Teleport Quest", "TP cepat buat quest")
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
 btnGhostfin.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-btnGhostfin.Text = "Teleport ke Ghostfin Spot"
+btnGhostfin.Text = "Teleport ke Sisyphus Room"
 btnGhostfin.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnGhostfin.Font = Enum.Font.Gotham
 btnGhostfin.TextSize = 13
@@ -869,4 +869,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle, Ghostfin Quest helper).")
+Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle, Ghostfin/Sisyphus helper).")
