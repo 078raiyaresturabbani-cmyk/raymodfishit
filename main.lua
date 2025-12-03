@@ -1,5 +1,5 @@
--- RAYMOD FISHIT V2 | FULL UPDATE + LOGO
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK, LOGO MINIMIZE
+-- RAYMOD FISHIT V2 | FULL UPDATE + MINIMIZE BUTTON
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -56,17 +56,6 @@ local gui = Instance.new("ScreenGui")
 gui.Name = "RAYMOD_FISHIT_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = plr:WaitForChild("PlayerGui")
-
--- LOGO (untuk minimize)
-local logo = Instance.new("ImageButton")
-logo.Name = "RAYMOD_Logo"
-logo.Size = UDim2.new(0, 64, 0, 64)
-logo.Position = UDim2.new(0, 10, 0, 10)
-logo.BackgroundTransparency = 1
-logo.ZIndex = 999
-logo.Image = "rbxassetid://73350720182608"
-logo.Visible = false
-logo.Parent = gui
 
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 640, 0, 360)
@@ -130,19 +119,32 @@ content.Position = UDim2.new(0, 0, 0, 34)
 content.BackgroundTransparency = 1
 content.Parent = main
 
+-- Tombol minimize ala Rayfield
+local miniText = Instance.new("TextButton")
+miniText.Name = "RAYMOD_MinimizeButton"
+miniText.Size = UDim2.new(0, 140, 0, 28)
+miniText.Position = UDim2.new(0, 10, 0, 10)
+miniText.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+miniText.Text = "RAYMOD FISHIT V2"
+miniText.TextColor3 = Color3.fromRGB(230, 230, 255)
+miniText.Font = Enum.Font.GothamBold
+miniText.TextSize = 14
+miniText.Visible = false
+miniText.ZIndex = 999
+miniText.Parent = gui
+Instance.new("UICorner", miniText).CornerRadius = UDim.new(0, 8)
+
 local minimized = false
 mini.MouseButton1Click:Connect(function()
     minimized = not minimized
-    content.Visible = not minimized
-    mini.Text = minimized and "+" or "-"
-    logo.Visible = minimized
+    main.Visible = not minimized
+    miniText.Visible = minimized
 end)
 
-logo.MouseButton1Click:Connect(function()
+miniText.MouseButton1Click:Connect(function()
     minimized = false
-    content.Visible = true
-    mini.Text = "-"
-    logo.Visible = false
+    main.Visible = true
+    miniText.Visible = false
 end)
 
 local sidebar = Instance.new("Frame")
@@ -704,7 +706,7 @@ end)
 
 Safety.SafeLoop(0.05, function()
     local char = plr.Character
-    local hrp = char and char:FindChild("HumanoidRootPart") or char and char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     if _G.RAY_FreezePos then
         if not _G.RAY_FreezeSet then
@@ -823,4 +825,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, logo, boat, reduce map, hide name, auto save).")
+Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, minimize button, boat, reduce map, hide name, auto save).")
