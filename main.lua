@@ -557,11 +557,11 @@ end
 -- ===== GUI: QUEST (GHOSTFIN) =====
 
 AddSection(pageQuest, "Ghostfin Quest", "Helper posisi Ghostfin")
-AddToggle(pageQuest, "Enable Ghostfin Helper", false, function(v)
+AddToggle(pageQuest, "Ghostfin Quest", false, function(v)
     _G.RAY_GhostfinQuest = v
 end)
 
-AddSection(pageQuest, "Teleport Quest", "TP cepat Ghostfin & Treasure Room")
+AddSection(pageQuest, "Teleport Quest", "TP cepat buat quest")
 
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
