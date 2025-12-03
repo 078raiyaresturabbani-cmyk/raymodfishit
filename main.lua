@@ -1,5 +1,5 @@
--- RAYMOD FISHIT V2 | FULL UPDATE
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
+-- RAYMOD FISHIT V2 | FULL UPDATE + LOGO
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK, LOGO MINIMIZE
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -56,6 +56,17 @@ local gui = Instance.new("ScreenGui")
 gui.Name = "RAYMOD_FISHIT_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = plr:WaitForChild("PlayerGui")
+
+-- LOGO (untuk minimize)
+local logo = Instance.new("ImageButton")
+logo.Name = "RAYMOD_Logo"
+logo.Size = UDim2.new(0, 64, 0, 64)
+logo.Position = UDim2.new(0, 10, 0, 10)
+logo.BackgroundTransparency = 1
+logo.ZIndex = 999
+logo.Image = "rbxassetid://73350720182608"
+logo.Visible = false
+logo.Parent = gui
 
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 640, 0, 360)
@@ -124,6 +135,14 @@ mini.MouseButton1Click:Connect(function()
     minimized = not minimized
     content.Visible = not minimized
     mini.Text = minimized and "+" or "-"
+    logo.Visible = minimized
+end)
+
+logo.MouseButton1Click:Connect(function()
+    minimized = false
+    content.Visible = true
+    mini.Text = "-"
+    logo.Visible = false
 end)
 
 local sidebar = Instance.new("Frame")
@@ -394,9 +413,9 @@ end
 
 -- ===== GLOBAL FLAGS =====
 
-_G.RAY_Fish_Auto      = false   -- V1
-_G.RAY_Fish_AutoV2    = false   -- V2
-_G.RAY_Fish_AutoV3    = false   -- V3 x8
+_G.RAY_Fish_Auto      = false
+_G.RAY_Fish_AutoV2    = false
+_G.RAY_Fish_AutoV3    = false
 _G.RAY_AutoCatch      = false
 _G.RAY_AutoSell       = false
 
@@ -685,7 +704,7 @@ end)
 
 Safety.SafeLoop(0.05, function()
     local char = plr.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindChild("HumanoidRootPart") or char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     if _G.RAY_FreezePos then
         if not _G.RAY_FreezeSet then
@@ -804,4 +823,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, boat, reduce map, hide name, auto save).")
+Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, logo, boat, reduce map, hide name, auto save).")
