@@ -409,7 +409,7 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     end)
 end
 
--- ===== GLOBAL FLAGS + GHOSFIN =====
+-- ===== GLOBAL FLAGS =====
 
 _G.RAY_Fish_Auto      = false
 _G.RAY_Fish_AutoV2    = false
@@ -435,8 +435,7 @@ _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
 
-_G.RAY_GhostfinQuest    = false
-
+-- CFrame Sisyphus Room (dari log kamu)
 local GHOSFIN_CF = CFrame.new(
     -3708.77563, -135.073914, -1012.4093,
     -0.944233716, -5.7476135e-09, 0.329275966,
@@ -554,14 +553,9 @@ for name, _ in pairs(LOCATIONS) do
     btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
 end
 
--- ===== GUI: QUEST (GHOSTFIN / SISYPHUS ROOM) =====
+-- ===== GUI: QUEST (SISYPHUS / TREASURE) =====
 
-AddSection(pageQuest, "Ghostfin Quest", "Helper posisi Ghostfin / Sisyphus Room")
-AddToggle(pageQuest, "Ghostfin Quest", false, function(v)
-    _G.RAY_GhostfinQuest = v
-end)
-
-AddSection(pageQuest, "Teleport Quest", "TP cepat buat quest")
+AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
 
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
@@ -869,4 +863,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle, Ghostfin/Sisyphus helper).")
+Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle, Sisyphus/Treasure TP).")
