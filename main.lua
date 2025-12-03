@@ -1,5 +1,5 @@
--- RAYMOD FISHIT V2 | FULL UPDATE + MINIMIZE BUTTON + POTION SHOP TOGGLE
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
+-- RAYMOD FISHIT V2 | FULL UPDATE + MINIMIZE BUTTON + SHOP TOGGLE
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK, SHOP TOGGLE
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -11,6 +11,7 @@ local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 
 -- ===== SAFETY =====
+
 local Safety = {}
 function Safety.HumanWait(min, max)
     local r = math.random()
@@ -40,12 +41,14 @@ end
 _G.RAY_Safety = Safety
 
 -- ===== ANTI AFK =====
+
 plr.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
 -- ===== GUI BASE =====
+
 local old = plr.PlayerGui:FindFirstChild("RAYMOD_FISHIT_GUI")
 if old then old:Destroy() end
 
@@ -116,7 +119,7 @@ content.Position = UDim2.new(0, 0, 0, 34)
 content.BackgroundTransparency = 1
 content.Parent = main
 
--- tombol minimize ala Rayfield
+-- Tombol minimize ala Rayfield
 local miniText = Instance.new("TextButton")
 miniText.Name = "RAYMOD_MinimizeButton"
 miniText.Size = UDim2.new(0, 140, 0, 28)
@@ -154,6 +157,9 @@ Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
 
 local sideLayout = Instance.new("UIListLayout", sidebar)
 sideLayout.Padding = UDim.new(0, 4)
+sideLayout.FillDirection = Enum.FillDirection.Vertical
+sideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+sideLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
 local sideHeader = Instance.new("TextLabel")
 sideHeader.Size = UDim2.new(1, -16, 0, 26)
@@ -186,6 +192,9 @@ local function CreatePage(name)
     Page.Parent = pageHolder
     local layout = Instance.new("UIListLayout", Page)
     layout.Padding = UDim.new(0, 6)
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
     Pages[name] = Page
     return Page
 end
@@ -272,6 +281,7 @@ end
 LoadConfig()
 
 -- ===== GUI HELPERS =====
+
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
@@ -402,6 +412,7 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
 end
 
 -- ===== GLOBAL FLAGS =====
+
 _G.RAY_Fish_Auto      = false
 _G.RAY_Fish_AutoV2    = false
 _G.RAY_Fish_AutoV3    = false
@@ -427,6 +438,7 @@ _G.RAY_BoatSpeedValue   = 120
 _G.RAY_HideName         = false
 
 -- ===== NETWORK EVENTS =====
+
 local Net = ReplicatedStorage
     :WaitForChild("Packages")
     :WaitForChild("_Index")
@@ -444,6 +456,7 @@ local Events = {
 }
 
 -- ===== TELEPORT LOCATIONS =====
+
 local LOCATIONS = {
     ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
     ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
@@ -474,55 +487,97 @@ local function TeleportTo(name)
     hrp.CFrame = cf
 end
 
--- ===== POTION SHOP TOGGLE SAJA (AMAN) =====
-local function TogglePotionShop()
+-- ===== SHOP TOGGLE FUNCTIONS =====
+
+local function ToggleShopGui(screenName)
     local pg  = plr:WaitForChild("PlayerGui")
-    local gui = pg:FindFirstChild("Potion Shop")
+    local gui = pg:FindFirstChild(screenName)
     if not gui then return end
+
     local main = gui:FindFirstChild("Main")
     if not main then return end
+
     main.Visible = not main.Visible
+
+    local underlay = main:FindFirstChild("Underlay") or gui:FindFirstChild("Underlay")
+    if underlay and underlay:IsA("Frame") then
+        underlay.Visible = main.Visible
+    end
 end
 
+local function ToggleBoatShop()   ToggleShopGui("Boat Shop")   end
+local function ToggleBaitShop()   ToggleShopGui("Bait Shop")   end
+local function ToggleRodShop()    ToggleShopGui("Rod Shop")    end
+local function TogglePotionShop() ToggleShopGui("Potion Shop") end
+
 -- ===== GUI: FISHING TAB =====
+
 AddSection(pageFishing, "Legit Auto Fishing (V1)", "Pola normal, aman, delay diatur")
 AddToggle(pageFishing, "Auto Fish (Legit)", false, function(v) _G.RAY_Fish_Auto = v end)
-AddDelayBox(pageFishing, "Fish Delay V1 (s)", _G.RAY_DelayCast, function(v) _G.RAY_DelayCast = v; SaveConfig() end)
-AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v) _G.RAY_DelayFinish = v; SaveConfig() end)
+
+AddDelayBox(pageFishing, "Fish Delay V1 (s)", _G.RAY_DelayCast, function(v)
+    _G.RAY_DelayCast = v; SaveConfig()
+end)
+AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
+    _G.RAY_DelayFinish = v; SaveConfig()
+end)
 
 AddSection(pageFishing, "Blatant Auto Fishing (V2)", "2x cast paralel + spam reel")
 AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
-AddDelayBox(pageFishing, "Fish Delay V2 (s)", _G.RAY_DelayCast_V2, function(v) _G.RAY_DelayCast_V2 = v; SaveConfig() end)
-AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v) _G.RAY_DelayFinish_V2 = v; SaveConfig() end)
+
+AddDelayBox(pageFishing, "Fish Delay V2 (s)", _G.RAY_DelayCast_V2, function(v)
+    _G.RAY_DelayCast_V2 = v; SaveConfig()
+end)
+AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v)
+    _G.RAY_DelayFinish_V2 = v; SaveConfig()
+end)
 
 AddSection(pageFishing, "Blatant Auto Fishing (V3 x8)", "4x cast + 8x reel, sangat risk")
 AddToggle(pageFishing, "Auto Fish (Blatant V3 x8)", false, function(v) _G.RAY_Fish_AutoV3 = v end)
-AddDelayBox(pageFishing, "Fish Delay V3 (s)", _G.RAY_DelayCast_V3, function(v) _G.RAY_DelayCast_V3 = v; SaveConfig() end)
-AddDelayBox(pageFishing, "Catch Delay V3 (s)", _G.RAY_DelayFinish_V3, function(v) _G.RAY_DelayFinish_V3 = v; SaveConfig() end)
+
+AddDelayBox(pageFishing, "Fish Delay V3 (s)", _G.RAY_DelayCast_V3, function(v)
+    _G.RAY_DelayCast_V3 = v; SaveConfig()
+end)
+AddDelayBox(pageFishing, "Catch Delay V3 (s)", _G.RAY_DelayFinish_V3, function(v)
+    _G.RAY_DelayFinish_V3 = v; SaveConfig()
+end)
 
 AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
 AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v) _G.RAY_AutoCatch = v end)
 
--- ===== GUI: SHOP TAB (POTION ONLY) =====
-AddSection(pageShop, "Potion Shop", "Buka / tutup Potion Shop saja (paling aman)")
+-- ===== GUI: SHOP TAB =====
 
-local btnPotion = Instance.new("TextButton")
-btnPotion.Size = UDim2.new(1, -4, 0, 28)
-btnPotion.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-btnPotion.Text = "Open / Close Potion Shop"
-btnPotion.TextColor3 = Color3.fromRGB(230, 230, 255)
-btnPotion.Font = Enum.Font.Gotham
-btnPotion.TextSize = 13
-btnPotion.Parent = pageShop
-Instance.new("UICorner", btnPotion).CornerRadius = UDim.new(0, 8)
-btnPotion.MouseButton1Click:Connect(TogglePotionShop)
+AddSection(pageShop, "Shops", "Buka / tutup Boat/Bait/Rod/Potion Shop")
+
+local function AddShopButton(text, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -4, 0, 28)
+    b.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    b.Text = text
+    b.TextColor3 = Color3.fromRGB(230, 230, 255)
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 13
+    b.Parent = pageShop
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+    b.MouseButton1Click:Connect(callback)
+end
+
+AddShopButton("Open / Close Boat Shop",   ToggleBoatShop)
+AddShopButton("Open / Close Bait Shop",   ToggleBaitShop)
+AddShopButton("Open / Close Rod Shop",    ToggleRodShop)
+AddShopButton("Open / Close Potion Shop", TogglePotionShop)
 
 -- ===== GUI: BACKPACK / AUTO SELL =====
+
 AddSection(pageBackpack, "Auto Sell", "Sell semua ikan")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
-AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v) _G.RAY_SellDelay = v; SaveConfig() end)
+
+AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
+    _G.RAY_SellDelay = v; SaveConfig()
+end)
 
 -- ===== GUI: TELEPORT =====
+
 AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
 for name, _ in pairs(LOCATIONS) do
     local btn = Instance.new("TextButton")
@@ -538,21 +593,32 @@ for name, _ in pairs(LOCATIONS) do
 end
 
 -- ===== GUI: BOAT =====
+
 AddSection(pageBoat, "Boat Speed", "Boost kecepatan boat lokal")
-AddToggle(pageBoat, "Enable Boat Speed", false, function(v) _G.RAY_BoatSpeedEnabled = v end)
-AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v) _G.RAY_BoatSpeedValue = v end)
+AddToggle(pageBoat, "Enable Boat Speed", false, function(v)
+    _G.RAY_BoatSpeedEnabled = v
+end)
+AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
+    _G.RAY_BoatSpeedValue = v
+end)
 
 -- ===== GUI: MISC =====
+
 AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, reduce map, hide name")
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
 AddToggle(pageMisc, "Reduce Map (FPS)", false, function(v) _G.RAY_ReduceMap = v end)
-AddDelayBox(pageMisc, "Reduce Map Radius", _G.RAY_ReduceRadius, function(v) _G.RAY_ReduceRadius = v end)
-AddToggle(pageMisc, "Hide Player Names", false, function(v) _G.RAY_HideName = v end)
+AddDelayBox(pageMisc, "Reduce Map Radius", _G.RAY_ReduceRadius, function(v)
+    _G.RAY_ReduceRadius = v
+end)
+AddToggle(pageMisc, "Hide Player Names", false, function(v)
+    _G.RAY_HideName = v
+end)
 
 -- ===== ENGINE AUTO FISH =====
+
 local isFishing = false
 
 local function castRod_V1()
@@ -640,6 +706,7 @@ Safety.SafeLoop(0.05, function()
 end)
 
 -- AUTO CATCH
+
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_AutoCatch then return end
     if isFishing then return end
@@ -648,6 +715,7 @@ Safety.SafeLoop(0.05, function()
 end)
 
 -- ===== AUTO SELL =====
+
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
     if not _G.RAY_AutoSell then
@@ -666,6 +734,7 @@ Safety.SafeLoop(1.0, function()
 end)
 
 -- ===== WALK / FREEZE / VISUAL =====
+
 Safety.SafeLoop(0.1, function()
     local char = plr.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -715,6 +784,7 @@ Safety.SafeLoop(1.0, function()
 end)
 
 -- ===== REDUCE MAP ENGINE =====
+
 local function ShouldSkipPart(part)
     if part:IsDescendantOf(plr.Character) then return true end
     if part.Parent and part.Parent:IsA("Tool") then return true end
@@ -752,6 +822,7 @@ Safety.SafeLoop(1.0, function()
 end)
 
 -- ===== BOAT SPEED ENGINE =====
+
 local function GetBoatSeat()
     local char = plr.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -779,6 +850,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- ===== HIDE NAME ENGINE =====
+
 local function SetCharNameVisible(char, visible)
     local hum = char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
@@ -796,4 +868,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (minimize + auto fish/sell/boat/reduce/hide + Potion Shop toggle).")
+Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, minimize, shop toggle, boat, reduce map, hide name, auto save).")
