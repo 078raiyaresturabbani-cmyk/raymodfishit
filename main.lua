@@ -1,5 +1,5 @@
--- RAYMOD FISHIT V2 | FULL UPDATE + MINIMIZE BUTTON + SHOP TOGGLE
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK, SHOP TOGGLE
+-- RAYMOD FISHIT V2 | UPDATE 1 (NO SHOP TOGGLE)
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -217,7 +217,6 @@ local function CreateTabButton(text, pageName)
 end
 
 local pageFishing   = CreatePage("Fishing")
-local pageShop      = CreatePage("Shop")
 local pageBackpack  = CreatePage("Backpack")
 local pageTeleport  = CreatePage("Teleport")
 local pageQuest     = CreatePage("Quest")
@@ -225,7 +224,6 @@ local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
 
 CreateTabButton("│ Fishing",   "Fishing")
-CreateTabButton("│ Shop",      "Shop")
 CreateTabButton("│ Backpack",  "Backpack")
 CreateTabButton("│ Teleport",  "Teleport")
 CreateTabButton("│ Quest",     "Quest")
@@ -487,29 +485,6 @@ local function TeleportTo(name)
     hrp.CFrame = cf
 end
 
--- ===== SHOP TOGGLE FUNCTIONS =====
-
-local function ToggleShopGui(screenName)
-    local pg  = plr:WaitForChild("PlayerGui")
-    local gui = pg:FindFirstChild(screenName)
-    if not gui then return end
-
-    local main = gui:FindFirstChild("Main")
-    if not main then return end
-
-    main.Visible = not main.Visible
-
-    local underlay = main:FindFirstChild("Underlay") or gui:FindFirstChild("Underlay")
-    if underlay and underlay:IsA("Frame") then
-        underlay.Visible = main.Visible
-    end
-end
-
-local function ToggleBoatShop()   ToggleShopGui("Boat Shop")   end
-local function ToggleBaitShop()   ToggleShopGui("Bait Shop")   end
-local function ToggleRodShop()    ToggleShopGui("Rod Shop")    end
-local function TogglePotionShop() ToggleShopGui("Potion Shop") end
-
 -- ===== GUI: FISHING TAB =====
 
 AddSection(pageFishing, "Legit Auto Fishing (V1)", "Pola normal, aman, delay diatur")
@@ -544,28 +519,6 @@ end)
 
 AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
 AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v) _G.RAY_AutoCatch = v end)
-
--- ===== GUI: SHOP TAB =====
-
-AddSection(pageShop, "Shops", "Buka / tutup Boat/Bait/Rod/Potion Shop")
-
-local function AddShopButton(text, callback)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1, -4, 0, 28)
-    b.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-    b.Text = text
-    b.TextColor3 = Color3.fromRGB(230, 230, 255)
-    b.Font = Enum.Font.Gotham
-    b.TextSize = 13
-    b.Parent = pageShop
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
-    b.MouseButton1Click:Connect(callback)
-end
-
-AddShopButton("Open / Close Boat Shop",   ToggleBoatShop)
-AddShopButton("Open / Close Bait Shop",   ToggleBaitShop)
-AddShopButton("Open / Close Rod Shop",    ToggleRodShop)
-AddShopButton("Open / Close Potion Shop", TogglePotionShop)
 
 -- ===== GUI: BACKPACK / AUTO SELL =====
 
@@ -868,4 +821,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, minimize, shop toggle, boat, reduce map, hide name, auto save).")
+Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle).")
