@@ -1,5 +1,5 @@
--- RAYMOD FISHIT V2 | GUI RAYMOD + ENGINE AUTO FISH V4
--- AUTO SAVE DELAY + REDUCE MAP + BOAT SPEED + HIDE NAME + ANTI AFK
+-- RAYMOD FISHIT V2 | FULL UPDATE
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
 
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
@@ -66,8 +66,7 @@ main.Active = true
 main.Draggable = true
 main.Parent = gui
 do
-    local corner = Instance.new("UICorner", main)
-    corner.CornerRadius = UDim.new(0, 14)
+    local corner = Instance.new("UICorner", main); corner.CornerRadius = UDim.new(0, 14)
     local stroke = Instance.new("UIStroke", main)
     stroke.Color = Color3.fromRGB(0, 190, 255)
     stroke.Thickness = 2
@@ -193,9 +192,7 @@ local function CreateTabButton(text, pageName)
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function()
-        SwitchPage(pageName)
-    end)
+    btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
 end
 
 local pageFishing   = CreatePage("Fishing")
@@ -224,6 +221,8 @@ _G.RAY_DelayCast      = 0.9
 _G.RAY_DelayFinish    = 0.2
 _G.RAY_DelayCast_V2   = 0.9
 _G.RAY_DelayFinish_V2 = 0.2
+_G.RAY_DelayCast_V3   = 0.4
+_G.RAY_DelayFinish_V3 = 0.08
 _G.RAY_SellDelay      = 30
 
 local function LoadConfig()
@@ -236,6 +235,8 @@ local function LoadConfig()
             _G.RAY_DelayFinish    = data.DelayFinish    or _G.RAY_DelayFinish
             _G.RAY_DelayCast_V2   = data.DelayCast_V2   or _G.RAY_DelayCast_V2
             _G.RAY_DelayFinish_V2 = data.DelayFinish_V2 or _G.RAY_DelayFinish_V2
+            _G.RAY_DelayCast_V3   = data.DelayCast_V3   or _G.RAY_DelayCast_V3
+            _G.RAY_DelayFinish_V3 = data.DelayFinish_V3 or _G.RAY_DelayFinish_V3
             _G.RAY_SellDelay      = data.SellDelay      or _G.RAY_SellDelay
         end
     end
@@ -248,6 +249,8 @@ local function SaveConfig()
             DelayFinish    = _G.RAY_DelayFinish,
             DelayCast_V2   = _G.RAY_DelayCast_V2,
             DelayFinish_V2 = _G.RAY_DelayFinish_V2,
+            DelayCast_V3   = _G.RAY_DelayCast_V3,
+            DelayFinish_V3 = _G.RAY_DelayFinish_V3,
             SellDelay      = _G.RAY_SellDelay,
         }
         writefile(CFG_PATH, HttpService:JSONEncode(data))
@@ -389,10 +392,11 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     end)
 end
 
--- ===== GLOBAL FLAGS LAIN =====
+-- ===== GLOBAL FLAGS =====
 
-_G.RAY_Fish_Auto      = false
-_G.RAY_Fish_AutoV2    = false
+_G.RAY_Fish_Auto      = false   -- V1
+_G.RAY_Fish_AutoV2    = false   -- V2
+_G.RAY_Fish_AutoV3    = false   -- V3 x8
 _G.RAY_AutoCatch      = false
 _G.RAY_AutoSell       = false
 
@@ -470,24 +474,30 @@ AddSection(pageFishing, "Legit Auto Fishing (V1)", "Pola normal, aman, delay dia
 AddToggle(pageFishing, "Auto Fish (Legit)", false, function(v) _G.RAY_Fish_Auto = v end)
 
 AddDelayBox(pageFishing, "Fish Delay V1 (s)", _G.RAY_DelayCast, function(v)
-    _G.RAY_DelayCast = v
-    SaveConfig()
+    _G.RAY_DelayCast = v; SaveConfig()
 end)
 AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
-    _G.RAY_DelayFinish = v
-    SaveConfig()
+    _G.RAY_DelayFinish = v; SaveConfig()
 end)
 
 AddSection(pageFishing, "Blatant Auto Fishing (V2)", "2x cast paralel + spam reel")
-AddToggle(pageFishing, "Auto Fish (Blatant)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
+AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
 
 AddDelayBox(pageFishing, "Fish Delay V2 (s)", _G.RAY_DelayCast_V2, function(v)
-    _G.RAY_DelayCast_V2 = v
-    SaveConfig()
+    _G.RAY_DelayCast_V2 = v; SaveConfig()
 end)
 AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v)
-    _G.RAY_DelayFinish_V2 = v
-    SaveConfig()
+    _G.RAY_DelayFinish_V2 = v; SaveConfig()
+end)
+
+AddSection(pageFishing, "Blatant Auto Fishing (V3 x8)", "4x cast + 8x reel, sangat risk")
+AddToggle(pageFishing, "Auto Fish (Blatant V3 x8)", false, function(v) _G.RAY_Fish_AutoV3 = v end)
+
+AddDelayBox(pageFishing, "Fish Delay V3 (s)", _G.RAY_DelayCast_V3, function(v)
+    _G.RAY_DelayCast_V3 = v; SaveConfig()
+end)
+AddDelayBox(pageFishing, "Catch Delay V3 (s)", _G.RAY_DelayFinish_V3, function(v)
+    _G.RAY_DelayFinish_V3 = v; SaveConfig()
 end)
 
 AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
@@ -495,12 +505,11 @@ AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v) _G.RAY_AutoC
 
 -- ===== GUI: BACKPACK / AUTO SELL =====
 
-AddSection(pageBackpack, "Auto Sell", "Sell semua (favorit aman kalau pakai hub lain)")
+AddSection(pageBackpack, "Auto Sell", "Sell semua ikan")
 AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
 
 AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
-    _G.RAY_SellDelay = v
-    SaveConfig()
+    _G.RAY_SellDelay = v; SaveConfig()
 end)
 
 -- ===== GUI: TELEPORT =====
@@ -516,19 +525,15 @@ for name, _ in pairs(LOCATIONS) do
     btn.TextSize = 13
     btn.Parent = pageTeleport
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function()
-        TeleportTo(name)
-    end)
+    btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
 end
 
 -- ===== GUI: BOAT =====
 
 AddSection(pageBoat, "Boat Speed", "Boost kecepatan boat lokal")
-
 AddToggle(pageBoat, "Enable Boat Speed", false, function(v)
     _G.RAY_BoatSpeedEnabled = v
 end)
-
 AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
     _G.RAY_BoatSpeedValue = v
 end)
@@ -540,20 +545,15 @@ AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
 AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
-
-AddToggle(pageMisc, "Reduce Map (FPS)", false, function(v)
-    _G.RAY_ReduceMap = v
-end)
-
+AddToggle(pageMisc, "Reduce Map (FPS)", false, function(v) _G.RAY_ReduceMap = v end)
 AddDelayBox(pageMisc, "Reduce Map Radius", _G.RAY_ReduceRadius, function(v)
     _G.RAY_ReduceRadius = v
 end)
-
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
 
--- ===== ENGINE AUTO FISH (V4) =====
+-- ===== ENGINE AUTO FISH =====
 
 local isFishing = false
 
@@ -567,7 +567,7 @@ local function castRod_V1()
     end)
 end
 
-local function reelIn_V1()
+local function reelIn()
     pcall(function()
         Events.fishing:FireServer()
     end)
@@ -578,7 +578,7 @@ local function NormalCycle_V1()
     isFishing = true
     castRod_V1()
     task.wait(_G.RAY_DelayCast)
-    reelIn_V1()
+    reelIn()
     task.wait(_G.RAY_DelayFinish)
     isFishing = false
 end
@@ -586,41 +586,55 @@ end
 local function BlatantCycle_V2()
     if isFishing then return end
     isFishing = true
-
     pcall(function()
         Events.equip:FireServer(1)
         task.wait(0.01)
-
-        task.spawn(function()
-            Events.charge:InvokeServer(1755848498.4834)
-            task.wait(0.01)
-            Events.minigame:InvokeServer(1.2854545116425, 1)
-        end)
-
-        task.wait(0.05)
-
-        task.spawn(function()
-            Events.charge:InvokeServer(1755848498.4834)
-            task.wait(0.01)
-            Events.minigame:InvokeServer(1.2854545116425, 1)
-        end)
+        for _ = 1,2 do
+            task.spawn(function()
+                Events.charge:InvokeServer(1755848498.4834)
+                task.wait(0.01)
+                Events.minigame:InvokeServer(1.2854545116425, 1)
+            end)
+            task.wait(0.03)
+        end
     end)
-
     task.wait(_G.RAY_DelayCast_V2)
-
-    for _ = 1, 5 do
-        pcall(function()
-            Events.fishing:FireServer()
-        end)
+    for _ = 1,5 do
+        reelIn()
         task.wait(0.01)
     end
-
     task.wait(_G.RAY_DelayFinish_V2 * 0.5)
     isFishing = false
 end
 
+local function BlatantCycle_V3()
+    if isFishing then return end
+    isFishing = true
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.005)
+        for _ = 1,4 do
+            task.spawn(function()
+                Events.charge:InvokeServer(1755848498.4834)
+                task.wait(0.005)
+                Events.minigame:InvokeServer(1.2854545116425, 1)
+            end)
+            task.wait(0.01)
+        end
+    end)
+    task.wait(_G.RAY_DelayCast_V3)
+    for _ = 1,8 do
+        reelIn()
+        task.wait(0.005)
+    end
+    task.wait(_G.RAY_DelayFinish_V3)
+    isFishing = false
+end
+
 Safety.SafeLoop(0.05, function()
-    if _G.RAY_Fish_AutoV2 then
+    if _G.RAY_Fish_AutoV3 then
+        BlatantCycle_V3()
+    elseif _G.RAY_Fish_AutoV2 then
         BlatantCycle_V2()
     elseif _G.RAY_Fish_Auto then
         NormalCycle_V1()
@@ -632,9 +646,7 @@ end)
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_AutoCatch then return end
     if isFishing then return end
-    pcall(function()
-        Events.fishing:FireServer()
-    end)
+    reelIn()
     task.wait(_G.RAY_DelayFinish)
 end)
 
@@ -643,23 +655,17 @@ end)
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
     if not _G.RAY_AutoSell then
-        sellCount = 0
-        return
+        sellCount = 0; return
     end
-
     sellCount += 1
     if sellCount > 999 then
         _G.RAY_AutoSell = false
         Notify("AutoSell dimatikan (limit).")
         return
     end
-
     if Events.sell then
-        pcall(function()
-            Events.sell:InvokeServer()
-        end)
+        pcall(function() Events.sell:InvokeServer() end)
     end
-
     Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
 end)
 
@@ -667,14 +673,11 @@ end)
 
 Safety.SafeLoop(0.1, function()
     local char = plr.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
     if not hum then return end
-
     if _G.RAY_EnableWalk then
         local base = _G.RAY_WalkSpeed
-        local jitter = math.random(-1, 1)
-        hum.WalkSpeed = math.clamp(base + jitter, 8, 40)
+        hum.WalkSpeed = math.clamp(base + math.random(-1,1), 8, 40)
     else
         hum.WalkSpeed = 16
     end
@@ -682,10 +685,8 @@ end)
 
 Safety.SafeLoop(0.05, function()
     local char = plr.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     if _G.RAY_FreezePos then
         if not _G.RAY_FreezeSet then
             _G.RAY_FreezeCFrame = hrp.CFrame
@@ -704,8 +705,7 @@ end)
 Safety.SafeLoop(0.05, function()
     if not _G.RAY_InfJump then return end
     local char = plr.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
     if hum and hum.FloorMaterial == Enum.Material.Air then
         hum:ChangeState(Enum.HumanoidStateType.Jumping)
     end
@@ -736,13 +736,10 @@ Safety.SafeLoop(1.0, function()
         end
         return
     end
-
     local char = plr.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     local radius = _G.RAY_ReduceRadius or 150
-
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("BasePart") and not ShouldSkipPart(obj) then
             local ok, dist = pcall(function()
@@ -764,10 +761,8 @@ end)
 
 local function GetBoatSeat()
     local char = plr.Character
-    if not char then return nil end
-    local hum = char:FindFirstChildOfClass("Humanoid")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
     if not hum then return nil end
-
     local seatPart = hum.SeatPart
     if seatPart and seatPart:IsA("VehicleSeat") then
         local model = seatPart:FindFirstAncestorOfClass("Model")
@@ -780,17 +775,13 @@ end
 
 RunService.Heartbeat:Connect(function()
     if not _G.RAY_BoatSpeedEnabled then return end
-
     local seat, boat = GetBoatSeat()
     if not (seat and boat and boat.PrimaryPart) then return end
-
     local speed = _G.RAY_BoatSpeedValue or 120
     if speed <= 0 then return end
-
     local dir = seat.CFrame.LookVector
     local flat = Vector3.new(dir.X, 0, dir.Z)
     if flat.Magnitude < 0.01 then return end
-
     boat.PrimaryPart.AssemblyLinearVelocity = flat.Unit * speed
 end)
 
@@ -813,4 +804,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (auto save + reduce map + boat speed + hide name).")
+Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, boat, reduce map, hide name, auto save).")
