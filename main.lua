@@ -409,7 +409,7 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     end)
 end
 
--- ===== GLOBAL FLAGS =====
+-- ===== GLOBAL FLAGS + GHOSFIN =====
 
 _G.RAY_Fish_Auto      = false
 _G.RAY_Fish_AutoV2    = false
@@ -434,6 +434,15 @@ _G.RAY_BoatSpeedEnabled = false
 _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
+
+_G.RAY_GhostfinQuest    = false
+
+local GHOSFIN_CF = CFrame.new(
+    -3601, -283.180725, -1611,
+     0.877389133, -6.38600355e-08, -0.479779422,
+     6.3318339e-08, 1, -1.73104766e-08,
+     0.479779422, -1.51908104e-08, 0.87738913
+)
 
 -- ===== NETWORK EVENTS =====
 
@@ -544,6 +553,45 @@ for name, _ in pairs(LOCATIONS) do
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
     btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
 end
+
+-- ===== GUI: QUEST (GHOSTFIN) =====
+
+AddSection(pageQuest, "Ghostfin Quest", "Helper posisi Ghostfin")
+AddToggle(pageQuest, "Enable Ghostfin Helper", false, function(v)
+    _G.RAY_GhostfinQuest = v
+end)
+
+AddSection(pageQuest, "Teleport Quest", "TP cepat Ghostfin & Treasure Room")
+
+local btnGhostfin = Instance.new("TextButton")
+btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
+btnGhostfin.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnGhostfin.Text = "Teleport ke Ghostfin Spot"
+btnGhostfin.TextColor3 = Color3.fromRGB(230, 230, 255)
+btnGhostfin.Font = Enum.Font.Gotham
+btnGhostfin.TextSize = 13
+btnGhostfin.Parent = pageQuest
+Instance.new("UICorner", btnGhostfin).CornerRadius = UDim.new(0, 8)
+btnGhostfin.MouseButton1Click:Connect(function()
+    local char = plr.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = GHOSFIN_CF
+    end
+end)
+
+local btnTreasure = Instance.new("TextButton")
+btnTreasure.Size = UDim2.new(1, -4, 0, 28)
+btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnTreasure.Text = "Teleport ke Treasure Room"
+btnTreasure.TextColor3 = Color3.fromRGB(230, 230, 255)
+btnTreasure.Font = Enum.Font.Gotham
+btnTreasure.TextSize = 13
+btnTreasure.Parent = pageQuest
+Instance.new("UICorner", btnTreasure).CornerRadius = UDim.new(0, 8)
+btnTreasure.MouseButton1Click:Connect(function()
+    TeleportTo("Treasure Room")
+end)
 
 -- ===== GUI: BOAT =====
 
@@ -821,4 +869,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle).")
+Notify("RAYMOD FISHIT V2 loaded (Update 1, no shop toggle, Ghostfin Quest helper).")
