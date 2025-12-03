@@ -439,7 +439,7 @@ _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
 
--- ===== NETWORK EVENTS =====
+-- ===== NETWORK EVENTS (ENGINE V4) =====
 
 local Net = ReplicatedStorage
     :WaitForChild("Packages")
@@ -492,10 +492,21 @@ end
 -- ===== SHOP TOGGLE FUNCTIONS =====
 
 local function ToggleShopGui(screenName)
-    local pg = plr:WaitForChild("PlayerGui")
+    local pg  = plr:WaitForChild("PlayerGui")
     local gui = pg:FindFirstChild(screenName)
-    if gui and gui:FindFirstChild("Main") then
-        gui.Main.Visible = not gui.Main.Visible
+    if not gui then return end
+
+    if gui:IsA("ScreenGui") then
+        gui.Enabled = not gui.Enabled
+        local mainFrame = gui:FindFirstChild("Main")
+        if mainFrame then
+            mainFrame.Visible = gui.Enabled
+        end
+    else
+        local mainFrame = gui:FindFirstChild("Main")
+        if mainFrame then
+            mainFrame.Visible = not mainFrame.Visible
+        end
     end
 end
 
@@ -611,8 +622,255 @@ AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
 
--- ===== ENGINE AUTO FISH / AUTO SELL / MOVEMENT =====
--- (bagian bawah tetap sama seperti versi sebelumnya yang sudah jalan; 
--- kalau perlu bisa lanjut disalin dari script terakhir kamu tanpa perubahan.)
+-- ===== ENGINE AUTO FISH =====
+
+local isFishing = false
+
+local function castRod_V1()
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.05)
+        Events.charge:InvokeServer(1755848498.4834)
+        task.wait(0.02)
+        Events.minigame:InvokeServer(1.2854545116425, 1)
+    end)
+end
+
+local function reelIn()
+    pcall(function()
+        Events.fishing:FireServer()
+    end)
+end
+
+local function NormalCycle_V1()
+    if isFishing then return end
+    isFishing = true
+    castRod_V1()
+    task.wait(_G.RAY_DelayCast)
+    reelIn()
+    task.wait(_G.RAY_DelayFinish)
+    isFishing = false
+end
+
+local function BlatantCycle_V2()
+    if isFishing then return end
+    isFishing = true
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.01)
+        for _ = 1,2 do
+            task.spawn(function()
+                Events.charge:InvokeServer(1755848498.4834)
+                task.wait(0.01)
+                Events.minigame:InvokeServer(1.2854545116425, 1)
+            end)
+            task.wait(0.03)
+        end
+    end)
+    task.wait(_G.RAY_DelayCast_V2)
+    for _ = 1,5 do
+        reelIn()
+        task.wait(0.01)
+    end
+    task.wait(_G.RAY_DelayFinish_V2 * 0.5)
+    isFishing = false
+end
+
+local function BlatantCycle_V3()
+    if isFishing then return end
+    isFishing = true
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.005)
+        for _ = 1,4 do
+            task.spawn(function()
+                Events.charge:InvokeServer(1755848498.4834)
+                task.wait(0.005)
+                Events.minigame:InvokeServer(1.2854545116425, 1)
+            end)
+            task.wait(0.01)
+        end
+    end)
+    task.wait(_G.RAY_DelayCast_V3)
+    for _ = 1,8 do
+        reelIn()
+        task.wait(0.005)
+    end
+    task.wait(_G.RAY_DelayFinish_V3)
+    isFishing = false
+end
+
+Safety.SafeLoop(0.05, function()
+    if _G.RAY_Fish_AutoV3 then
+        BlatantCycle_V3()
+    elseif _G.RAY_Fish_AutoV2 then
+        BlatantCycle_V2()
+    elseif _G.RAY_Fish_Auto then
+        NormalCycle_V1()
+    end
+end)
+
+-- AUTO CATCH
+
+Safety.SafeLoop(0.05, function()
+    if not _G.RAY_AutoCatch then return end
+    if isFishing then return end
+    reelIn()
+    task.wait(_G.RAY_DelayFinish)
+end)
+
+-- ===== AUTO SELL =====
+
+local sellCount = 0
+Safety.SafeLoop(1.0, function()
+    if not _G.RAY_AutoSell then
+        sellCount = 0; return
+    end
+    sellCount += 1
+    if sellCount > 999 then
+        _G.RAY_AutoSell = false
+        Notify("AutoSell dimatikan (limit).")
+        return
+    end
+    if Events.sell then
+        pcall(function() Events.sell:InvokeServer() end)
+    end
+    Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
+end)
+
+-- ===== WALK / FREEZE / VISUAL =====
+
+Safety.SafeLoop(0.1, function()
+    local char = plr.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    if _G.RAY_EnableWalk then
+        local base = _G.RAY_WalkSpeed
+        hum.WalkSpeed = math.clamp(base + math.random(-1,1), 8, 40)
+    else
+        hum.WalkSpeed = 16
+    end
+end)
+
+Safety.SafeLoop(0.05, function()
+    local char = plr.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if _G.RAY_FreezePos then
+        if not _G.RAY_FreezeSet then
+            _G.RAY_FreezeCFrame = hrp.CFrame
+            _G.RAY_FreezeSet = true
+        end
+        hrp.Anchored = true
+        hrp.CFrame = _G.RAY_FreezeCFrame
+    else
+        if _G.RAY_FreezeSet then
+            hrp.Anchored = false
+            _G.RAY_FreezeSet = false
+        end
+    end
+end)
+
+Safety.SafeLoop(0.05, function()
+    if not _G.RAY_InfJump then return end
+    local char = plr.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum and hum.FloorMaterial == Enum.Material.Air then
+        hum:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+Safety.SafeLoop(1.0, function()
+    if not _G.RAY_Fullbright then return end
+    local lighting = game:GetService("Lighting")
+    lighting.Brightness = 2
+    lighting.ClockTime = 14
+    lighting.FogEnd = 1e5
+end)
+
+-- ===== REDUCE MAP ENGINE =====
+
+local function ShouldSkipPart(part)
+    if part:IsDescendantOf(plr.Character) then return true end
+    if part.Parent and part.Parent:IsA("Tool") then return true end
+    return false
+end
+
+Safety.SafeLoop(1.0, function()
+    if not _G.RAY_ReduceMap then
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.LocalTransparencyModifier = 0
+            end
+        end
+        return
+    end
+    local char = plr.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local radius = _G.RAY_ReduceRadius or 150
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and not ShouldSkipPart(obj) then
+            local ok, dist = pcall(function()
+                return (obj.Position - hrp.Position).Magnitude
+            end)
+            if ok then
+                if dist > radius then
+                    obj.LocalTransparencyModifier = 1
+                    obj.CanCollide = false
+                else
+                    obj.LocalTransparencyModifier = 0
+                end
+            end
+        end
+    end
+end)
+
+-- ===== BOAT SPEED ENGINE =====
+
+local function GetBoatSeat()
+    local char = plr.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return nil end
+    local seatPart = hum.SeatPart
+    if seatPart and seatPart:IsA("VehicleSeat") then
+        local model = seatPart:FindFirstAncestorOfClass("Model")
+        if model and model.PrimaryPart then
+            return seatPart, model
+        end
+    end
+    return nil
+end
+
+RunService.Heartbeat:Connect(function()
+    if not _G.RAY_BoatSpeedEnabled then return end
+    local seat, boat = GetBoatSeat()
+    if not (seat and boat and boat.PrimaryPart) then return end
+    local speed = _G.RAY_BoatSpeedValue or 120
+    if speed <= 0 then return end
+    local dir = seat.CFrame.LookVector
+    local flat = Vector3.new(dir.X, 0, dir.Z)
+    if flat.Magnitude < 0.01 then return end
+    boat.PrimaryPart.AssemblyLinearVelocity = flat.Unit * speed
+end)
+
+-- ===== HIDE NAME ENGINE =====
+
+local function SetCharNameVisible(char, visible)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    hum.DisplayDistanceType = visible
+        and Enum.HumanoidDisplayDistanceType.Viewer
+        or  Enum.HumanoidDisplayDistanceType.None
+end
+
+Safety.SafeLoop(1.0, function()
+    for _, p in ipairs(Players:GetPlayers()) do
+        local char = p.Character
+        if char then
+            SetCharNameVisible(char, not _G.RAY_HideName)
+        end
+    end
+end)
 
 Notify("RAYMOD FISHIT V2 loaded (V1/V2/V3, minimize, shop toggle, boat, reduce map, hide name, auto save).")
