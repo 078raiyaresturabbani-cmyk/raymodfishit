@@ -527,20 +527,18 @@ _G.RAY_AutoSell       = false
 _G.RAY_TP_Location    = "Spawn"
 
 _G.RAY_InfJump        = false
-_G.RAY_Fullbright     = false
 _G.RAY_EnableWalk     = false
 _G.RAY_WalkSpeed      = 16
 _G.RAY_FreezePos      = false
 _G.RAY_FreezeSet      = false
 _G.RAY_FreezeCFrame   = nil
 
-_G.RAY_ReduceMap      = false
-_G.RAY_ReduceRadius   = 150
-
 _G.RAY_BoatSpeedEnabled = false
 _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
+_G.RAY_HideFishPopup  = false
+
 
 -- CFrame Sisyphus Room
 local GHOSFIN_CF = CFrame.new(
@@ -709,19 +707,20 @@ end)
 
 -- ===== GUI: MISC =====
 
-AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, fullbright, reduce map, hide name")
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, hide name, hide popup")
 
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
 AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
-AddToggle(pageMisc, "Fullbright",       false, function(v) _G.RAY_Fullbright = v end)
 AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
-AddToggle(pageMisc, "Reduce Map (FPS)", false, function(v) _G.RAY_ReduceMap = v end)
-AddDelayBox(pageMisc, "Reduce Map Radius", _G.RAY_ReduceRadius, function(v)
-    _G.RAY_ReduceRadius = v
-end)
+
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
+
+AddToggle(pageMisc, "Hide Fish Popup", false, function(v)
+    _G.RAY_HideFishPopup = v
+end)
+
 
 -- Tombol RESET HWID (1 script 1 device)
 local resetHwidBtn = Instance.new("TextButton")
@@ -897,51 +896,6 @@ Safety.SafeLoop(0.05, function()
     end
 end)
 
-Safety.SafeLoop(1.0, function()
-    if not _G.RAY_Fullbright then return end
-    local lighting = game:GetService("Lighting")
-    lighting.Brightness = 2
-    lighting.ClockTime = 14
-    lighting.FogEnd = 1e5
-end)
-
--- ===== REDUCE MAP ENGINE =====
-
-local function ShouldSkipPart(part)
-    if part:IsDescendantOf(Players.LocalPlayer.Character) then return true end
-    if part.Parent and part.Parent:IsA("Tool") then return true end
-    return false
-end
-
-Safety.SafeLoop(1.0, function()
-    if not _G.RAY_ReduceMap then
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("BasePart") then
-                obj.LocalTransparencyModifier = 0
-            end
-        end
-        return
-    end
-    local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    local radius = _G.RAY_ReduceRadius or 150
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and not ShouldSkipPart(obj) then
-            local ok, dist = pcall(function()
-                return (obj.Position - hrp.Position).Magnitude
-            end)
-            if ok then
-                if dist > radius then
-                    obj.LocalTransparencyModifier = 1
-                    obj.CanCollide = false
-                else
-                    obj.LocalTransparencyModifier = 0
-                end
-            end
-        end
-    end
-end)
 
 -- ===== BOAT SPEED ENGINE =====
 
@@ -989,5 +943,35 @@ Safety.SafeLoop(1.0, function()
         end
     end
 end)
+-- ===== HIDE FISH POPUP (TOGGLE) =====
+task.spawn(function()
+    local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+    while task.wait(0.5) do
+        if not _G.RAY_HideFishPopup then
+            continue
+        end
+        for _, guiObj in ipairs(pg:GetDescendants()) do
+            local name = guiObj.Name:lower()
+            if guiObj:IsA("ImageLabel") or guiObj:IsA("ImageButton") then
+                if string.find(name, "fish") or string.find(name, "catch") then
+                    pcall(function()
+                        guiObj.Visible = false
+                    end)
+                end
+            elseif guiObj:IsA("ScreenGui") or guiObj:IsA("Frame") then
+                if string.find(name, "fish") or string.find(name, "catch") then
+                    pcall(function()
+                        if guiObj:IsA("ScreenGui") then
+                            guiObj.Enabled = false
+                        else
+                            guiObj.Visible = false
+                        end
+                    end)
+                end
+            end
+        end
+    end
+end)
+
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
