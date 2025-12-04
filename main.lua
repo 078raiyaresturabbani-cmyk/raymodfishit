@@ -947,19 +947,16 @@ end)
 task.spawn(function()
     local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
     while task.wait(0.5) do
-        if not _G.RAY_HideFishPopup then
-            continue
-        end
-        for _, guiObj in ipairs(pg:GetDescendants()) do
-            local name = guiObj.Name:lower()
-            if string.find(name, "fish") or string.find(name, "catch") then
-                pcall(function()
-                    if guiObj:IsA("ScreenGui") then
-                        guiObj.Enabled = false
-                    elseif guiObj:IsA("GuiObject") then
-                        guiObj.Visible = false
+        if _G.RAY_HideFishPopup then
+            for _, guiObj in ipairs(pg:GetDescendants()) do
+                local name = guiObj.Name:lower()
+                if guiObj:IsA("ImageLabel") or guiObj:IsA("ImageButton") then
+                    if string.find(name, "fish") or string.find(name, "catch") then
+                        pcall(function()
+                            guiObj.Visible = false
+                        end)
                     end
-                end)
+                end
             end
         end
     end
