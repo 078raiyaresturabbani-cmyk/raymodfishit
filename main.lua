@@ -705,17 +705,28 @@ AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
     _G.RAY_BoatSpeedValue = v
 end)
 
--- ===== GUI: MISC =====
+AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, hide name")
 
-AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, hide name, hide popup")
+AddToggle(pageMisc, "Enable Walkspeed", false, function(v)
+    _G.RAY_EnableWalk = v
+end)
 
-AddToggle(pageMisc, "Enable Walkspeed", false, function(v) _G.RAY_EnableWalk = v end)
-AddToggle(pageMisc, "Infinite Jump",    false, function(v) _G.RAY_InfJump = v end)
-AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v end)
+AddDelayBox(pageMisc, "Walkspeed Value", _G.RAY_WalkSpeed, function(v)
+    _G.RAY_WalkSpeed = v
+end)
+
+AddToggle(pageMisc, "Infinite Jump", false, function(v)
+    _G.RAY_InfJump = v
+end)
+
+AddToggle(pageMisc, "Freeze Position", false, function(v)
+    _G.RAY_FreezePos = v
+end)
 
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
+
 
 
 -- Tombol RESET HWID (1 script 1 device)
