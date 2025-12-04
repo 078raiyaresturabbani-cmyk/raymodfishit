@@ -537,7 +537,7 @@ _G.RAY_BoatSpeedEnabled = false
 _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
-_G.RAY_HideFishPopup  = false
+
 
 
 -- CFrame Sisyphus Room
@@ -715,10 +715,6 @@ AddToggle(pageMisc, "Freeze Position",  false, function(v) _G.RAY_FreezePos = v 
 
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
-end)
-
-AddToggle(pageMisc, "Hide Fish Popup", false, function(v)
-    _G.RAY_HideFishPopup = v
 end)
 
 
@@ -943,33 +939,6 @@ Safety.SafeLoop(1.0, function()
         end
     end
 end)
--- ===== HIDE FISH POPUP (TOGGLE) =====
-task.spawn(function()
-    local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
-    local lastSeen = {}
 
-    while task.wait(0.2) do
-        if not _G.RAY_HideFishPopup then
-            -- reset cache kalau dimatikan
-            lastSeen = {}
-        else
-            -- scan semua ImageLabel / ImageButton
-            local current = {}
-            for _, guiObj in ipairs(pg:GetDescendants()) do
-                if guiObj:IsA("ImageLabel") or guiObj:IsA("ImageButton") then
-                    current[guiObj] = true
-                    -- kalau baru muncul (belum ada di lastSeen) dan cukup besar, matiin
-                    local size = guiObj.AbsoluteSize
-                    if not lastSeen[guiObj] and size.X > 80 and size.Y > 80 then
-                        pcall(function()
-                            guiObj.Visible = false
-                        end)
-                    end
-                end
-            end
-            lastSeen = current
-        end
-    end
-end)
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
