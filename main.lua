@@ -1,6 +1,7 @@
 -- RAYMOD FISHIT V2 | UPDATE 1 (NO SHOP TOGGLE)
 -- 1 SCRIPT 1 DEVICE (HWID BIND + RESET GUI)
 -- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
+-- PREMIUM UI (SMALL + TRANSPARENT + BLUR)
 
 -- ===== RAYMOD 1 SCRIPT 1 DEVICE (NO KEY) =====
 local Players             = game:GetService("Players")
@@ -8,6 +9,7 @@ local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 local HttpService         = game:GetService("HttpService")
 local StarterGui          = game:GetService("StarterGui")
 local CoreGui             = game:GetService("CoreGui")
+local Lighting            = game:GetService("Lighting")
 
 local DEVICE_FILE = "raymod_fishit_device.json"
 
@@ -122,7 +124,7 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
--- ===== GUI BASE =====
+-- ===== GUI BASE (SMALL + TRANSPARENT + BLUR) =====
 
 local oldGui = Players.LocalPlayer.PlayerGui:FindFirstChild("RAYMOD_FISHIT_GUI")
 if oldGui then oldGui:Destroy() end
@@ -132,10 +134,23 @@ gui.Name = "RAYMOD_FISHIT_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
+-- PREMIUM BLUR
+local blur = Instance.new("BlurEffect")
+blur.Name = "RAYMOD_Blur"
+blur.Enabled = false
+blur.Size = 0
+blur.Parent = Lighting
+
+local function SetBlur(enabled)
+    blur.Enabled = enabled
+    blur.Size = enabled and 18 or 0
+end
+
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 420, 0, 260)
 main.Position = UDim2.new(0.5, -210, 0.5, -130)
 main.BackgroundColor3 = Color3.fromRGB(8, 10, 20)
+main.BackgroundTransparency = 0.25
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
@@ -143,13 +158,15 @@ main.Parent = gui
 do
     local corner = Instance.new("UICorner", main); corner.CornerRadius = UDim.new(0, 14)
     local stroke = Instance.new("UIStroke", main)
-    stroke.Color = Color3.fromRGB(0, 190, 255)
-    stroke.Thickness = 2
+    stroke.Color = Color3.fromRGB(120, 200, 255)
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.1
 end
 
 local top = Instance.new("Frame")
 top.Size = UDim2.new(1, 0, 0, 34)
 top.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
+top.BackgroundTransparency = 0.15
 top.BorderSizePixel = 0
 top.Parent = main
 Instance.new("UICorner", top).CornerRadius = UDim.new(0, 14)
@@ -175,7 +192,6 @@ close.Font = Enum.Font.GothamBold
 close.TextSize = 14
 close.Parent = top
 Instance.new("UICorner", close).CornerRadius = UDim.new(0, 6)
-close.MouseButton1Click:Connect(function() gui:Destroy() end)
 
 local mini = Instance.new("TextButton")
 mini.Size = UDim2.new(0, 26, 0, 22)
@@ -199,6 +215,7 @@ miniText.Name = "RAYMOD_MinimizeButton"
 miniText.Size = UDim2.new(0, 140, 0, 28)
 miniText.Position = UDim2.new(0, 10, 0, 10)
 miniText.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+miniText.BackgroundTransparency = 0.2
 miniText.Text = "RAYMOD FISHIT V2"
 miniText.TextColor3 = Color3.fromRGB(230, 230, 255)
 miniText.Font = Enum.Font.GothamBold
@@ -209,21 +226,32 @@ miniText.Parent = gui
 Instance.new("UICorner", miniText).CornerRadius = UDim.new(0, 8)
 
 local minimized = false
+SetBlur(true)
+
 mini.MouseButton1Click:Connect(function()
     minimized = not minimized
     main.Visible = not minimized
     miniText.Visible = minimized
+    SetBlur(not minimized)
 end)
+
 miniText.MouseButton1Click:Connect(function()
     minimized = false
     main.Visible = true
     miniText.Visible = false
+    SetBlur(true)
+end)
+
+close.MouseButton1Click:Connect(function()
+    SetBlur(false)
+    gui:Destroy()
 end)
 
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0, 150, 1, -16)
 sidebar.Position = UDim2.new(0, 10, 0, 8)
 sidebar.BackgroundColor3 = Color3.fromRGB(14, 18, 40)
+sidebar.BackgroundTransparency = 0.25
 sidebar.BorderSizePixel = 0
 sidebar.Parent = content
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
@@ -247,6 +275,7 @@ local pageHolder = Instance.new("Frame")
 pageHolder.Size = UDim2.new(1, -180, 1, -16)
 pageHolder.Position = UDim2.new(0, 170, 0, 8)
 pageHolder.BackgroundColor3 = Color3.fromRGB(18, 20, 42)
+pageHolder.BackgroundTransparency = 0.3
 pageHolder.BorderSizePixel = 0
 pageHolder.Parent = content
 Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
@@ -279,6 +308,7 @@ local function CreateTabButton(text, pageName)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -20, 0, 28)
     btn.BackgroundColor3 = Color3.fromRGB(22, 26, 56)
+    btn.BackgroundTransparency = 0.2
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(210, 220, 255)
     btn.Font = Enum.Font.Gotham
@@ -357,6 +387,7 @@ local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
     frame.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    frame.BackgroundTransparency = 0.2
     frame.BorderSizePixel = 0
     frame.Parent = parent
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
@@ -397,6 +428,7 @@ local function AddToggle(parent, label, default, callback)
     local row = Instance.new("Frame")
     row.Size = UDim2.new(1, -4, 0, 30)
     row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    row.BackgroundTransparency = 0.2
     row.BorderSizePixel = 0
     row.Parent = parent
     Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
@@ -443,6 +475,7 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     local row = Instance.new("Frame")
     row.Size = UDim2.new(1, -4, 0, 34)
     row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    row.BackgroundTransparency = 0.2
     row.BorderSizePixel = 0
     row.Parent = parent
     Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
@@ -462,6 +495,7 @@ local function AddDelayBox(parent, label, defaultValue, onChange)
     box.Size = UDim2.new(0.4, -14, 0, 24)
     box.Position = UDim2.new(0.6, 4, 0.5, -12)
     box.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
+    box.BackgroundTransparency = 0.1
     box.TextColor3 = Color3.fromRGB(230, 230, 255)
     box.Font = Enum.Font.Gotham
     box.TextSize = 13
@@ -617,6 +651,7 @@ for name, _ in pairs(LOCATIONS) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -4, 0, 28)
     btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    btn.BackgroundTransparency = 0.2
     btn.Text = name
     btn.TextColor3 = Color3.fromRGB(230, 230, 255)
     btn.Font = Enum.Font.Gotham
@@ -633,6 +668,7 @@ AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Ro
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
 btnGhostfin.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnGhostfin.BackgroundTransparency = 0.2
 btnGhostfin.Text = "Teleport ke Sisyphus Room"
 btnGhostfin.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnGhostfin.Font = Enum.Font.Gotham
@@ -641,7 +677,7 @@ btnGhostfin.Parent = pageQuest
 Instance.new("UICorner", btnGhostfin).CornerRadius = UDim.new(0, 8)
 btnGhostfin.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hrp = char and char:FindChild("HumanoidRootPart")
     if hrp then
         hrp.CFrame = GHOSFIN_CF
     end
@@ -650,6 +686,7 @@ end)
 local btnTreasure = Instance.new("TextButton")
 btnTreasure.Size = UDim2.new(1, -4, 0, 28)
 btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnTreasure.BackgroundTransparency = 0.2
 btnTreasure.Text = "Teleport ke Treasure Room"
 btnTreasure.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnTreasure.Font = Enum.Font.Gotham
@@ -953,4 +990,4 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
-Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small GUI).")
+Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
