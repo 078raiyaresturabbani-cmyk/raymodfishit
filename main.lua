@@ -952,26 +952,17 @@ task.spawn(function()
         end
         for _, guiObj in ipairs(pg:GetDescendants()) do
             local name = guiObj.Name:lower()
-            if guiObj:IsA("ImageLabel") or guiObj:IsA("ImageButton") then
-                if string.find(name, "fish") or string.find(name, "catch") then
-                    pcall(function()
+            if string.find(name, "fish") or string.find(name, "catch") then
+                pcall(function()
+                    if guiObj:IsA("ScreenGui") then
+                        guiObj.Enabled = false
+                    elseif guiObj:IsA("GuiObject") then
                         guiObj.Visible = false
-                    end)
-                end
-            elseif guiObj:IsA("ScreenGui") or guiObj:IsA("Frame") then
-                if string.find(name, "fish") or string.find(name, "catch") then
-                    pcall(function()
-                        if guiObj:IsA("ScreenGui") then
-                            guiObj.Enabled = false
-                        else
-                            guiObj.Visible = false
-                        end
-                    end)
-                end
+                    end
+                end)
             end
         end
     end
 end)
-
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
