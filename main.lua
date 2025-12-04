@@ -946,24 +946,30 @@ end)
 -- ===== HIDE FISH POPUP (TOGGLE) =====
 task.spawn(function()
     local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
-    while task.wait(0.5) do
-        if _G.RAY_HideFishPopup then
+    local lastSeen = {}
+
+    while task.wait(0.2) do
+        if not _G.RAY_HideFishPopup then
+            -- reset cache kalau dimatikan
+            lastSeen = {}
+        else
+            -- scan semua ImageLabel / ImageButton
+            local current = {}
             for _, guiObj in ipairs(pg:GetDescendants()) do
                 if guiObj:IsA("ImageLabel") or guiObj:IsA("ImageButton") then
+                    current[guiObj] = true
+                    -- kalau baru muncul (belum ada di lastSeen) dan cukup besar, matiin
                     local size = guiObj.AbsoluteSize
-                    local pos  = guiObj.AbsolutePosition
-
-                    -- HANYA gambar besar di tengah layar (perkiraan gambar ikan popup)
-                    if size.X > 150 and size.Y > 150 and pos.Y > 200 and pos.Y < 850 then
+                    if not lastSeen[guiObj] and size.X > 80 and size.Y > 80 then
                         pcall(function()
                             guiObj.Visible = false
                         end)
                     end
                 end
             end
+            lastSeen = current
         end
     end
 end)
-
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
