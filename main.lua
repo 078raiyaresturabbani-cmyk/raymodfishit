@@ -221,8 +221,8 @@ miniText.MouseButton1Click:Connect(function()
 end)
 
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 140, 1, -16)
-sidebar.Position = UDim2.new(0, 8, 0, 8)
+sidebar.Size = UDim2.new(0, 150, 1, -16)
+sidebar.Position = UDim2.new(0, 10, 0, 8)
 sidebar.BackgroundColor3 = Color3.fromRGB(14, 18, 40)
 sidebar.BorderSizePixel = 0
 sidebar.Parent = content
@@ -244,8 +244,8 @@ sideHeader.TextSize = 14
 sideHeader.Parent = sidebar
 
 local pageHolder = Instance.new("Frame")
-pageHolder.Size = UDim2.new(1, -160, 1, -16)
-pageHolder.Position = UDim2.new(0, 152, 0, 8)
+pageHolder.Size = UDim2.new(1, -180, 1, -16)
+pageHolder.Position = UDim2.new(0, 170, 0, 8)
 pageHolder.BackgroundColor3 = Color3.fromRGB(18, 20, 42)
 pageHolder.BorderSizePixel = 0
 pageHolder.Parent = content
@@ -277,7 +277,7 @@ local function SwitchPage(name)
 end
 local function CreateTabButton(text, pageName)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 26)
+    btn.Size = UDim2.new(1, -20, 0, 28)
     btn.BackgroundColor3 = Color3.fromRGB(22, 26, 56)
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(210, 220, 255)
@@ -415,7 +415,7 @@ local function AddToggle(parent, label, default, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 32, 0, 16)
     btn.Position = UDim2.new(1, -42, 0.5, -8)
-    btn.BackgroundColor3 = default and Color3.fromRGB(255, 80, 170) or Color3#fromRGB(70, 72, 110)
+    btn.BackgroundColor3 = default and Color3.fromRGB(255, 80, 170) or Color3.fromRGB(70, 72, 110)
     btn.Text = ""
     btn.Parent = row
     Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
@@ -615,7 +615,7 @@ end)
 AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
 for name, _ in pairs(LOCATIONS) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -4, 0, 26)
+    btn.Size = UDim2.new(1, -4, 0, 28)
     btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
     btn.Text = name
     btn.TextColor3 = Color3.fromRGB(230, 230, 255)
@@ -631,7 +631,7 @@ end
 AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
 
 local btnGhostfin = Instance.new("TextButton")
-btnGhostfin.Size = UDim2.new(1, -4, 0, 26)
+btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
 btnGhostfin.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
 btnGhostfin.Text = "Teleport ke Sisyphus Room"
 btnGhostfin.TextColor3 = Color3.fromRGB(230, 230, 255)
@@ -648,7 +648,7 @@ btnGhostfin.MouseButton1Click:Connect(function()
 end)
 
 local btnTreasure = Instance.new("TextButton")
-btnTreasure.Size = UDim2.new(1, -4, 0, 26)
+btnTreasure.Size = UDim2.new(1, -4, 0, 28)
 btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
 btnTreasure.Text = "Teleport ke Treasure Room"
 btnTreasure.TextColor3 = Color3.fromRGB(230, 230, 255)
@@ -688,7 +688,7 @@ end)
 
 -- Tombol RESET HWID (1 script 1 device)
 local resetHwidBtn = Instance.new("TextButton")
-resetHwidBtn.Size = UDim2.new(1, -4, 0, 26)
+resetHwidBtn.Size = UDim2.new(1, -4, 0, 28)
 resetHwidBtn.BackgroundColor3 = Color3.fromRGB(220, 80, 90)
 resetHwidBtn.Text = "RESET HWID (UNBIND DEVICE)"
 resetHwidBtn.TextColor3 = Color3.fromRGB(240, 240, 255)
