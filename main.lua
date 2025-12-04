@@ -949,9 +949,12 @@ task.spawn(function()
     while task.wait(0.5) do
         if _G.RAY_HideFishPopup then
             for _, guiObj in ipairs(pg:GetDescendants()) do
-                local name = guiObj.Name:lower()
                 if guiObj:IsA("ImageLabel") or guiObj:IsA("ImageButton") then
-                    if string.find(name, "fish") or string.find(name, "catch") then
+                    local size = guiObj.AbsoluteSize
+                    local pos  = guiObj.AbsolutePosition
+
+                    -- HANYA gambar besar di tengah layar (perkiraan gambar ikan popup)
+                    if size.X > 150 and size.Y > 150 and pos.Y > 200 and pos.Y < 850 then
                         pcall(function()
                             guiObj.Visible = false
                         end)
@@ -961,5 +964,6 @@ task.spawn(function()
         end
     end
 end)
+
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
