@@ -791,13 +791,6 @@ btnTreasure.MouseButton1Click:Connect(function()
 end)
 
 
--- SPACER DI ANTARA QUEST DAN ELEMENT
-local spacer = Instance.new("Frame")
-spacer.Size = UDim2.new(1, -4, 0, 4)
-spacer.BackgroundTransparency = 1
-spacer.Parent = pageQuest
-
-
 -- SECTION 2: QUEST ELEMENT (3 TOMBOL)
 AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
 
@@ -860,7 +853,6 @@ btnUnderground.MouseButton1Click:Connect(function()
         hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
     end
 end)
-
 
 
 
