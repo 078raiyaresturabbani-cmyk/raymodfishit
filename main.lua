@@ -751,8 +751,7 @@ end
 -- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
 
--- SECTION 1: TELEPORT QUEST (CUMA 2)
-AddSection(pageQuest, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
+AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
 
 
 -- Sisyphus Room (GHOSFIN_CF)
@@ -775,7 +774,7 @@ btnGhostfin.MouseButton1Click:Connect(function()
 end)
 
 
--- Treasure Room
+-- Treasure Room (pakai TeleportTo, TIDAK diubah)
 local btnTreasure = Instance.new("TextButton")
 btnTreasure.Size = UDim2.new(1, -4, 0, 28)
 btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -791,11 +790,13 @@ btnTreasure.MouseButton1Click:Connect(function()
 end)
 
 
--- SECTION 2: QUEST ELEMENT (3 TOMBOL)
+-- QUEST ELEMENT (SEMUA CFrame manual, gak lewat LOCATIONS)
+
+
 AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
 
 
--- Hutan Kuno
+-- Hutan Kuno (pakai CFrame langsung, BUKAN TeleportTo)
 local btnHutanKuno = Instance.new("TextButton")
 btnHutanKuno.Size = UDim2.new(1, -4, 0, 28)
 btnHutanKuno.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -815,7 +816,7 @@ btnHutanKuno.MouseButton1Click:Connect(function()
 end)
 
 
--- Sacred Temple
+-- Sacred Temple (element)
 local btnSacred = Instance.new("TextButton")
 btnSacred.Size = UDim2.new(1, -4, 0, 28)
 btnSacred.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -835,7 +836,7 @@ btnSacred.MouseButton1Click:Connect(function()
 end)
 
 
--- Underground Cellar
+-- Underground Cellar (element)
 local btnUnderground = Instance.new("TextButton")
 btnUnderground.Size = UDim2.new(1, -4, 0, 28)
 btnUnderground.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -853,8 +854,6 @@ btnUnderground.MouseButton1Click:Connect(function()
         hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
     end
 end)
-
-
 
 
 -- ===== GUI: BOAT =====
@@ -1146,4 +1145,4 @@ end)
 
 
 
-Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
+Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")?
