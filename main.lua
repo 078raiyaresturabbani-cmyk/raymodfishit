@@ -1235,7 +1235,4 @@ task.spawn(SetupHideFishNotif)
 task.spawn(function()
     SetupHideFishNotif()
 end)
-
-
-
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
