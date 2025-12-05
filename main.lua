@@ -606,7 +606,7 @@ _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
 
-_G.RAY_HideFishNotif   = false
+
 
 
 
@@ -906,9 +906,7 @@ AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
 
-AddToggle(pageMisc, "Hide Fish Image & Rarity", false, function(v)
-    _G.RAY_HideFishNotif = v
-end)
+
 
 
 
@@ -1159,60 +1157,6 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
--- ===== HIDE FISH NOTIFICATION (IMAGE + "1 in X") =====
-
-local function RAY_SetupHideFishNotif()
-    local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
-    local TARGET_GUIS = {
-        ["Small Notification"] = true,
-        ["Text Notifications"] = true,
-    }
-
-    local function shouldHideText(txt)
-        return txt and txt ~= "" and string.find(txt, "1 in")
-    end
-
-    local function processGui(gui)
-        if not _G.RAY_HideFishNotif then return end
-        if not TARGET_GUIS[gui.Name] then return end
-        for _, o in ipairs(gui:GetDescendants()) do
-            if o:IsA("ImageLabel") or o:IsA("ImageButton") then
-                o.ImageTransparency = 1
-                o.Visible = false
-            elseif o:IsA("TextLabel") and shouldHideText(o.Text) then
-                o.TextTransparency = 1
-                o.Visible = false
-            end
-        end
-    end
-
-    for _, g in ipairs(pg:GetChildren()) do
-        if TARGET_GUIS[g.Name] then
-            processGui(g)
-        end
-    end
-
-    pg.ChildAdded:Connect(function(ch)
-        if not _G.RAY_HideFishNotif then return end
-        if TARGET_GUIS[ch.Name] then
-            task.wait(0.05)
-            processGui(ch)
-            ch.DescendantAdded:Connect(function(o)
-                if not _G.RAY_HideFishNotif then return end
-                task.wait()
-                if o:IsA("ImageLabel") or o:IsA("ImageButton") then
-                    o.ImageTransparency = 1
-                    o.Visible = false
-                elseif o:IsA("TextLabel") and shouldHideText(o.Text) then
-                    o.TextTransparency = 1
-                    o.Visible = false
-                end
-            end)
-        end
-    end)
-end
-
-task.spawn(RAY_SetupHideFishNotif)
 
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
