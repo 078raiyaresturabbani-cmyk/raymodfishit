@@ -1161,74 +1161,58 @@ end)
 
 -- ===== HIDE FISH NOTIFICATION (IMAGE + "1 in X") =====
 
-local function SetupHideFishNotif()
-    local plr = Players.LocalPlayer
-    local pg = plr:WaitForChild("PlayerGui")
-
+local function RAY_SetupHideFishNotif()
+    local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
     local TARGET_GUIS = {
-        "Small Notification",
-        "Text Notifications",
+        ["Small Notification"] = true,
+        ["Text Notifications"] = true,
     }
 
-    local function isTargetGui(gui)
-        if not gui or not gui:IsDescendantOf(pg) then return false end
-        return table.find(TARGET_GUIS, gui.Name) ~= nil
-    end
-
     local function shouldHideText(txt)
-        if not txt or txt == "" then return false end
-        if string.find(txt, "1 in") then
-            return true
-        end
-        return false
+        return txt and txt ~= "" and string.find(txt, "1 in")
     end
 
-    local function processNotifGui(gui)
+    local function processGui(gui)
         if not _G.RAY_HideFishNotif then return end
-        if not isTargetGui(gui) then return end
-        for _, obj in ipairs(gui:GetDescendants()) do
-            if not obj:IsDescendantOf(pg) then continue end
-            if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                obj.ImageTransparency = 1
-                obj.Visible = false
-            elseif obj:IsA("TextLabel") then
-                if shouldHideText(obj.Text) then
-                    obj.TextTransparency = 1
-                    obj.Visible = false
-                end
+        if not TARGET_GUIS[gui.Name] then return end
+        for _, o in ipairs(gui:GetDescendants()) do
+            if o:IsA("ImageLabel") or o:IsA("ImageButton") then
+                o.ImageTransparency = 1
+                o.Visible = false
+            elseif o:IsA("TextLabel") and shouldHideText(o.Text) then
+                o.TextTransparency = 1
+                o.Visible = false
             end
         end
     end
 
-    -- proses GUI yang sudah ada (kalau toggle ON)
-    for _, gui in ipairs(pg:GetChildren()) do
-        if isTargetGui(gui) then
-            processNotifGui(gui)
+    for _, g in ipairs(pg:GetChildren()) do
+        if TARGET_GUIS[g.Name] then
+            processGui(g)
         end
     end
 
-    -- hook GUI baru
-    pg.ChildAdded:Connect(function(child)
+    pg.ChildAdded:Connect(function(ch)
         if not _G.RAY_HideFishNotif then return end
-        if isTargetGui(child) then
+        if TARGET_GUIS[ch.Name] then
             task.wait(0.05)
-            processNotifGui(child)
-            child.DescendantAdded:Connect(function(obj)
+            processGui(ch)
+            ch.DescendantAdded:Connect(function(o)
                 if not _G.RAY_HideFishNotif then return end
-                if not obj:IsDescendantOf(child) then return end
                 task.wait()
-                if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                    obj.ImageTransparency = 1
-                    obj.Visible = false
-                elseif obj:IsA("TextLabel") and shouldHideText(obj.Text) then
-                    obj.TextTransparency = 1
-                    obj.Visible = false
+                if o:IsA("ImageLabel") or o:IsA("ImageButton") then
+                    o.ImageTransparency = 1
+                    o.Visible = false
+                elseif o:IsA("TextLabel") and shouldHideText(o.Text) then
+                    o.TextTransparency = 1
+                    o.Visible = false
                 end
             end)
         end
     end)
 end
 
-task.spawn(SetupHideFishNotif)
+task.spawn(RAY_SetupHideFishNotif)
+
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
