@@ -1,6 +1,6 @@
 -- RAYMOD FISHIT V2 | UPDATE 1 (NO SHOP TOGGLE)
 -- 1 SCRIPT 1 DEVICE (HWID BIND + RESET GUI)
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, HIDE NAME, AUTO SAVE, ANTI AFK
 -- PREMIUM UI (SMALL + TRANSPARENT + BLUR)
 
 -- ===== RAYMOD 1 SCRIPT 1 DEVICE (NO KEY) =====
@@ -538,8 +538,6 @@ _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
 
-
-
 -- CFrame Sisyphus Room
 local GHOSFIN_CF = CFrame.new(
     -3708.77563, -135.073914, -1012.4093,
@@ -569,20 +567,22 @@ local Events = {
 -- ===== TELEPORT LOCATIONS =====
 
 local LOCATIONS = {
-    ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
-    ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
-    ["Coral Reefs"]      = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
-    ["Esoteric Depths"]  = CFrame.new(3248.37109, -1301.53027, 1403.82727),
-    ["Crater Island"]    = CFrame.new(1016.49072, 20.0919304, 5069.27295),
-    ["Lost Isle"]        = CFrame.new(-3618.15698, 240.836655, -1317.45801),
-    ["Weather Machine"]  = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
-    ["Tropical Grove"]   = CFrame.new(-2095.34106, 197.199997, 3718.08008),
-    ["Mount Hallow"]     = CFrame.new(2136.62305, 78.9163895, 3272.50439),
-    ["Treasure Room"]    = CFrame.new(-3606.34985, -266.57373, -1580.97339),
-    ["Kohana"]           = CFrame.new(-663.904236, 3.04580712, 718.796875),
-    ["Underground Cellar"]=CFrame.new(2109.52148, -94.1875076, -708.609131),
-    ["Ancient Jungle"]   = CFrame.new(1831.71362, 6.62499952, -299.279175),
-    ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
+    ["Spawn"]             = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]   = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]       = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]   = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]     = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]         = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]   = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]    = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]      = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]     = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]            = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"]= CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]    = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]     = CFrame.new(1466.92151, -21.8750591, -622.835693),
+    -- Lokasi Quest Element Hutan Kuno
+    ["Hutan Kuno"]        = CFrame.new(1491.9373779296875, 2.755492925643921, -337.64642333984375),
 }
 
 local function TeleportTo(name)
@@ -659,7 +659,7 @@ for name, _ in pairs(LOCATIONS) do
     btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
 end
 
--- ===== GUI: QUEST (SISYPHUS / TREASURE) =====
+-- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
 AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
 
@@ -675,7 +675,7 @@ btnGhostfin.Parent = pageQuest
 Instance.new("UICorner", btnGhostfin).CornerRadius = UDim.new(0, 8)
 btnGhostfin.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindChild("HumanoidRootPart")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if hrp then
         hrp.CFrame = GHOSFIN_CF
     end
@@ -695,6 +695,14 @@ btnTreasure.MouseButton1Click:Connect(function()
     TeleportTo("Treasure Room")
 end)
 
+AddSection(pageQuest, "Quest Element", "Toggle TP untuk farming elemen")
+
+AddToggle(pageQuest, "Teleport Hutan Kuno", false, function(v)
+    if v then
+        TeleportTo("Hutan Kuno")
+    end
+end)
+
 -- ===== GUI: BOAT =====
 
 AddSection(pageBoat, "Boat Speed", "Boost kecepatan boat lokal")
@@ -704,6 +712,8 @@ end)
 AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
     _G.RAY_BoatSpeedValue = v
 end)
+
+-- ===== GUI: MISC =====
 
 AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, hide name")
 
@@ -726,8 +736,6 @@ end)
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
-
-
 
 -- Tombol RESET HWID (1 script 1 device)
 local resetHwidBtn = Instance.new("TextButton")
@@ -903,7 +911,6 @@ Safety.SafeLoop(0.05, function()
     end
 end)
 
-
 -- ===== BOAT SPEED ENGINE =====
 
 local function GetBoatSeat()
@@ -950,6 +957,5 @@ Safety.SafeLoop(1.0, function()
         end
     end
 end)
-
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
