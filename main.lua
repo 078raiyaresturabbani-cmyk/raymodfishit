@@ -1156,7 +1156,7 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
--- ===== HIDE FISH NOTIFICATION (ALL IMAGE + TEXT) =====
+-- ===== HIDE FISH NOTIFICATION (HANYA NOTIF PERTAMA) =====
 
 local function RAY_SetupHideFishNotif()
     local plr = Players.LocalPlayer
@@ -1166,6 +1166,9 @@ local function RAY_SetupHideFishNotif()
         ["Small Notification"] = true,
         ["Text Notifications"] = true,
     }
+
+    -- hitung berapa kali GUI notif ini sudah dipakai
+    local notifCount = {}
 
     local function hideObj(obj)
         if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
@@ -1181,36 +1184,49 @@ local function RAY_SetupHideFishNotif()
         if not _G.RAY_HideFishNotif then return end
         if not TARGET_GUIS[gui.Name] then return end
 
+        -- increment counter
+        notifCount[gui] = (notifCount[gui] or 0) + 1
+
+        -- HANYA hide untuk notif pertama
+        if notifCount[gui] ~= 1 then
+            return
+        end
+
         for _, obj in ipairs(gui:GetDescendants()) do
             hideObj(obj)
         end
     end
 
-    -- yang sudah ada
+    -- notif yang GUI-nya sudah ada
     for _, gui in ipairs(pg:GetChildren()) do
         if TARGET_GUIS[gui.Name] then
             processGui(gui)
             gui.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
-                hideObj(obj)
+                if notifCount[gui] == 1 then
+                    hideObj(obj)
+                end
             end)
         end
     end
 
-    -- yang baru muncul
+    -- notif baru (GUI muncul belakangan)
     pg.ChildAdded:Connect(function(child)
         if not _G.RAY_HideFishNotif then return end
         if TARGET_GUIS[child.Name] then
             processGui(child)
             child.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
-                hideObj(obj)
+                if notifCount[child] == 1 then
+                    hideObj(obj)
+                end
             end)
         end
     end)
 end
 
 task.delay(5, RAY_SetupHideFishNotif)
+
 
 
 
