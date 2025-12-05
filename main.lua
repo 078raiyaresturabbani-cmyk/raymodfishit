@@ -1220,7 +1220,10 @@ local function RAY_SetupHideFishNotif()
     end)
 end
 
-task.spawn(RAY_SetupHideFishNotif)
+task.wait(5)
+local plr = Players.LocalPlayer
+local pg = plr:WaitForChild("PlayerGui")
+
 
 
 
