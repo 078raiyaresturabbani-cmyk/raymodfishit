@@ -360,12 +360,12 @@ local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
 
 
-CreateTabButton("Γöé Fishing",   "Fishing")
-CreateTabButton("Γöé Backpack",  "Backpack")
-CreateTabButton("Γöé Teleport",  "Teleport")
-CreateTabButton("Γöé Quest",     "Quest")
-CreateTabButton("Γöé Boat",      "Boat")
-CreateTabButton("Γöé Misc",      "Misc")
+CreateTabButton(" Fishing",   "Fishing")
+CreateTabButton(" Backpack",  "Backpack")
+CreateTabButton(" Teleport",  "Teleport")
+CreateTabButton(" Quest",     "Quest")
+CreateTabButton(" Boat",      "Boat")
+CreateTabButton(" Misc",      "Misc")
 
 
 SwitchPage("Fishing")
