@@ -779,26 +779,31 @@ end
 local function BlatantCycle_V2()
     if isFishing then return end
     isFishing = true
+
     pcall(function()
+        -- equip dulu, kasih napas dikit
         Events.equip:FireServer(1)
-        task.wait(0.01)
-        for _ = 1,2 do
-            task.spawn(function()
-                Events.charge:InvokeServer(1755848498.4834)
-                task.wait(0.01)
-                Events.minigame:InvokeServer(1.2854545116425, 1)
-            end)
-            task.wait(0.03)
-        end
+        task.wait(0.03)
+
+        -- 1x cast yang rapi, bukan 2x paralel barbar
+        Events.charge:InvokeServer(1755848498.4834)
+        task.wait(0.09)
+        Events.minigame:InvokeServer(1.2854545116425, 1)
     end)
-    task.wait(_G.RAY_DelayCast_V2)
-    for _ = 1,5 do
+
+    -- tunggu sampai ikan pasti hook
+    task.wait(_G.RAY_DelayCast_V2) -- 1.45
+
+    -- reel 3x dengan interval kecil (anti packet loss / jitter)
+    for _ = 1,3 do
         reelIn()
-        task.wait(0.01)
+        task.wait(0.04)
     end
-    task.wait(_G.RAY_DelayFinish_V2 * 0.5)
+
+    task.wait(_G.RAY_DelayFinish_V2) -- 0.55
     isFishing = false
 end
+
 
 local function BlatantCycle_V3()
     if isFishing then return end
