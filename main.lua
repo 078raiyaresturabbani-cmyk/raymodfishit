@@ -661,6 +661,7 @@ end
 
 -- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
+-- SECTION 1: TELEPORT QUEST (CUMA 2)
 AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
 
 -- Sisyphus Room (GHOSFIN_CF)
@@ -682,7 +683,7 @@ btnGhostfin.MouseButton1Click:Connect(function()
     end
 end)
 
--- Treasure Room (pakai TeleportTo, TIDAK diubah)
+-- Treasure Room
 local btnTreasure = Instance.new("TextButton")
 btnTreasure.Size = UDim2.new(1, -4, 0, 28)
 btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -697,11 +698,10 @@ btnTreasure.MouseButton1Click:Connect(function()
     TeleportTo("Treasure Room")
 end)
 
--- QUEST ELEMENT (SEMUA CFrame manual, gak lewat LOCATIONS)
-
+-- SECTION 2: QUEST ELEMENT (3 TOMBOL)
 AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
 
--- Hutan Kuno (pakai CFrame langsung, BUKAN TeleportTo)
+-- Hutan Kuno
 local btnHutanKuno = Instance.new("TextButton")
 btnHutanKuno.Size = UDim2.new(1, -4, 0, 28)
 btnHutanKuno.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -720,7 +720,7 @@ btnHutanKuno.MouseButton1Click:Connect(function()
     end
 end)
 
--- Sacred Temple (element)
+-- Sacred Temple
 local btnSacred = Instance.new("TextButton")
 btnSacred.Size = UDim2.new(1, -4, 0, 28)
 btnSacred.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -739,7 +739,7 @@ btnSacred.MouseButton1Click:Connect(function()
     end
 end)
 
--- Underground Cellar (element)
+-- Underground Cellar
 local btnUnderground = Instance.new("TextButton")
 btnUnderground.Size = UDim2.new(1, -4, 0, 28)
 btnUnderground.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -757,6 +757,7 @@ btnUnderground.MouseButton1Click:Connect(function()
         hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
     end
 end)
+
 
 -- ===== GUI: BOAT =====
 
