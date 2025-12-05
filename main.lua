@@ -3,157 +3,142 @@
 -- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
 -- PREMIUM UI (SMALL + TRANSPARENT + BLUR)
 
-
 -- ===== RAYMOD 1 SCRIPT 1 DEVICE (NO KEY) =====
-local Players             = game:GetService("Players")
+local Players             = game:GetService("Players")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
-local HttpService         = game:GetService("HttpService")
-local StarterGui          = game:GetService("StarterGui")
-local CoreGui             = game:GetService("CoreGui")
-local Lighting            = game:GetService("Lighting")
-
+local HttpService         = game:GetService("HttpService")
+local StarterGui          = game:GetService("StarterGui")
+local CoreGui             = game:GetService("CoreGui")
+local Lighting            = game:GetService("Lighting")
 
 local DEVICE_FILE = "raymod_fishit_device.json"
 
-
 local function getHWID()
-    local hwid
-    pcall(function()
-        hwid = RbxAnalyticsService:GetClientId()
-    end)
-    return hwid or "UNKNOWN_HWID"
+    local hwid
+    pcall(function()
+        hwid = RbxAnalyticsService:GetClientId()
+    end)
+    return hwid or "UNKNOWN_HWID"
 end
-
 
 local function loadDevice()
-    if not (isfile and readfile and isfile(DEVICE_FILE)) then return nil end
-    local ok, data = pcall(function()
-        return HttpService:JSONDecode(readfile(DEVICE_FILE))
-    end)
-    if ok and type(data) == "table" then
-        return data
-    end
-    return nil
+    if not (isfile and readfile and isfile(DEVICE_FILE)) then return nil end
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(readfile(DEVICE_FILE))
+    end)
+    if ok and type(data) == "table" then
+        return data
+    end
+    return nil
 end
-
 
 local function saveDevice(tbl)
-    if not writefile then return end
-    local ok, js = pcall(function()
-        return HttpService:JSONEncode(tbl)
-    end)
-    if ok then
-        writefile(DEVICE_FILE, js)
-    end
+    if not writefile then return end
+    local ok, js = pcall(function()
+        return HttpService:JSONEncode(tbl)
+    end)
+    if ok then
+        writefile(DEVICE_FILE, js)
+    end
 end
-
 
 local function deleteDevice()
-    if delfile and isfile and isfile(DEVICE_FILE) then
-        pcall(function() delfile(DEVICE_FILE) end)
-    end
+    if delfile and isfile and isfile(DEVICE_FILE) then
+        pcall(function()
+            delfile(DEVICE_FILE)
+        end)
+    end
 end
-
 
 local function checkOneDevice()
-    local uid  = Players.LocalPlayer.UserId
-    local hwid = getHWID()
-    local saved = loadDevice()
+    local uid  = Players.LocalPlayer.UserId
+    local hwid = getHWID()
+    local saved = loadDevice()
 
+    if saved then
+        if saved.UserId == uid and saved.HWID == hwid then
+            return true
+        else
+            return false
+        end
+    end
 
-    if saved then
-        if saved.UserId == uid and saved.HWID == hwid then
-            return true
-        else
-            return false
-        end
-    end
+    saveDevice({
+        UserId = uid,
+        HWID   = hwid,
+    })
 
-
-    saveDevice({
-        UserId = uid,
-        HWID   = hwid,
-    })
-
-
-    return true
+    return true
 end
-
 
 if not checkOneDevice() then
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "RAYMOD FISHIT V2",
-            Text = "Script ini sudah ke-bind ke device lain.",
-            Duration = 5
-        })
-    end)
-    return
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "RAYMOD FISHIT V2",
+            Text = "Script ini sudah ke-bind ke device lain.",
+            Duration = 5
+        })
+    end)
+    return
 end
 
-
 -- ===== LANJUTAN SCRIPT ASLI =====
-
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 local RunService = game:GetService("RunService")
 
-
 -- ===== SAFETY =====
 
-
 local Safety = {}
-function Safety.HumanWait(min, max)
-    local r = math.random()
-    local t = min + (max - min) * r
-    task.wait(t)
-end
-function Safety.SafeLoop(step, fn)
-    task.spawn(function()
-        while task.wait(step) do
-            local ok, err = pcall(fn)
-            if not ok then
-                warn("RAYMOD SAFELOOP ERROR:", err)
-                Safety.HumanWait(0.5, 1.5)
-            end
-        end
-    end)
-end
-local function Notify(msg)
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "RAYMOD FISHIT V2",
-            Text = msg,
-            Duration = 3
-        })
-    end)
-end
-_G.RAY_Safety = Safety
 
+function Safety.HumanWait(min, max)
+    local r = math.random()
+    local t = min + (max - min) * r
+    task.wait(t)
+end
+
+function Safety.SafeLoop(step, fn)
+    task.spawn(function()
+        while task.wait(step) do
+            local ok, err = pcall(fn)
+            if not ok then
+                warn("RAYMOD SAFELOOP ERROR:", err)
+                Safety.HumanWait(0.5, 1.5)
+            end
+        end
+    end)
+end
+
+local function Notify(msg)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "RAYMOD FISHIT V2",
+            Text = msg,
+            Duration = 3
+        })
+    end)
+end
+
+_G.RAY_Safety = Safety
 
 -- ===== ANTI AFK =====
 
-
 Players.LocalPlayer.Idled:Connect(function()
-    VirtualUser:CaptureController()
-    VirtualUser:ClickButton2(Vector2.new())
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
 end)
-
 
 -- ===== GUI BASE (SMALL + TRANSPARENT + BLUR) =====
 
-
 local oldGui = Players.LocalPlayer.PlayerGui:FindFirstChild("RAYMOD_FISHIT_GUI")
 if oldGui then oldGui:Destroy() end
-
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "RAYMOD_FISHIT_GUI"
 gui.ResetOnSpawn = false
 gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
-
 
 -- PREMIUM BLUR
 local blur = Instance.new("BlurEffect")
@@ -162,12 +147,10 @@ blur.Enabled = false
 blur.Size = 0
 blur.Parent = Lighting
 
-
 local function SetBlur(enabled)
-    blur.Enabled = enabled
-    blur.Size = enabled and 18 or 0
+    blur.Enabled = enabled
+    blur.Size = enabled and 18 or 0
 end
-
 
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 420, 0, 260)
@@ -178,14 +161,15 @@ main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.Parent = gui
-do
-    local corner = Instance.new("UICorner", main); corner.CornerRadius = UDim.new(0, 14)
-    local stroke = Instance.new("UIStroke", main)
-    stroke.Color = Color3.fromRGB(120, 200, 255)
-    stroke.Thickness = 1.5
-    stroke.Transparency = 0.1
-end
 
+do
+    local corner = Instance.new("UICorner", main)
+    corner.CornerRadius = UDim.new(0, 14)
+    local stroke = Instance.new("UIStroke", main)
+    stroke.Color = Color3.fromRGB(120, 200, 255)
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.1
+end
 
 local top = Instance.new("Frame")
 top.Size = UDim2.new(1, 0, 0, 34)
@@ -194,7 +178,6 @@ top.BackgroundTransparency = 0.15
 top.BorderSizePixel = 0
 top.Parent = main
 Instance.new("UICorner", top).CornerRadius = UDim.new(0, 14)
-
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -110, 1, 0)
@@ -207,37 +190,33 @@ title.TextSize = 16
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = top
 
-
 local close = Instance.new("TextButton")
 close.Size = UDim2.new(0, 26, 0, 22)
 close.Position = UDim2.new(1, -32, 0.5, -11)
 close.BackgroundColor3 = Color3.fromRGB(220, 65, 90)
 close.Text = "X"
-close.TextColor3 = Color3.new(1,1,1)
+close.TextColor3 = Color3.new(1, 1, 1)
 close.Font = Enum.Font.GothamBold
 close.TextSize = 14
 close.Parent = top
 Instance.new("UICorner", close).CornerRadius = UDim.new(0, 6)
-
 
 local mini = Instance.new("TextButton")
 mini.Size = UDim2.new(0, 26, 0, 22)
 mini.Position = UDim2.new(1, -64, 0.5, -11)
 mini.BackgroundColor3 = Color3.fromRGB(90, 95, 140)
 mini.Text = "-"
-mini.TextColor3 = Color3.new(1,1,1)
+mini.TextColor3 = Color3.new(1, 1, 1)
 mini.Font = Enum.Font.GothamBold
 mini.TextSize = 18
 mini.Parent = top
 Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 6)
-
 
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1, 0, 1, -34)
 content.Position = UDim2.new(0, 0, 0, 34)
 content.BackgroundTransparency = 1
 content.Parent = main
-
 
 local miniText = Instance.new("TextButton")
 miniText.Name = "RAYMOD_MinimizeButton"
@@ -254,32 +233,27 @@ miniText.ZIndex = 999
 miniText.Parent = gui
 Instance.new("UICorner", miniText).CornerRadius = UDim.new(0, 8)
 
-
 local minimized = false
 SetBlur(true)
 
-
 mini.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    main.Visible = not minimized
-    miniText.Visible = minimized
-    SetBlur(not minimized)
+    minimized = not minimized
+    main.Visible = not minimized
+    miniText.Visible = minimized
+    SetBlur(not minimized)
 end)
-
 
 miniText.MouseButton1Click:Connect(function()
-    minimized = false
-    main.Visible = true
-    miniText.Visible = false
-    SetBlur(true)
+    minimized = false
+    main.Visible = true
+    miniText.Visible = false
+    SetBlur(true)
 end)
-
 
 close.MouseButton1Click:Connect(function()
-    SetBlur(false)
-    gui:Destroy()
+    SetBlur(false)
+    gui:Destroy()
 end)
-
 
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0, 150, 1, -16)
@@ -290,13 +264,11 @@ sidebar.BorderSizePixel = 0
 sidebar.Parent = content
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
 
-
 local sideLayout = Instance.new("UIListLayout", sidebar)
 sideLayout.Padding = UDim.new(0, 4)
 sideLayout.FillDirection = Enum.FillDirection.Vertical
 sideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 sideLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-
 
 local sideHeader = Instance.new("TextLabel")
 sideHeader.Size = UDim2.new(1, -16, 0, 26)
@@ -307,7 +279,6 @@ sideHeader.Font = Enum.Font.GothamBold
 sideHeader.TextSize = 14
 sideHeader.Parent = sidebar
 
-
 local pageHolder = Instance.new("Frame")
 pageHolder.Size = UDim2.new(1, -180, 1, -16)
 pageHolder.Position = UDim2.new(0, 170, 0, 8)
@@ -317,447 +288,426 @@ pageHolder.BorderSizePixel = 0
 pageHolder.Parent = content
 Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
 
-
 local Pages = {}
+
 local function CreatePage(name)
-    local Page = Instance.new("ScrollingFrame")
-    Page.Name = name
-    Page.Size = UDim2.new(1, -14, 1, -14)
-    Page.Position = UDim2.new(0, 7, 0, 7)
-    Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 4
-    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    Page.CanvasSize = UDim2.new(0,0,0,0)
-    Page.Visible = false
-    Page.Parent = pageHolder
-    local layout = Instance.new("UIListLayout", Page)
-    layout.Padding = UDim.new(0, 6)
-    layout.FillDirection = Enum.FillDirection.Vertical
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-    layout.VerticalAlignment = Enum.VerticalAlignment.Top
-    Pages[name] = Page
-    return Page
+    local Page = Instance.new("ScrollingFrame")
+    Page.Name = name
+    Page.Size = UDim2.new(1, -14, 1, -14)
+    Page.Position = UDim2.new(0, 7, 0, 7)
+    Page.BackgroundTransparency = 1
+    Page.ScrollBarThickness = 4
+    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Page.Visible = false
+    Page.Parent = pageHolder
+    local layout = Instance.new("UIListLayout", Page)
+    layout.Padding = UDim.new(0, 6)
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+    Pages[name] = Page
+    return Page
 end
+
 local function SwitchPage(name)
-    for _,p in pairs(Pages) do p.Visible = false end
-    if Pages[name] then Pages[name].Visible = true end
+    for _, p in pairs(Pages) do
+        p.Visible = false
+    end
+    if Pages[name] then
+        Pages[name].Visible = true
+    end
 end
+
 local function CreateTabButton(text, pageName)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(22, 26, 56)
-    btn.BackgroundTransparency = 0.2
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(210, 220, 255)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 13
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    btn.Parent = sidebar
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(22, 26, 56)
+    btn.BackgroundTransparency = 0.2
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(210, 220, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(function()
+        SwitchPage(pageName)
+    end)
 end
 
+local pageFishing  = CreatePage("Fishing")
+local pageBackpack = CreatePage("Backpack")
+local pageTeleport = CreatePage("Teleport")
+local pageQuest    = CreatePage("Quest")
+local pageBoat     = CreatePage("Boat")
+local pageMisc     = CreatePage("Misc")
 
-local pageFishing   = CreatePage("Fishing")
-local pageBackpack  = CreatePage("Backpack")
-local pageTeleport  = CreatePage("Teleport")
-local pageQuest     = CreatePage("Quest")
-local pageBoat      = CreatePage("Boat")
-local pageMisc      = CreatePage("Misc")
-
-
-CreateTabButton("│ Fishing",   "Fishing")
-CreateTabButton("│ Backpack",  "Backpack")
-CreateTabButton("│ Teleport",  "Teleport")
-CreateTabButton("│ Quest",     "Quest")
-CreateTabButton("│ Boat",      "Boat")
-CreateTabButton("│ Misc",      "Misc")
-
+CreateTabButton("│ Fishing",  "Fishing")
+CreateTabButton("│ Backpack", "Backpack")
+CreateTabButton("│ Teleport", "Teleport")
+CreateTabButton("│ Quest",    "Quest")
+CreateTabButton("│ Boat",     "Boat")
+CreateTabButton("│ Misc",     "Misc")
 
 SwitchPage("Fishing")
 
-
 -- ===== CONFIG AUTO SAVE (DELAY) =====
-
 
 local CFG_PATH = "raymod_fishit_config.json"
 
-
-_G.RAY_DelayCast      = 0.9
-_G.RAY_DelayFinish    = 0.2
-_G.RAY_DelayCast_V2   = 0.9
-_G.RAY_DelayFinish_V2 = 0.2
-_G.RAY_DelayCast_V3   = 0.4
-_G.RAY_DelayFinish_V3 = 0.08
-_G.RAY_SellDelay      = 30
-
+_G.RAY_DelayCast       = 0.9
+_G.RAY_DelayFinish     = 0.2
+_G.RAY_DelayCast_V2    = 0.9
+_G.RAY_DelayFinish_V2  = 0.2
+_G.RAY_DelayCast_V3    = 0.4
+_G.RAY_DelayFinish_V3  = 0.08
+_G.RAY_SellDelay       = 30
 
 local function LoadConfig()
-    if isfile and readfile and isfile(CFG_PATH) then
-        local ok, data = pcall(function()
-            return HttpService:JSONDecode(readfile(CFG_PATH))
-        end)
-        if ok and type(data) == "table" then
-            _G.RAY_DelayCast      = data.DelayCast      or _G.RAY_DelayCast
-            _G.RAY_DelayFinish    = data.DelayFinish    or _G.RAY_DelayFinish
-            _G.RAY_DelayCast_V2   = data.DelayCast_V2   or _G.RAY_DelayCast_V2
-            _G.RAY_DelayFinish_V2 = data.DelayFinish_V2 or _G.RAY_DelayFinish_V2
-            _G.RAY_DelayCast_V3   = data.DelayCast_V3   or _G.RAY_DelayCast_V3
-            _G.RAY_DelayFinish_V3 = data.DelayFinish_V3 or _G.RAY_DelayFinish_V3
-            _G.RAY_SellDelay      = data.SellDelay      or _G.RAY_SellDelay
-        end
-    end
+    if isfile and readfile and isfile(CFG_PATH) then
+        local ok, data = pcall(function()
+            return HttpService:JSONDecode(readfile(CFG_PATH))
+        end)
+        if ok and type(data) == "table" then
+            _G.RAY_DelayCast      = data.DelayCast      or _G.RAY_DelayCast
+            _G.RAY_DelayFinish    = data.DelayFinish    or _G.RAY_DelayFinish
+            _G.RAY_DelayCast_V2   = data.DelayCast_V2   or _G.RAY_DelayCast_V2
+            _G.RAY_DelayFinish_V2 = data.DelayFinish_V2 or _G.RAY_DelayFinish_V2
+            _G.RAY_DelayCast_V3   = data.DelayCast_V3   or _G.RAY_DelayCast_V3
+            _G.RAY_DelayFinish_V3 = data.DelayFinish_V3 or _G.RAY_DelayFinish_V3
+            _G.RAY_SellDelay      = data.SellDelay      or _G.RAY_SellDelay
+        end
+    end
 end
-
 
 local function SaveConfig()
-    if writefile then
-        local data = {
-            DelayCast      = _G.RAY_DelayCast,
-            DelayFinish    = _G.RAY_DelayFinish,
-            DelayCast_V2   = _G.RAY_DelayCast_V2,
-            DelayFinish_V2 = _G.RAY_DelayFinish_V2,
-            DelayCast_V3   = _G.RAY_DelayCast_V3,
-            DelayFinish_V3 = _G.RAY_DelayFinish_V3,
-            SellDelay      = _G.RAY_SellDelay,
-        }
-        writefile(CFG_PATH, HttpService:JSONEncode(data))
-    end
+    if writefile then
+        local data = {
+            DelayCast      = _G.RAY_DelayCast,
+            DelayFinish    = _G.RAY_DelayFinish,
+            DelayCast_V2   = _G.RAY_DelayCast_V2,
+            DelayFinish_V2 = _G.RAY_DelayFinish_V2,
+            DelayCast_V3   = _G.RAY_DelayCast_V3,
+            DelayFinish_V3 = _G.RAY_DelayFinish_V3,
+            SellDelay      = _G.RAY_SellDelay,
+        }
+        writefile(CFG_PATH, HttpService:JSONEncode(data))
+    end
 end
-
 
 LoadConfig()
 
-
 -- ===== GUI HELPERS =====
 
-
 local function AddSection(parent, titleText, subText)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
-    frame.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-    frame.BackgroundTransparency = 0.2
-    frame.BorderSizePixel = 0
-    frame.Parent = parent
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
+    frame.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    frame.BackgroundTransparency = 0.2
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, 0, 0, 2)
+    bar.BackgroundColor3 = Color3.fromRGB(255, 75, 170)
+    bar.BorderSizePixel = 0
+    bar.Parent = frame
 
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(1, 0, 0, 2)
-    bar.BackgroundColor3 = Color3.fromRGB(255, 75, 170)
-    bar.BorderSizePixel = 0
-    bar.Parent = frame
+    local titleL = Instance.new("TextLabel")
+    titleL.Size = UDim2.new(1, -40, 0, 22)
+    titleL.Position = UDim2.new(0, 10, 0, 6)
+    titleL.BackgroundTransparency = 1
+    titleL.Text = titleText
+    titleL.TextColor3 = Color3.fromRGB(235, 230, 255)
+    titleL.Font = Enum.Font.GothamBold
+    titleL.TextSize = 14
+    titleL.TextXAlignment = Enum.TextXAlignment.Left
+    titleL.Parent = frame
 
+    if subText then
+        local sub = Instance.new("TextLabel")
+        sub.Size = UDim2.new(1, -40, 0, 18)
+        sub.Position = UDim2.new(0, 10, 0, 26)
+        sub.BackgroundTransparency = 1
+        sub.Text = subText
+        sub.TextColor3 = Color3.fromRGB(180, 190, 230)
+        sub.Font = Enum.Font.Gotham
+        sub.TextSize = 12
+        sub.TextXAlignment = Enum.TextXAlignment.Left
+        sub.Parent = frame
+    end
 
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, -40, 0, 22)
-    title.Position = UDim2.new(0, 10, 0, 6)
-    title.BackgroundTransparency = 1
-    title.Text = titleText
-    title.TextColor3 = Color3.fromRGB(235, 230, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 14
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = frame
-
-
-    if subText then
-        local sub = Instance.new("TextLabel")
-        sub.Size = UDim2.new(1, -40, 0, 18)
-        sub.Position = UDim2.new(0, 10, 0, 26)
-        sub.BackgroundTransparency = 1
-        sub.Text = subText
-        sub.TextColor3 = Color3.fromRGB(180, 190, 230)
-        sub.Font = Enum.Font.Gotham
-        sub.TextSize = 12
-        sub.TextXAlignment = Enum.TextXAlignment.Left
-        sub.Parent = frame
-    end
-    return frame
+    return frame
 end
-
 
 local function AddToggle(parent, label, default, callback)
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, -4, 0, 30)
-    row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
-    row.BackgroundTransparency = 0.2
-    row.BorderSizePixel = 0
-    row.Parent = parent
-    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -4, 0, 30)
+    row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    row.BackgroundTransparency = 0.2
+    row.BorderSizePixel = 0
+    row.Parent = parent
+    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
 
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -50, 1, 0)
+    lbl.Position = UDim2.new(0, 10, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = label
+    lbl.TextColor3 = Color3.fromRGB(220, 225, 255)
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 13
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = row
 
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -50, 1, 0)
-    lbl.Position = UDim2.new(0, 10, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = label
-    lbl.TextColor3 = Color3.fromRGB(220, 225, 255)
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 13
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = row
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 32, 0, 16)
+    btn.Position = UDim2.new(1, -42, 0.5, -8)
+    btn.BackgroundColor3 = default and Color3.fromRGB(255, 80, 170) or Color3.fromRGB(70, 72, 110)
+    btn.Text = ""
+    btn.Parent = row
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
 
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 14, 0, 14)
+    knob.Position = default and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
+    knob.BackgroundColor3 = Color3.fromRGB(240, 240, 255)
+    knob.BorderSizePixel = 0
+    knob.Parent = btn
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
 
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 32, 0, 16)
-    btn.Position = UDim2.new(1, -42, 0.5, -8)
-    btn.BackgroundColor3 = default and Color3.fromRGB(255, 80, 170) or Color3.fromRGB(70, 72, 110)
-    btn.Text = ""
-    btn.Parent = row
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+    local state = default
+    if callback then
+        task.spawn(callback, state)
+    end
 
-
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0, 14, 0, 14)
-    knob.Position = default and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
-    knob.BackgroundColor3 = Color3.fromRGB(240, 240, 255)
-    knob.BorderSizePixel = 0
-    knob.Parent = btn
-    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
-
-
-    local state = default
-    if callback then task.spawn(callback, state) end
-
-
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.BackgroundColor3 = state and Color3.fromRGB(255, 80, 170) or Color3.fromRGB(70, 72, 110)
-        knob.Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
-        if callback then task.spawn(callback, state) end
-    end)
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.BackgroundColor3 = state and Color3.fromRGB(255, 80, 170) or Color3.fromRGB(70, 72, 110)
+        knob.Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
+        if callback then
+            task.spawn(callback, state)
+        end
+    end)
 end
-
 
 local function AddDelayBox(parent, label, defaultValue, onChange)
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, -4, 0, 34)
-    row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
-    row.BackgroundTransparency = 0.2
-    row.BorderSizePixel = 0
-    row.Parent = parent
-    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -4, 0, 34)
+    row.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    row.BackgroundTransparency = 0.2
+    row.BorderSizePixel = 0
+    row.Parent = parent
+    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
 
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0.6, -10, 1, 0)
+    lbl.Position = UDim2.new(0, 10, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = label
+    lbl.TextColor3 = Color3.fromRGB(220, 225, 255)
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 13
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = row
 
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0.6, -10, 1, 0)
-    lbl.Position = UDim2.new(0, 10, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = label
-    lbl.TextColor3 = Color3.fromRGB(220, 225, 255)
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 13
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = row
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(0.4, -14, 0, 24)
+    box.Position = UDim2.new(0.6, 4, 0.5, -12)
+    box.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
+    box.BackgroundTransparency = 0.1
+    box.TextColor3 = Color3.fromRGB(230, 230, 255)
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 13
+    box.ClearTextOnFocus = false
+    box.TextXAlignment = Enum.TextXAlignment.Center
+    box.Parent = row
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
 
-
-    local box = Instance.new("TextBox")
-    box.Size = UDim2.new(0.4, -14, 0, 24)
-    box.Position = UDim2.new(0.6, 4, 0.5, -12)
-    box.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
-    box.BackgroundTransparency = 0.1
-    box.TextColor3 = Color3.fromRGB(230, 230, 255)
-    box.Font = Enum.Font.Gotham
-    box.TextSize = 13
-    box.ClearTextOnFocus = false
-    box.TextXAlignment = Enum.TextXAlignment.Center
-    box.Parent = row
-    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
-
-
-    box.Text = tostring(defaultValue)
-    box.FocusLost:Connect(function(enter)
-        if not enter then return end
-        local num = tonumber(box.Text)
-        if not num or num < 0 then
-            box.Text = tostring(defaultValue)
-            return
-        end
-        if onChange then onChange(num) end
-    end)
+    box.Text = tostring(defaultValue)
+    box.FocusLost:Connect(function(enter)
+        if not enter then return end
+        local num = tonumber(box.Text)
+        if not num or num < 0 then
+            box.Text = tostring(defaultValue)
+            return
+        end
+        if onChange then
+            onChange(num)
+        end
+    end)
 end
-
 
 -- ===== GLOBAL FLAGS =====
 
+_G.RAY_Fish_Auto    = false
+_G.RAY_Fish_AutoV2  = false
+_G.RAY_Fish_AutoV3  = false
+_G.RAY_AutoCatch    = false
+_G.RAY_AutoSell     = false
 
-_G.RAY_Fish_Auto      = false
-_G.RAY_Fish_AutoV2    = false
-_G.RAY_Fish_AutoV3    = false
-_G.RAY_AutoCatch      = false
-_G.RAY_AutoSell       = false
+_G.RAY_TP_Location  = "Spawn"
 
-
-_G.RAY_TP_Location    = "Spawn"
-
-
-_G.RAY_InfJump        = false
-_G.RAY_EnableWalk     = false
-_G.RAY_WalkSpeed      = 16
-_G.RAY_FreezePos      = false
-_G.RAY_FreezeSet      = false
-_G.RAY_FreezeCFrame   = nil
-
+_G.RAY_InfJump      = false
+_G.RAY_EnableWalk   = false
+_G.RAY_WalkSpeed    = 16
+_G.RAY_FreezePos    = false
+_G.RAY_FreezeSet    = false
+_G.RAY_FreezeCFrame = nil
 
 _G.RAY_BoatSpeedEnabled = false
-_G.RAY_BoatSpeedValue   = 120
+_G.RAY_BoatSpeedValue   = 120
 
-
-_G.RAY_HideName         = false
-
-
-
-
-
+_G.RAY_HideName         = false
 
 -- CFrame Sisyphus Room
 local GHOSFIN_CF = CFrame.new(
-    -3708.77563, -135.073914, -1012.4093,
-    -0.944233716, -5.7476135e-09, 0.329275966,
-     4.86078999e-09, 1, 3.13941371e-08,
-    -0.329275966, 3.12439461e-08, -0.944233716
+    -3708.77563, -135.073914, -1012.4093,
+    -0.944233716, -5.7476135e-09, 0.329275966,
+     4.86078999e-09, 1, 3.13941371e-08,
+    -0.329275966, 3.12439461e-08, -0.944233716
 )
-
 
 -- ===== NETWORK EVENTS =====
 
-
 local Net = ReplicatedStorage
-    :WaitForChild("Packages")
-    :WaitForChild("_Index")
-    :WaitForChild("sleitnick_net@0.2.0")
-    :WaitForChild("net")
-
+    :WaitForChild("Packages")
+    :WaitForChild("_Index")
+    :WaitForChild("sleitnick_net@0.2.0")
+    :WaitForChild("net")
 
 local Events = {
-    fishing = Net:WaitForChild("RE/FishingCompleted"),
-    sell    = Net:WaitForChild("RF/SellAllItems"),
-    charge  = Net:WaitForChild("RF/ChargeFishingRod"),
-    minigame= Net:WaitForChild("RF/RequestFishingMinigameStarted"),
-    cancel  = Net:WaitForChild("RF/CancelFishingInputs"),
-    equip   = Net:WaitForChild("RE/EquipToolFromHotbar"),
-    unequip = Net:WaitForChild("RE/UnequipToolFromHotbar"),
+    fishing  = Net:WaitForChild("RE/FishingCompleted"),
+    sell     = Net:WaitForChild("RF/SellAllItems"),
+    charge   = Net:WaitForChild("RF/ChargeFishingRod"),
+    minigame = Net:WaitForChild("RF/RequestFishingMinigameStarted"),
+    cancel   = Net:WaitForChild("RF/CancelFishingInputs"),
+    equip    = Net:WaitForChild("RE/EquipToolFromHotbar"),
+    unequip  = Net:WaitForChild("RE/UnequipToolFromHotbar"),
 }
-
 
 -- ===== TELEPORT LOCATIONS =====
 
-
 local LOCATIONS = {
-    ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
-    ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
-    ["Coral Reefs"]      = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
-    ["Esoteric Depths"]  = CFrame.new(3248.37109, -1301.53027, 1403.82727),
-    ["Crater Island"]    = CFrame.new(1016.49072, 20.0919304, 5069.27295),
-    ["Lost Isle"]        = CFrame.new(-3618.15698, 240.836655, -1317.45801),
-    ["Weather Machine"]  = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
-    ["Tropical Grove"]   = CFrame.new(-2095.34106, 197.199997, 3718.08008),
-    ["Mount Hallow"]     = CFrame.new(2136.62305, 78.9163895, 3272.50439),
-    ["Treasure Room"]    = CFrame.new(-3606.34985, -266.57373, -1580.97339),
-    ["Kohana"]           = CFrame.new(-663.904236, 3.04580712, 718.796875),
-    ["Underground Cellar"]=CFrame.new(2109.52148, -94.1875076, -708.609131),
-    ["Ancient Jungle"]   = CFrame.new(1831.71362, 6.62499952, -299.279175),
-    ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
+    ["Spawn"]             = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]   = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]       = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]   = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]     = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]         = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]   = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]    = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]      = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]     = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]            = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"]= CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]    = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]     = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
-
 local function TeleportTo(name)
-    local cf = LOCATIONS[name]
-    if not cf then
-        Notify("TP: lokasi tidak dikenal")
-        return
-    end
-    local char = Players.LocalPlayer.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    hrp.CFrame = cf
+    local cf = LOCATIONS[name]
+    if not cf then
+        Notify("TP: lokasi tidak dikenal")
+        return
+    end
+    local char = Players.LocalPlayer.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    hrp.CFrame = cf
 end
-
 
 -- ===== GUI: FISHING TAB =====
 
-
 AddSection(pageFishing, "Legit Auto Fishing (V1)", "Pola normal, aman, delay diatur")
-AddToggle(pageFishing, "Auto Fish (Legit)", false, function(v) _G.RAY_Fish_Auto = v end)
-
+AddToggle(pageFishing, "Auto Fish (Legit)", false, function(v)
+    _G.RAY_Fish_Auto = v
+end)
 
 AddDelayBox(pageFishing, "Fish Delay V1 (s)", _G.RAY_DelayCast, function(v)
-    _G.RAY_DelayCast = v; SaveConfig()
-end)
-AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
-    _G.RAY_DelayFinish = v; SaveConfig()
+    _G.RAY_DelayCast = v
+    SaveConfig()
 end)
 
+AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
+    _G.RAY_DelayFinish = v
+    SaveConfig()
+end)
 
 AddSection(pageFishing, "Blatant Auto Fishing (V2)", "2x cast paralel + spam reel")
-AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
-
+AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v)
+    _G.RAY_Fish_AutoV2 = v
+end)
 
 AddDelayBox(pageFishing, "Fish Delay V2 (s)", _G.RAY_DelayCast_V2, function(v)
-    _G.RAY_DelayCast_V2 = v; SaveConfig()
-end)
-AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v)
-    _G.RAY_DelayFinish_V2 = v; SaveConfig()
+    _G.RAY_DelayCast_V2 = v
+    SaveConfig()
 end)
 
+AddDelayBox(pageFishing, "Catch Delay V2 (s)", _G.RAY_DelayFinish_V2, function(v)
+    _G.RAY_DelayFinish_V2 = v
+    SaveConfig()
+end)
 
 AddSection(pageFishing, "Blatant Auto Fishing (V3 x8)", "4x cast + 8x reel, sangat risk")
-AddToggle(pageFishing, "Auto Fish (Blatant V3 x8)", false, function(v) _G.RAY_Fish_AutoV3 = v end)
-
+AddToggle(pageFishing, "Auto Fish (Blatant V3 x8)", false, function(v)
+    _G.RAY_Fish_AutoV3 = v
+end)
 
 AddDelayBox(pageFishing, "Fish Delay V3 (s)", _G.RAY_DelayCast_V3, function(v)
-    _G.RAY_DelayCast_V3 = v; SaveConfig()
-end)
-AddDelayBox(pageFishing, "Catch Delay V3 (s)", _G.RAY_DelayFinish_V3, function(v)
-    _G.RAY_DelayFinish_V3 = v; SaveConfig()
+    _G.RAY_DelayCast_V3 = v
+    SaveConfig()
 end)
 
+AddDelayBox(pageFishing, "Catch Delay V3 (s)", _G.RAY_DelayFinish_V3, function(v)
+    _G.RAY_DelayFinish_V3 = v
+    SaveConfig()
+end)
 
 AddSection(pageFishing, "Extra Fishing", "Auto catch tambahan")
-AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v) _G.RAY_AutoCatch = v end)
-
+AddToggle(pageFishing, "Auto Catch (Spam Reel)", false, function(v)
+    _G.RAY_AutoCatch = v
+end)
 
 -- ===== GUI: BACKPACK / AUTO SELL =====
 
-
 AddSection(pageBackpack, "Auto Sell", "Sell semua ikan")
-AddToggle(pageBackpack, "Auto Sell", false, function(v) _G.RAY_AutoSell = v end)
-
-
-AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
-    _G.RAY_SellDelay = v; SaveConfig()
+AddToggle(pageBackpack, "Auto Sell", false, function(v)
+    _G.RAY_AutoSell = v
 end)
 
+AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
+    _G.RAY_SellDelay = v
+    SaveConfig()
+end)
 
 -- ===== GUI: TELEPORT =====
 
-
 AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
-for name, _ in pairs(LOCATIONS) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -4, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-    btn.BackgroundTransparency = 0.2
-    btn.Text = name
-    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 13
-    btn.Parent = pageTeleport
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
-end
 
+for name, _ in pairs(LOCATIONS) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -4, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    btn.BackgroundTransparency = 0.2
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.Parent = pageTeleport
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(function()
+        TeleportTo(name)
+    end)
+end
 
 -- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
-
--- SECTION 1: TELEPORT QUEST (CUMA 2)
 AddSection(pageQuest, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
 
-
--- Sisyphus Room (GHOSFIN_CF)
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
 btnGhostfin.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -768,16 +718,15 @@ btnGhostfin.Font = Enum.Font.Gotham
 btnGhostfin.TextSize = 13
 btnGhostfin.Parent = pageQuest
 Instance.new("UICorner", btnGhostfin).CornerRadius = UDim.new(0, 8)
+
 btnGhostfin.MouseButton1Click:Connect(function()
-    local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = GHOSFIN_CF
-    end
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = GHOSFIN_CF
+    end
 end)
 
-
--- Treasure Room
 local btnTreasure = Instance.new("TextButton")
 btnTreasure.Size = UDim2.new(1, -4, 0, 28)
 btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -788,23 +737,18 @@ btnTreasure.Font = Enum.Font.Gotham
 btnTreasure.TextSize = 13
 btnTreasure.Parent = pageQuest
 Instance.new("UICorner", btnTreasure).CornerRadius = UDim.new(0, 8)
+
 btnTreasure.MouseButton1Click:Connect(function()
-    TeleportTo("Treasure Room")
+    TeleportTo("Treasure Room")
 end)
 
-
--- SPACER DI ANTARA QUEST DAN ELEMENT
 local spacer = Instance.new("Frame")
 spacer.Size = UDim2.new(1, -4, 0, 4)
 spacer.BackgroundTransparency = 1
 spacer.Parent = pageQuest
 
-
--- SECTION 2: QUEST ELEMENT (3 TOMBOL)
 AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
 
-
--- Hutan Kuno
 local btnHutanKuno = Instance.new("TextButton")
 btnHutanKuno.Size = UDim2.new(1, -4, 0, 28)
 btnHutanKuno.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -815,16 +759,15 @@ btnHutanKuno.Font = Enum.Font.Gotham
 btnHutanKuno.TextSize = 13
 btnHutanKuno.Parent = pageQuest
 Instance.new("UICorner", btnHutanKuno).CornerRadius = UDim.new(0, 8)
+
 btnHutanKuno.MouseButton1Click:Connect(function()
-    local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = CFrame.new(1491.9373779296875, 2.755492925643921, -337.64642333984375)
-    end
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(1491.9373779296875, 2.755492925643921, -337.64642333984375)
+    end
 end)
 
-
--- Sacred Temple
 local btnSacred = Instance.new("TextButton")
 btnSacred.Size = UDim2.new(1, -4, 0, 28)
 btnSacred.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -835,16 +778,15 @@ btnSacred.Font = Enum.Font.Gotham
 btnSacred.TextSize = 13
 btnSacred.Parent = pageQuest
 Instance.new("UICorner", btnSacred).CornerRadius = UDim.new(0, 8)
+
 btnSacred.MouseButton1Click:Connect(function()
-    local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = CFrame.new(1454.1441650390625, -22.125001907348633, -621.9874877929688)
-    end
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(1454.1441650390625, -22.125001907348633, -621.9874877929688)
+    end
 end)
 
-
--- Underground Cellar
 local btnUnderground = Instance.new("TextButton")
 btnUnderground.Size = UDim2.new(1, -4, 0, 28)
 btnUnderground.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -855,64 +797,51 @@ btnUnderground.Font = Enum.Font.Gotham
 btnUnderground.TextSize = 13
 btnUnderground.Parent = pageQuest
 Instance.new("UICorner", btnUnderground).CornerRadius = UDim.new(0, 8)
+
 btnUnderground.MouseButton1Click:Connect(function()
-    local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
-    end
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
+    end
 end)
-
-
-
-
 
 -- ===== GUI: BOAT =====
 
-
 AddSection(pageBoat, "Boat Speed", "Boost kecepatan boat lokal")
+
 AddToggle(pageBoat, "Enable Boat Speed", false, function(v)
-    _G.RAY_BoatSpeedEnabled = v
-end)
-AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
-    _G.RAY_BoatSpeedValue = v
+    _G.RAY_BoatSpeedEnabled = v
 end)
 
+AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
+    _G.RAY_BoatSpeedValue = v
+end)
+
+-- ===== GUI: MISC =====
 
 AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, hide name")
 
-
 AddToggle(pageMisc, "Enable Walkspeed", false, function(v)
-    _G.RAY_EnableWalk = v
+    _G.RAY_EnableWalk = v
 end)
-
 
 AddDelayBox(pageMisc, "Walkspeed Value", _G.RAY_WalkSpeed, function(v)
-    _G.RAY_WalkSpeed = v
+    _G.RAY_WalkSpeed = v
 end)
-
 
 AddToggle(pageMisc, "Infinite Jump", false, function(v)
-    _G.RAY_InfJump = v
+    _G.RAY_InfJump = v
 end)
-
 
 AddToggle(pageMisc, "Freeze Position", false, function(v)
-    _G.RAY_FreezePos = v
+    _G.RAY_FreezePos = v
 end)
-
 
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
-    _G.RAY_HideName = v
+    _G.RAY_HideName = v
 end)
 
-
-
-
-
-
-
--- Tombol RESET HWID (1 script 1 device)
 local resetHwidBtn = Instance.new("TextButton")
 resetHwidBtn.Size = UDim2.new(1, -4, 0, 28)
 resetHwidBtn.BackgroundColor3 = Color3.fromRGB(220, 80, 90)
@@ -923,240 +852,218 @@ resetHwidBtn.TextSize = 13
 resetHwidBtn.Parent = pageMisc
 Instance.new("UICorner", resetHwidBtn).CornerRadius = UDim.new(0, 8)
 
-
 resetHwidBtn.MouseButton1Click:Connect(function()
-    deleteDevice()
-    Notify("HWID/dev binding dihapus. Rejoin & jalankan ulang script untuk bind ke device baru.")
+    deleteDevice()
+    Notify("HWID/dev binding dihapus. Rejoin & jalankan ulang script untuk bind ke device baru.")
 end)
-
 
 -- ===== ENGINE AUTO FISH =====
 
-
 local isFishing = false
 
-
 local function castRod_V1()
-    pcall(function()
-        Events.equip:FireServer(1)
-        task.wait(0.05)
-        Events.charge:InvokeServer(1755848498.4834)
-        task.wait(0.02)
-        Events.minigame:InvokeServer(1.2854545116425, 1)
-    end)
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.05)
+        Events.charge:InvokeServer(1755848498.4834)
+        task.wait(0.02)
+        Events.minigame:InvokeServer(1.2854545116425, 1)
+    end)
 end
-
 
 local function reelIn()
-    pcall(function()
-        Events.fishing:FireServer()
-    end)
+    pcall(function()
+        Events.fishing:FireServer()
+    end)
 end
-
 
 local function NormalCycle_V1()
-    if isFishing then return end
-    isFishing = true
-    castRod_V1()
-    task.wait(_G.RAY_DelayCast)
-    reelIn()
-    task.wait(_G.RAY_DelayFinish)
-    isFishing = false
+    if isFishing then return end
+    isFishing = true
+    castRod_V1()
+    task.wait(_G.RAY_DelayCast)
+    reelIn()
+    task.wait(_G.RAY_DelayFinish)
+    isFishing = false
 end
-
 
 local function BlatantCycle_V2()
-    if isFishing then return end
-    isFishing = true
-    pcall(function()
-        Events.equip:FireServer(1)
-        task.wait(0.01)
-        for _ = 1,2 do
-            task.spawn(function()
-                Events.charge:InvokeServer(1755848498.4834)
-                task.wait(0.01)
-                Events.minigame:InvokeServer(1.2854545116425, 1)
-            end)
-            task.wait(0.03)
-        end
-    end)
-    task.wait(_G.RAY_DelayCast_V2)
-    for _ = 1,5 do
-        reelIn()
-        task.wait(0.01)
-    end
-    task.wait(_G.RAY_DelayFinish_V2 * 0.5)
-    isFishing = false
+    if isFishing then return end
+    isFishing = true
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.01)
+        for _ = 1, 2 do
+            task.spawn(function()
+                Events.charge:InvokeServer(1755848498.4834)
+                task.wait(0.01)
+                Events.minigame:InvokeServer(1.2854545116425, 1)
+            end)
+            task.wait(0.03)
+        end
+    end)
+    task.wait(_G.RAY_DelayCast_V2)
+    for _ = 1, 5 do
+        reelIn()
+        task.wait(0.01)
+    end
+    task.wait(_G.RAY_DelayFinish_V2 * 0.5)
+    isFishing = false
 end
-
 
 local function BlatantCycle_V3()
-    if isFishing then return end
-    isFishing = true
-    pcall(function()
-        Events.equip:FireServer(1)
-        task.wait(0.005)
-        for _ = 1,4 do
-            task.spawn(function()
-                Events.charge:InvokeServer(1755848498.4834)
-                task.wait(0.005)
-                Events.minigame:InvokeServer(1.2854545116425, 1)
-            end)
-            task.wait(0.01)
-        end
-    end)
-    task.wait(_G.RAY_DelayCast_V3)
-    for _ = 1,8 do
-        reelIn()
-        task.wait(0.005)
-    end
-    task.wait(_G.RAY_DelayFinish_V3)
-    isFishing = false
+    if isFishing then return end
+    isFishing = true
+    pcall(function()
+        Events.equip:FireServer(1)
+        task.wait(0.005)
+        for _ = 1, 4 do
+            task.spawn(function()
+                Events.charge:InvokeServer(1755848498.4834)
+                task.wait(0.005)
+                Events.minigame:InvokeServer(1.2854545116425, 1)
+            end)
+            task.wait(0.01)
+        end
+    end)
+    task.wait(_G.RAY_DelayCast_V3)
+    for _ = 1, 8 do
+        reelIn()
+        task.wait(0.005)
+    end
+    task.wait(_G.RAY_DelayFinish_V3)
+    isFishing = false
 end
 
-
 Safety.SafeLoop(0.05, function()
-    if _G.RAY_Fish_AutoV3 then
-        BlatantCycle_V3()
-    elseif _G.RAY_Fish_AutoV2 then
-        BlatantCycle_V2()
-    elseif _G.RAY_Fish_Auto then
-        NormalCycle_V1()
-    end
+    if _G.RAY_Fish_AutoV3 then
+        BlatantCycle_V3()
+    elseif _G.RAY_Fish_AutoV2 then
+        BlatantCycle_V2()
+    elseif _G.RAY_Fish_Auto then
+        NormalCycle_V1()
+    end
 end)
-
 
 -- AUTO CATCH
 
-
 Safety.SafeLoop(0.05, function()
-    if not _G.RAY_AutoCatch then return end
-    if isFishing then return end
-    reelIn()
-    task.wait(_G.RAY_DelayFinish)
+    if not _G.RAY_AutoCatch then return end
+    if isFishing then return end
+    reelIn()
+    task.wait(_G.RAY_DelayFinish)
 end)
-
 
 -- ===== AUTO SELL =====
 
-
 local sellCount = 0
-Safety.SafeLoop(1.0, function()
-    if not _G.RAY_AutoSell then
-        sellCount = 0; return
-    end
-    sellCount += 1
-    if sellCount > 999 then
-        _G.RAY_AutoSell = false
-        Notify("AutoSell dimatikan (limit).")
-        return
-    end
-    if Events.sell then
-        pcall(function() Events.sell:InvokeServer() end)
-    end
-    Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
-end)
 
+Safety.SafeLoop(1.0, function()
+    if not _G.RAY_AutoSell then
+        sellCount = 0
+        return
+    end
+    sellCount += 1
+    if sellCount > 999 then
+        _G.RAY_AutoSell = false
+        Notify("AutoSell dimatikan (limit).")
+        return
+    end
+    if Events.sell then
+        pcall(function()
+            Events.sell:InvokeServer()
+        end)
+    end
+    Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
+end)
 
 -- ===== WALK / FREEZE / VISUAL =====
 
-
 Safety.SafeLoop(0.1, function()
-    local char = Players.LocalPlayer.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-    if _G.RAY_EnableWalk then
-        local base = _G.RAY_WalkSpeed
-        hum.WalkSpeed = math.clamp(base + math.random(-1,1), 8, 40)
-    else
-        hum.WalkSpeed = 16
-    end
+    local char = Players.LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    if _G.RAY_EnableWalk then
+        local base = _G.RAY_WalkSpeed
+        hum.WalkSpeed = math.clamp(base + math.random(-1, 1), 8, 40)
+    else
+        hum.WalkSpeed = 16
+    end
 end)
-
 
 Safety.SafeLoop(0.05, function()
-    local char = Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if _G.RAY_FreezePos then
-        if not _G.RAY_FreezeSet then
-            _G.RAY_FreezeCFrame = hrp.CFrame
-            _G.RAY_FreezeSet = true
-        end
-        hrp.Anchored = true
-        hrp.CFrame = _G.RAY_FreezeCFrame
-    else
-        if _G.RAY_FreezeSet then
-            hrp.Anchored = false
-            _G.RAY_FreezeSet = false
-        end
-    end
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if _G.RAY_FreezePos then
+        if not _G.RAY_FreezeSet then
+            _G.RAY_FreezeCFrame = hrp.CFrame
+            _G.RAY_FreezeSet = true
+        end
+        hrp.Anchored = true
+        hrp.CFrame = _G.RAY_FreezeCFrame
+    else
+        if _G.RAY_FreezeSet then
+            hrp.Anchored = false
+            _G.RAY_FreezeSet = false
+        end
+    end
 end)
-
 
 Safety.SafeLoop(0.05, function()
-    if not _G.RAY_InfJump then return end
-    local char = Players.LocalPlayer.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    if hum and hum.FloorMaterial == Enum.Material.Air then
-        hum:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
+    if not _G.RAY_InfJump then return end
+    local char = Players.LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum and hum.FloorMaterial == Enum.Material.Air then
+        hum:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
 end)
-
-
 
 -- ===== BOAT SPEED ENGINE =====
 
-
 local function GetBoatSeat()
-    local char = Players.LocalPlayer.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    if not hum then return nil end
-    local seatPart = hum.SeatPart
-    if seatPart and seatPart:IsA("VehicleSeat") then
-        local model = seatPart:FindFirstAncestorOfClass("Model")
-        if model and model.PrimaryPart then
-            return seatPart, model
-        end
-    end
-    return nil
+    local char = Players.LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return nil end
+    local seatPart = hum.SeatPart
+    if seatPart and seatPart:IsA("VehicleSeat") then
+        local model = seatPart:FindFirstAncestorOfClass("Model")
+        if model and model.PrimaryPart then
+            return seatPart, model
+        end
+    end
+    return nil
 end
 
-
 RunService.Heartbeat:Connect(function()
-    if not _G.RAY_BoatSpeedEnabled then return end
-    local seat, boat = GetBoatSeat()
-    if not (seat and boat and boat.PrimaryPart) then return end
-    local speed = _G.RAY_BoatSpeedValue or 120
-    if speed <= 0 then return end
-    local dir = seat.CFrame.LookVector
-    local flat = Vector3.new(dir.X, 0, dir.Z)
-    if flat.Magnitude < 0.01 then return end
-    boat.PrimaryPart.AssemblyLinearVelocity = flat.Unit * speed
+    if not _G.RAY_BoatSpeedEnabled then return end
+    local seat, boat = GetBoatSeat()
+    if not (seat and boat and boat.PrimaryPart) then return end
+    local speed = _G.RAY_BoatSpeedValue or 120
+    if speed <= 0 then return end
+    local dir = seat.CFrame.LookVector
+    local flat = Vector3.new(dir.X, 0, dir.Z)
+    if flat.Magnitude < 0.01 then return end
+    boat.PrimaryPart.AssemblyLinearVelocity = flat.Unit * speed
 end)
-
 
 -- ===== HIDE NAME ENGINE =====
 
-
 local function SetCharNameVisible(char, visible)
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-    hum.DisplayDistanceType = visible
-        and Enum.HumanoidDisplayDistanceType.Viewer
-        or  Enum.HumanoidDisplayDistanceType.None
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    hum.DisplayDistanceType = visible
+        and Enum.HumanoidDisplayDistanceType.Viewer
+        or  Enum.HumanoidDisplayDistanceType.None
 end
 
-
 Safety.SafeLoop(1.0, function()
-    for _, p in ipairs(Players:GetPlayers()) do
-        local char = p.Character
-        if char then
-            SetCharNameVisible(char, not _G.RAY_HideName)
-        end
-    end
+    for _, p in ipairs(Players:GetPlayers()) do
+        local char = p.Character
+        if char then
+            SetCharNameVisible(char, not _G.RAY_HideName)
+        end
+    end
 end)
-
-
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
