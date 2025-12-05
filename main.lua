@@ -661,8 +661,11 @@ end
 
 -- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
--- SECTION 1: TELEPORT QUEST (CUMA 2)
-AddSection(pageQuest, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
+local questOrder = 1
+
+-- SECTION 1: QUEST GHOSFIN (2 TOMBOL)
+local secGhosfin = AddSection(pageQuest, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
+secGhosfin.LayoutOrder = questOrder; questOrder += 1
 
 -- Sisyphus Room (GHOSFIN_CF)
 local btnGhostfin = Instance.new("TextButton")
@@ -674,6 +677,7 @@ btnGhostfin.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnGhostfin.Font = Enum.Font.Gotham
 btnGhostfin.TextSize = 13
 btnGhostfin.Parent = pageQuest
+btnGhostfin.LayoutOrder = questOrder; questOrder += 1
 Instance.new("UICorner", btnGhostfin).CornerRadius = UDim.new(0, 8)
 btnGhostfin.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
@@ -693,13 +697,22 @@ btnTreasure.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnTreasure.Font = Enum.Font.Gotham
 btnTreasure.TextSize = 13
 btnTreasure.Parent = pageQuest
+btnTreasure.LayoutOrder = questOrder; questOrder += 1
 Instance.new("UICorner", btnTreasure).CornerRadius = UDim.new(0, 8)
 btnTreasure.MouseButton1Click:Connect(function()
     TeleportTo("Treasure Room")
 end)
 
+-- SPACER
+local spacer = Instance.new("Frame")
+spacer.Size = UDim2.new(1, -4, 0, 4)
+spacer.BackgroundTransparency = 1
+spacer.Parent = pageQuest
+spacer.LayoutOrder = questOrder; questOrder += 1
+
 -- SECTION 2: QUEST ELEMENT (3 TOMBOL)
-AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
+local secElement = AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
+secElement.LayoutOrder = questOrder; questOrder += 1
 
 -- Hutan Kuno
 local btnHutanKuno = Instance.new("TextButton")
@@ -711,6 +724,7 @@ btnHutanKuno.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnHutanKuno.Font = Enum.Font.Gotham
 btnHutanKuno.TextSize = 13
 btnHutanKuno.Parent = pageQuest
+btnHutanKuno.LayoutOrder = questOrder; questOrder += 1
 Instance.new("UICorner", btnHutanKuno).CornerRadius = UDim.new(0, 8)
 btnHutanKuno.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
@@ -730,6 +744,7 @@ btnSacred.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnSacred.Font = Enum.Font.Gotham
 btnSacred.TextSize = 13
 btnSacred.Parent = pageQuest
+btnSacred.LayoutOrder = questOrder; questOrder += 1
 Instance.new("UICorner", btnSacred).CornerRadius = UDim.new(0, 8)
 btnSacred.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
@@ -749,6 +764,7 @@ btnUnderground.TextColor3 = Color3.fromRGB(230, 230, 255)
 btnUnderground.Font = Enum.Font.Gotham
 btnUnderground.TextSize = 13
 btnUnderground.Parent = pageQuest
+btnUnderground.LayoutOrder = questOrder; questOrder += 1
 Instance.new("UICorner", btnUnderground).CornerRadius = UDim.new(0, 8)
 btnUnderground.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
@@ -757,6 +773,8 @@ btnUnderground.MouseButton1Click:Connect(function()
         hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
     end
 end)
+
+
 
 
 
