@@ -1162,7 +1162,6 @@ local function RAY_SetupHideFishNotif()
     local plr = Players.LocalPlayer
     local pg = plr:WaitForChild("PlayerGui")
 
-    -- ganti/tambah nama GUI notif kalau perlu
     local TARGET_GUIS = {
         ["Small Notification"] = true,
         ["Text Notifications"] = true,
@@ -1183,46 +1182,36 @@ local function RAY_SetupHideFishNotif()
         if not TARGET_GUIS[gui.Name] then return end
 
         for _, obj in ipairs(gui:GetDescendants()) do
-            if not obj:IsDescendantOf(pg) then
-                continue
-            end
             hideObj(obj)
         end
     end
 
-    -- proses GUI notif yang sudah ada + hook descendant-nya
+    -- yang sudah ada
     for _, gui in ipairs(pg:GetChildren()) do
         if TARGET_GUIS[gui.Name] then
-            task.wait(0.1)
             processGui(gui)
             gui.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
-                if not obj:IsDescendantOf(gui) then return end
-                task.wait()
                 hideObj(obj)
             end)
         end
     end
 
-    -- hook GUI notif baru yang muncul
+    -- yang baru muncul
     pg.ChildAdded:Connect(function(child)
         if not _G.RAY_HideFishNotif then return end
         if TARGET_GUIS[child.Name] then
-            task.wait(0.05)
             processGui(child)
             child.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
-                if not obj:IsDescendantOf(child) then return end
-                task.wait()
                 hideObj(obj)
             end)
         end
     end)
 end
 
-task.wait(5)
-local plr = Players.LocalPlayer
-local pg = plr:WaitForChild("PlayerGui")
+task.delay(5, RAY_SetupHideFishNotif)
+
 
 
 
