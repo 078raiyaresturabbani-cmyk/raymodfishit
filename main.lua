@@ -1,6 +1,6 @@
 -- RAYMOD FISHIT V2 | UPDATE 1 (NO SHOP TOGGLE)
 -- 1 SCRIPT 1 DEVICE (HWID BIND + RESET GUI)
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, HIDE NAME, AUTO SAVE, ANTI AFK
+-- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
 -- PREMIUM UI (SMALL + TRANSPARENT + BLUR)
 
 -- ===== RAYMOD 1 SCRIPT 1 DEVICE (NO KEY) =====
@@ -538,6 +538,8 @@ _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
 
+
+
 -- CFrame Sisyphus Room
 local GHOSFIN_CF = CFrame.new(
     -3708.77563, -135.073914, -1012.4093,
@@ -567,22 +569,20 @@ local Events = {
 -- ===== TELEPORT LOCATIONS =====
 
 local LOCATIONS = {
-    ["Spawn"]             = CFrame.new(45.2788086, 252.562927, 2987.10913),
-    ["Sisyphus Statue"]   = CFrame.new(-3728.21606, -135.074417, -1012.12744),
-    ["Coral Reefs"]       = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
-    ["Esoteric Depths"]   = CFrame.new(3248.37109, -1301.53027, 1403.82727),
-    ["Crater Island"]     = CFrame.new(1016.49072, 20.0919304, 5069.27295),
-    ["Lost Isle"]         = CFrame.new(-3618.15698, 240.836655, -1317.45801),
-    ["Weather Machine"]   = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
-    ["Tropical Grove"]    = CFrame.new(-2095.34106, 197.199997, 3718.08008),
-    ["Mount Hallow"]      = CFrame.new(2136.62305, 78.9163895, 3272.50439),
-    ["Treasure Room"]     = CFrame.new(-3606.34985, -266.57373, -1580.97339),
-    ["Kohana"]            = CFrame.new(-663.904236, 3.04580712, 718.796875),
-    ["Underground Cellar"]= CFrame.new(2109.52148, -94.1875076, -708.609131),
-    ["Ancient Jungle"]    = CFrame.new(1831.71362, 6.62499952, -299.279175),
-    ["Sacred Temple"]     = CFrame.new(1466.92151, -21.8750591, -622.835693),
-    -- Lokasi Quest Element Hutan Kuno
-    ["Hutan Kuno"]        = CFrame.new(1491.9373779296875, 2.755492925643921, -337.64642333984375),
+    ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]      = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]  = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]    = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]        = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]  = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]   = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]     = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]    = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]           = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"]=CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]   = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
 local function TeleportTo(name)
@@ -663,6 +663,7 @@ end
 
 AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
 
+-- Sisyphus Room (GHOSFIN_CF)
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
 btnGhostfin.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -681,6 +682,7 @@ btnGhostfin.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Treasure Room (pakai TeleportTo, TIDAK diubah)
 local btnTreasure = Instance.new("TextButton")
 btnTreasure.Size = UDim2.new(1, -4, 0, 28)
 btnTreasure.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
@@ -695,11 +697,64 @@ btnTreasure.MouseButton1Click:Connect(function()
     TeleportTo("Treasure Room")
 end)
 
-AddSection(pageQuest, "Quest Element", "Toggle TP untuk farming elemen")
+-- QUEST ELEMENT (SEMUA CFrame manual, gak lewat LOCATIONS)
 
-AddToggle(pageQuest, "Teleport Hutan Kuno", false, function(v)
-    if v then
-        TeleportTo("Hutan Kuno")
+AddSection(pageQuest, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
+
+-- Hutan Kuno (pakai CFrame langsung, BUKAN TeleportTo)
+local btnHutanKuno = Instance.new("TextButton")
+btnHutanKuno.Size = UDim2.new(1, -4, 0, 28)
+btnHutanKuno.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnHutanKuno.BackgroundTransparency = 0.2
+btnHutanKuno.Text = "Teleport ke Hutan Kuno"
+btnHutanKuno.TextColor3 = Color3.fromRGB(230, 230, 255)
+btnHutanKuno.Font = Enum.Font.Gotham
+btnHutanKuno.TextSize = 13
+btnHutanKuno.Parent = pageQuest
+Instance.new("UICorner", btnHutanKuno).CornerRadius = UDim.new(0, 8)
+btnHutanKuno.MouseButton1Click:Connect(function()
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(1491.9373779296875, 2.755492925643921, -337.64642333984375)
+    end
+end)
+
+-- Sacred Temple (element)
+local btnSacred = Instance.new("TextButton")
+btnSacred.Size = UDim2.new(1, -4, 0, 28)
+btnSacred.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnSacred.BackgroundTransparency = 0.2
+btnSacred.Text = "Teleport ke Sacred Temple"
+btnSacred.TextColor3 = Color3.fromRGB(230, 230, 255)
+btnSacred.Font = Enum.Font.Gotham
+btnSacred.TextSize = 13
+btnSacred.Parent = pageQuest
+Instance.new("UICorner", btnSacred).CornerRadius = UDim.new(0, 8)
+btnSacred.MouseButton1Click:Connect(function()
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(1454.1441650390625, -22.125001907348633, -621.9874877929688)
+    end
+end)
+
+-- Underground Cellar (element)
+local btnUnderground = Instance.new("TextButton")
+btnUnderground.Size = UDim2.new(1, -4, 0, 28)
+btnUnderground.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+btnUnderground.BackgroundTransparency = 0.2
+btnUnderground.Text = "Teleport ke Underground Cellar"
+btnUnderground.TextColor3 = Color3.fromRGB(230, 230, 255)
+btnUnderground.Font = Enum.Font.Gotham
+btnUnderground.TextSize = 13
+btnUnderground.Parent = pageQuest
+Instance.new("UICorner", btnUnderground).CornerRadius = UDim.new(0, 8)
+btnUnderground.MouseButton1Click:Connect(function()
+    local char = Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
     end
 end)
 
@@ -712,8 +767,6 @@ end)
 AddDelayBox(pageBoat, "Boat Speed (stud/s)", _G.RAY_BoatSpeedValue, function(v)
     _G.RAY_BoatSpeedValue = v
 end)
-
--- ===== GUI: MISC =====
 
 AddSection(pageMisc, "Movement / Visuals", "Walkspeed, jump, freeze, hide name")
 
@@ -736,6 +789,8 @@ end)
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
+
+
 
 -- Tombol RESET HWID (1 script 1 device)
 local resetHwidBtn = Instance.new("TextButton")
@@ -911,6 +966,7 @@ Safety.SafeLoop(0.05, function()
     end
 end)
 
+
 -- ===== BOAT SPEED ENGINE =====
 
 local function GetBoatSeat()
@@ -957,5 +1013,6 @@ Safety.SafeLoop(1.0, function()
         end
     end
 end)
+
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
