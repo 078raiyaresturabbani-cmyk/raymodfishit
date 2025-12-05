@@ -281,30 +281,52 @@ pageHolder.Parent = content
 Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
 
 local Pages = {}
-local Pages = {}
 
-local function CreatePage(name)
-    local Page = Instance.new("ScrollingFrame")
-    Page.Name = name
-    Page.Size = UDim2.new(1, -14, 1, -14)
-    Page.Position = UDim2.new(0, 7, 0, 7)
-    Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 4
-    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    Page.Visible = false
-    Page.Parent = pageHolder
+-- PAGE QUEST KHUSUS (MANUAL)
+local pageQuest = Instance.new("ScrollingFrame")
+pageQuest.Name = "Quest"
+pageQuest.Size = UDim2.new(1, -14, 1, -14)
+pageQuest.Position = UDim2.new(0, 7, 0, 7)
+pageQuest.BackgroundTransparency = 1
+pageQuest.ScrollBarThickness = 4
+pageQuest.AutomaticCanvasSize = Enum.AutomaticSize.Y
+pageQuest.CanvasSize = UDim2.new(0, 0, 0, 0)
+pageQuest.Visible = false
+pageQuest.Parent = pageHolder
 
-    local layout = Instance.new("UIListLayout", Page)
-    layout.Padding = UDim.new(0, 6)
-    layout.FillDirection = Enum.FillDirection.Vertical
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-    layout.VerticalAlignment = Enum.VerticalAlignment.Top
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
+local questLayout = Instance.new("UIListLayout", pageQuest)
+questLayout.Padding = UDim.new(0, 6)
+questLayout.FillDirection = Enum.FillDirection.Vertical
+questLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+questLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+questLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    Pages[name] = Page
-    return Page
+local function SwitchPage(name)
+    for _, p in pairs(Pages) do
+        p.Visible = false
+    end
+    if Pages[name] then
+        Pages[name].Visible = true
+    end
 end
+
+local function CreateTabButton(text, pageName)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(22, 26, 56)
+    btn.BackgroundTransparency = 0.2
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(210, 220, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(function()
+        SwitchPage(pageName)
+    end)
+end
+
 
 
 local function SwitchPage(name)
