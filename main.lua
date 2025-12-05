@@ -281,18 +281,31 @@ pageHolder.Parent = content
 Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
 
 local Pages = {}
+local Pages = {}
+
 local function CreatePage(name)
     local Page = Instance.new("ScrollingFrame")
-    ...
+    Page.Name = name
+    Page.Size = UDim2.new(1, -14, 1, -14)
+    Page.Position = UDim2.new(0, 7, 0, 7)
+    Page.BackgroundTransparency = 1
+    Page.ScrollBarThickness = 4
+    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Page.Visible = false
+    Page.Parent = pageHolder
+
     local layout = Instance.new("UIListLayout", Page)
     layout.Padding = UDim.new(0, 6)
     layout.FillDirection = Enum.FillDirection.Vertical
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
-    layout.SortOrder = Enum.SortOrder.LayoutOrder  -- <<< TAMBAH INI
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+
     Pages[name] = Page
     return Page
 end
+
 
 local function SwitchPage(name)
     for _,p in pairs(Pages) do p.Visible = false end
