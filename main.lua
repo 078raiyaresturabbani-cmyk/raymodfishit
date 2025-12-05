@@ -340,7 +340,7 @@ local function MakePage(name)
     Page.Parent = pageHolder
 
     local layout = Instance.new("UIListLayout", Page)
-    layout.Padding = UDim2.new(0, 6)
+    layout.Padding = UDim.new(0, 6)
     layout.FillDirection = Enum.FillDirection.Vertical
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
@@ -572,8 +572,6 @@ _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
 
-
-
 -- CFrame Sisyphus Room
 local GHOSFIN_CF = CFrame.new(
     -3708.77563, -135.073914, -1012.4093,
@@ -603,20 +601,20 @@ local Events = {
 -- ===== TELEPORT LOCATIONS =====
 
 local LOCATIONS = {
-    ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
-    ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
-    ["Coral Reefs"]      = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
-    ["Esoteric Depths"]  = CFrame.new(3248.37109, -1301.53027, 1403.82727),
-    ["Crater Island"]    = CFrame.new(1016.49072, 20.0919304, 5069.27295),
-    ["Lost Isle"]        = CFrame.new(-3618.15698, 240.836655, -1317.45801),
-    ["Weather Machine"]  = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
-    ["Tropical Grove"]   = CFrame.new(-2095.34106, 197.199997, 3718.08008),
-    ["Mount Hallow"]     = CFrame.new(2136.62305, 78.9163895, 3272.50439),
-    ["Treasure Room"]    = CFrame.new(-3606.34985, -266.57373, -1580.97339),
-    ["Kohana"]           = CFrame.new(-663.904236, 3.04580712, 718.796875),
-    ["Underground Cellar"]=CFrame.new(2109.52148, -94.1875076, -708.609131),
-    ["Ancient Jungle"]   = CFrame.new(1831.71362, 6.62499952, -299.279175),
-    ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
+    ["Spawn"]             = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]   = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]       = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]   = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]     = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]         = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]   = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]    = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]      = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]     = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]            = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"]= CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]    = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]     = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
 local function TeleportTo(name)
@@ -808,10 +806,6 @@ btnUnderground.MouseButton1Click:Connect(function()
     end
 end)
 
-
-
-
-
 -- ===== GUI: BOAT =====
 
 AddSection(pageBoat, "Boat Speed", "Boost kecepatan boat lokal")
@@ -843,8 +837,6 @@ end)
 AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
-
-
 
 -- Tombol RESET HWID (1 script 1 device)
 local resetHwidBtn = Instance.new("TextButton")
@@ -1020,7 +1012,6 @@ Safety.SafeLoop(0.05, function()
     end
 end)
 
-
 -- ===== BOAT SPEED ENGINE =====
 
 local function GetBoatSeat()
@@ -1067,6 +1058,5 @@ Safety.SafeLoop(1.0, function()
         end
     end
 end)
-
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
