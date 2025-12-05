@@ -327,34 +327,38 @@ local function CreateTabButton(text, pageName)
     end)
 end
 
+local function MakePage(name)
+    local Page = Instance.new("ScrollingFrame")
+    Page.Name = name
+    Page.Size = UDim2.new(1, -14, 1, -14)
+    Page.Position = UDim2.new(0, 7, 0, 7)
+    Page.BackgroundTransparency = 1
+    Page.ScrollBarThickness = 4
+    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Page.Visible = false
+    Page.Parent = pageHolder
 
+    local layout = Instance.new("UIListLayout", Page)
+    layout.Padding = UDim2.new(0, 6)
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
 
-local function SwitchPage(name)
-    for _,p in pairs(Pages) do p.Visible = false end
-    if Pages[name] then Pages[name].Visible = true end
+    Pages[name] = Page
+    return Page
 end
-local function CreateTabButton(text, pageName)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(22, 26, 56)
-    btn.BackgroundTransparency = 0.2
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(210, 220, 255)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 13
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    btn.Parent = sidebar
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() SwitchPage(pageName) end)
-end
 
-local pageFishing   = CreatePage("Fishing")
-local pageBackpack  = CreatePage("Backpack")
-local pageTeleport  = CreatePage("Teleport")
-local pageQuest     = CreatePage("Quest")
-local pageBoat      = CreatePage("Boat")
-local pageMisc      = CreatePage("Misc")
+-- BUAT SEMUA PAGE
+local pageFishing   = MakePage("Fishing")
+local pageBackpack  = MakePage("Backpack")
+local pageTeleport  = MakePage("Teleport")
+Pages["Quest"]      = pageQuest -- page quest manual
+local pageBoat      = MakePage("Boat")
+local pageMisc      = MakePage("Misc")
 
+-- TAB BUTTON
 CreateTabButton("│ Fishing",   "Fishing")
 CreateTabButton("│ Backpack",  "Backpack")
 CreateTabButton("│ Teleport",  "Teleport")
@@ -362,6 +366,7 @@ CreateTabButton("│ Quest",     "Quest")
 CreateTabButton("│ Boat",      "Boat")
 CreateTabButton("│ Misc",      "Misc")
 
+-- PAGE AWAL
 SwitchPage("Fishing")
 
 -- ===== CONFIG AUTO SAVE (DELAY) =====
