@@ -561,6 +561,7 @@ _G.RAY_BoatSpeedEnabled = false
 _G.RAY_BoatSpeedValue   = 120
 
 _G.RAY_HideName         = false
+_G.RAY_HideFishNotif    = false
 
 -- CFrame Sisyphus Room
 local GHOSFIN_CF = CFrame.new(
@@ -591,20 +592,20 @@ local Events = {
 -- ===== TELEPORT LOCATIONS =====
 
 local LOCATIONS = {
-    ["Spawn"]             = CFrame.new(45.2788086, 252.562927, 2987.10913),
-    ["Sisyphus Statue"]   = CFrame.new(-3728.21606, -135.074417, -1012.12744),
-    ["Coral Reefs"]       = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
-    ["Esoteric Depths"]   = CFrame.new(3248.37109, -1301.53027, 1403.82727),
-    ["Crater Island"]     = CFrame.new(1016.49072, 20.0919304, 5069.27295),
-    ["Lost Isle"]         = CFrame.new(-3618.15698, 240.836655, -1317.45801),
-    ["Weather Machine"]   = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
-    ["Tropical Grove"]    = CFrame.new(-2095.34106, 197.199997, 3718.08008),
-    ["Mount Hallow"]      = CFrame.new(2136.62305, 78.9163895, 3272.50439),
-    ["Treasure Room"]     = CFrame.new(-3606.34985, -266.57373, -1580.97339),
-    ["Kohana"]            = CFrame.new(-663.904236, 3.04580712, 718.796875),
-    ["Underground Cellar"]= CFrame.new(2109.52148, -94.1875076, -708.609131),
-    ["Ancient Jungle"]    = CFrame.new(1831.71362, 6.62499952, -299.279175),
-    ["Sacred Temple"]     = CFrame.new(1466.92151, -21.8750591, -622.835693),
+    ["Spawn"]              = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]    = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]        = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]    = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]      = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]          = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]    = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]     = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]       = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]      = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]             = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"] = CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]     = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]      = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
 local function TeleportTo(name)
@@ -842,6 +843,10 @@ AddToggle(pageMisc, "Hide Player Names", false, function(v)
     _G.RAY_HideName = v
 end)
 
+AddToggle(pageMisc, "Hide Fish Image & Rarity", false, function(v)
+    _G.RAY_HideFishNotif = v
+end)
+
 local resetHwidBtn = Instance.new("TextButton")
 resetHwidBtn.Size = UDim2.new(1, -4, 0, 28)
 resetHwidBtn.BackgroundColor3 = Color3.fromRGB(220, 80, 90)
@@ -1065,5 +1070,76 @@ Safety.SafeLoop(1.0, function()
         end
     end
 end)
+
+-- ===== HIDE FISH NOTIFICATION (IMAGE + "1 in X") =====
+
+local function RAY_SetupHideFishNotif()
+    local plr = Players.LocalPlayer
+    local pg = plr:WaitForChild("PlayerGui")
+
+    local TARGET_GUIS = {
+        ["Small Notification"] = true,
+        ["Text Notifications"] = true,
+    }
+
+    local function shouldHideText(txt)
+        if not txt or txt == "" then
+            return false
+        end
+        if string.find(txt, "1 in") then
+            return true
+        end
+        return false
+    end
+
+    local function processGui(gui)
+        if not _G.RAY_HideFishNotif then return end
+        if not TARGET_GUIS[gui.Name] then return end
+
+        for _, obj in ipairs(gui:GetDescendants()) do
+            if not obj:IsDescendantOf(pg) then
+                continue
+            end
+
+            if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                obj.ImageTransparency = 1
+                obj.Visible = false
+            elseif obj:IsA("TextLabel") then
+                if shouldHideText(obj.Text) then
+                    obj.TextTransparency = 1
+                    obj.Visible = false
+                end
+            end
+        end
+    end
+
+    for _, gui in ipairs(pg:GetChildren()) do
+        if TARGET_GUIS[gui.Name] then
+            processGui(gui)
+        end
+    end
+
+    pg.ChildAdded:Connect(function(child)
+        if not _G.RAY_HideFishNotif then return end
+        if TARGET_GUIS[child.Name] then
+            task.wait(0.05)
+            processGui(child)
+            child.DescendantAdded:Connect(function(obj)
+                if not _G.RAY_HideFishNotif then return end
+                if not obj:IsDescendantOf(child) then return end
+                task.wait()
+                if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                    obj.ImageTransparency = 1
+                    obj.Visible = false
+                elseif obj:IsA("TextLabel") and shouldHideText(obj.Text) then
+                    obj.TextTransparency = 1
+                    obj.Visible = false
+                end
+            end)
+        end
+    end)
+end
+
+task.spawn(RAY_SetupHideFishNotif)
 
 Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
