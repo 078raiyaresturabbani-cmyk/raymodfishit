@@ -1162,11 +1162,18 @@ end)
 -- ===== HIDE FISH NOTIFICATION (IMAGE + "1 in X") =====
 
 local function SetupHideFishNotif()
-    local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+    local plr = Players.LocalPlayer
+    local pg = plr:WaitForChild("PlayerGui")
+
     local TARGET_GUIS = {
         "Small Notification",
         "Text Notifications",
     }
+
+    local function isTargetGui(gui)
+        if not gui or not gui:IsDescendantOf(pg) then return false end
+        return table.find(TARGET_GUIS, gui.Name) ~= nil
+    end
 
     local function shouldHideText(txt)
         if not txt or txt == "" then return false end
@@ -1177,8 +1184,10 @@ local function SetupHideFishNotif()
     end
 
     local function processNotifGui(gui)
-        if not gui then return end
+        if not _G.RAY_HideFishNotif then return end
+        if not isTargetGui(gui) then return end
         for _, obj in ipairs(gui:GetDescendants()) do
+            if not obj:IsDescendantOf(pg) then continue end
             if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
                 obj.ImageTransparency = 1
                 obj.Visible = false
@@ -1191,20 +1200,22 @@ local function SetupHideFishNotif()
         end
     end
 
-    for _, name in ipairs(TARGET_GUIS) do
-        local gui = pg:FindFirstChild(name)
-        if gui then
+    -- proses GUI yang sudah ada (kalau toggle ON)
+    for _, gui in ipairs(pg:GetChildren()) do
+        if isTargetGui(gui) then
             processNotifGui(gui)
         end
     end
 
+    -- hook GUI baru
     pg.ChildAdded:Connect(function(child)
         if not _G.RAY_HideFishNotif then return end
-        if table.find(TARGET_GUIS, child.Name) then
+        if isTargetGui(child) then
             task.wait(0.05)
             processNotifGui(child)
             child.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
+                if not obj:IsDescendantOf(child) then return end
                 task.wait()
                 if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
                     obj.ImageTransparency = 1
@@ -1217,6 +1228,9 @@ local function SetupHideFishNotif()
         end
     end)
 end
+
+task.spawn(SetupHideFishNotif)
+
 
 task.spawn(function()
     SetupHideFishNotif()
