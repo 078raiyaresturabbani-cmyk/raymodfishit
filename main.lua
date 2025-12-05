@@ -661,7 +661,7 @@ end
 
 -- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
-AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
+AddSection(pageQuest, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
 
 local btnGhostfin = Instance.new("TextButton")
 btnGhostfin.Size = UDim2.new(1, -4, 0, 28)
@@ -694,14 +694,7 @@ Instance.new("UICorner", btnTreasure).CornerRadius = UDim.new(0, 8)
 btnTreasure.MouseButton1Click:Connect(function()
     TeleportTo("Treasure Room")
 end)
-
-AddSection(pageQuest, "Quest Element", "Toggle TP untuk farming elemen")
-
-AddToggle(pageQuest, "Teleport Hutan Kuno", false, function(v)
-    if v then
-        TeleportTo("Hutan Kuno")
-    end
-end)
+AddSection(pageQuest, "GOODLUCK BROTHER")
 
 -- ===== GUI: BOAT =====
 
