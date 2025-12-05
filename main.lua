@@ -1,9 +1,3 @@
--- RAYMOD FISHIT V2 | UPDATE 1 (NO SHOP TOGGLE)
--- 1 SCRIPT 1 DEVICE (HWID BIND + RESET GUI)
--- AUTO FISH V1/V2/V3, AUTO SELL, BOAT SPEED, REDUCE MAP, HIDE NAME, AUTO SAVE, ANTI AFK
--- PREMIUM UI (SMALL + TRANSPARENT + BLUR)
-
-
 -- ===== RAYMOD 1 SCRIPT 1 DEVICE (NO KEY) =====
 local Players             = game:GetService("Players")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
@@ -366,12 +360,12 @@ local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
 
 
-CreateTabButton("│ Fishing",   "Fishing")
-CreateTabButton("│ Backpack",  "Backpack")
-CreateTabButton("│ Teleport",  "Teleport")
-CreateTabButton("│ Quest",     "Quest")
-CreateTabButton("│ Boat",      "Boat")
-CreateTabButton("│ Misc",      "Misc")
+CreateTabButton("Γöé Fishing",   "Fishing")
+CreateTabButton("Γöé Backpack",  "Backpack")
+CreateTabButton("Γöé Teleport",  "Teleport")
+CreateTabButton("Γöé Quest",     "Quest")
+CreateTabButton("Γöé Boat",      "Boat")
+CreateTabButton("Γöé Misc",      "Misc")
 
 
 SwitchPage("Fishing")
