@@ -662,7 +662,7 @@ end
 -- ===== GUI: QUEST (SISYPHUS / TREASURE / ELEMENT) =====
 
 -- SECTION 1: TELEPORT QUEST (CUMA 2)
-AddSection(pageQuest, "Teleport Quest", "TP cepat ke Sisyphus Room & Treasure Room")
+AddSection(pageQuest, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
 
 -- Sisyphus Room (GHOSFIN_CF)
 local btnGhostfin = Instance.new("TextButton")
@@ -757,6 +757,7 @@ btnUnderground.MouseButton1Click:Connect(function()
         hrp.CFrame = CFrame.new(2136, -91.4485855102539, -701)
     end
 end)
+
 
 
 -- ===== GUI: BOAT =====
