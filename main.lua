@@ -360,12 +360,12 @@ local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
 
 
-CreateTabButton(" Fishing",   "Fishing")
-CreateTabButton(" Backpack",  "Backpack")
-CreateTabButton(" Teleport",  "Teleport")
-CreateTabButton(" Quest",     "Quest")
-CreateTabButton(" Boat",      "Boat")
-CreateTabButton(" Misc",      "Misc")
+CreateTabButton("Γöé Fishing",   "Fishing")
+CreateTabButton("Γöé Backpack",  "Backpack")
+CreateTabButton("Γöé Teleport",  "Teleport")
+CreateTabButton("Γöé Quest",     "Quest")
+CreateTabButton("Γöé Boat",      "Boat")
+CreateTabButton("Γöé Misc",      "Misc")
 
 
 SwitchPage("Fishing")
@@ -1156,19 +1156,17 @@ Safety.SafeLoop(1.0, function()
     end
 end)
 
--- ===== HIDE FISH NOTIFICATION (HANYA NOTIF PERTAMA) =====
+-- ===== HIDE FISH NOTIFICATION (ALL IMAGE + TEXT) =====
 
 local function RAY_SetupHideFishNotif()
     local plr = Players.LocalPlayer
     local pg = plr:WaitForChild("PlayerGui")
 
+    -- ganti/tambah nama GUI notif kalau perlu
     local TARGET_GUIS = {
         ["Small Notification"] = true,
         ["Text Notifications"] = true,
     }
-
-    -- hitung berapa kali GUI notif ini sudah dipakai
-    local notifCount = {}
 
     local function hideObj(obj)
         if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
@@ -1184,51 +1182,45 @@ local function RAY_SetupHideFishNotif()
         if not _G.RAY_HideFishNotif then return end
         if not TARGET_GUIS[gui.Name] then return end
 
-        -- increment counter
-        notifCount[gui] = (notifCount[gui] or 0) + 1
-
-        -- HANYA hide untuk notif pertama
-        if notifCount[gui] ~= 1 then
-            return
-        end
-
         for _, obj in ipairs(gui:GetDescendants()) do
+            if not obj:IsDescendantOf(pg) then
+                continue
+            end
             hideObj(obj)
         end
     end
 
-    -- notif yang GUI-nya sudah ada
+    -- proses GUI notif yang sudah ada + hook descendant-nya
     for _, gui in ipairs(pg:GetChildren()) do
         if TARGET_GUIS[gui.Name] then
+            task.wait(0.1)
             processGui(gui)
             gui.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
-                if notifCount[gui] == 1 then
-                    hideObj(obj)
-                end
+                if not obj:IsDescendantOf(gui) then return end
+                task.wait()
+                hideObj(obj)
             end)
         end
     end
 
-    -- notif baru (GUI muncul belakangan)
+    -- hook GUI notif baru yang muncul
     pg.ChildAdded:Connect(function(child)
         if not _G.RAY_HideFishNotif then return end
         if TARGET_GUIS[child.Name] then
+            task.wait(0.05)
             processGui(child)
             child.DescendantAdded:Connect(function(obj)
                 if not _G.RAY_HideFishNotif then return end
-                if notifCount[child] == 1 then
-                    hideObj(obj)
-                end
+                if not obj:IsDescendantOf(child) then return end
+                task.wait()
+                hideObj(obj)
             end)
         end
     end)
 end
 
-task.delay(5, RAY_SetupHideFishNotif)
-
-
-
+task.spawn(RAY_SetupHideFishNotif)
 
 
 
