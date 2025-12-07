@@ -164,14 +164,25 @@ end
 
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 420, 0, 260)
-main.Position = UDim2.new(0.5, -210, 0.5, -130)
+main.Size = UDim2.new(0.45, 0, 0.55, 0)          -- 45% lebar, 55% tinggi layar
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.Position = UDim2.new(0.5, 0, 0.5, 0)
 main.BackgroundColor3 = Color3.fromRGB(8, 10, 20)
 main.BackgroundTransparency = 0.25
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.Parent = gui
+local UIScale = Instance.new("UIScale")
+UIScale.Parent = main
+
+if UIS.TouchEnabled and not UIS.KeyboardEnabled then
+    UIScale.Scale = 1.0   -- mobile
+else
+    UIScale.Scale = 0.9   -- PC
+end
+
+
 do
     local corner = Instance.new("UICorner", main); corner.CornerRadius = UDim.new(0, 14)
     local stroke = Instance.new("UIStroke", main)
