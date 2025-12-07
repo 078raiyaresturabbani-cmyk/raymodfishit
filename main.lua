@@ -993,51 +993,42 @@ end)
 
 -- ===== AUTO SELL =====
 
--- refresh backpack UI
-local function RefreshBackpackUI()
+local function ToggleBackpack()
     local pg  = Players.LocalPlayer:FindFirstChild("PlayerGui")
     if not pg then return end
-    local bpGui = pg:FindFirstChild("Backpack") or pg:FindFirstChild("Inventory")
+    local bpGui = pg:FindFirstChild("Backpack")  -- ini yang nampilin angka 36/3000
     if bpGui and bpGui:IsA("ScreenGui") then
         local old = bpGui.Enabled
-        bpGui.Enabled = false
-        task.wait(0.05)
-        bpGui.Enabled = old
-    end
-end
-
--- clear notif backpack penuh
-local function ClearBackpackNotif()
-    local pg = Players.LocalPlayer:FindFirstChild("PlayerGui")
-    if not pg then return end
-    local sn = pg:FindFirstChild("Small Notification")
-    if sn and sn:IsA("ScreenGui") then
-        sn.Enabled = false
-        task.wait(0.05)
-        sn.Enabled = true
+        bpGui.Enabled = true     -- buka sebentar
+        task.wait(0.1)
+        bpGui.Enabled = old      -- balikin ke kondisi awal
     end
 end
 
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
     if not _G.RAY_AutoSell then
-        sellCount = 0; return
+        sellCount = 0
+        return
     end
+
     sellCount += 1
     if sellCount > 999 then
         _G.RAY_AutoSell = false
         Notify("AutoSell dimatikan (limit).")
         return
     end
+
     if Events.sell then
         pcall(function()
             Events.sell:InvokeServer()
-            RefreshBackpackUI()
-            ClearBackpackNotif()
+            ToggleBackpack()     -- paksa UI backpack refresh tiap selesai sell
         end)
     end
+
     Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
 end)
+
 
 
 
