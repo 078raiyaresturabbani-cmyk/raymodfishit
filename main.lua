@@ -745,103 +745,104 @@ for name, _ in pairs(LOCATIONS) do
 end
 
 
--- ===== GUI: QUEST (GHOSFIN & ELEMENT, 2 KOLOM) =====
+-- ===== GUI: QUEST (STYLE BLESSED) =====
 
--- container utama untuk isi tab Quest
-local questContainer = Instance.new("Frame")
-questContainer.Size = UDim2.new(1, -4, 1, -4)
-questContainer.BackgroundTransparency = 1
-questContainer.Parent = pageQuest
+local function MakeQuestCard(titleText, subText)
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(1, -4, 0, 150)
+    card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    card.BackgroundTransparency = 0.1
+    card.BorderSizePixel = 0
+    card.Parent = pageQuest
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 10)
 
-local questLayout = Instance.new("UIListLayout", questContainer)
-questLayout.Padding = UDim.new(0, 8)
-questLayout.FillDirection = Enum.FillDirection.Vertical
-questLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-questLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+    local layout = Instance.new("UIListLayout", card)
+    layout.Padding = UDim.new(0, 6)
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
--- helper: frame 2 kolom
-local function CreateTwoColumnFrame(parent)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 0, 70)
-    frame.BackgroundTransparency = 1
-    frame.Parent = parent
+    AddSection(card, titleText, subText)
 
-    local grid = Instance.new("UIGridLayout", frame)
-    grid.FillDirection = Enum.FillDirection.Horizontal
-    grid.CellSize = UDim2.new(0.5, -6, 0, 30)
-    grid.CellPadding = UDim2.new(0, 8, 0, 8)
-
-    return frame
+    return card
 end
 
-local function MakeQuestButton(parent, text, cf)
+local function MakeQuestButtonIn(card, text, cf)
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0, 0, 0, 0) -- diatur sama UIGridLayout
+    b.Size = UDim2.new(0.5, -8, 0, 28)
     b.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
     b.BackgroundTransparency = 0.2
     b.Text = text
     b.TextColor3 = Color3.fromRGB(230, 230, 255)
     b.Font = Enum.Font.Gotham
     b.TextSize = 13
-    b.Parent = parent
+    b.Parent = card
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
 
     b.MouseButton1Click:Connect(function()
         local char = Players.LocalPlayer.Character
         local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            hrp.CFrame = cf
-        end
+        if hrp then hrp.CFrame = cf end
     end)
 end
 
+local function MakeQuestButtonsRow(card)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -8, 0, 30)
+    row.BackgroundTransparency = 1
+    row.Parent = card
+
+    local layout = Instance.new("UIListLayout", row)
+    layout.FillDirection = Enum.FillDirection.Horizontal
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    layout.Padding = UDim.new(0, 8)
+
+    return row
+end
+
 ----------------------------------------------------------------
--- BAGIAN 1: QUEST GHOSFIN
+-- CARD 1: SISYPHUS STATUE QUEST
 ----------------------------------------------------------------
 
-local secG = AddSection(questContainer, "Quest Ghosfin", "TP cepat ke Sisyphus Room & Treasure Room")
+local cardG = MakeQuestCard("Sisyphus Statue Quest", "Deep Sea Panel & teleport helper")
 
-local ghosfinButtons = CreateTwoColumnFrame(questContainer)
-MakeQuestButton(ghosfinButtons, "Sisyphus Room", GHOSFIN_CF)
-MakeQuestButton(ghosfinButtons, "Treasure Room", LOCATIONS["Treasure Room"])
+-- toggle auto quest (kanan atas card)
+AddToggle(cardG, "Auto Deep Sea Quest", false, function(v)
+    _G.RAY_AutoDeepSeaQuest = v
+end)
+
+-- baris tombol bawah (Treasure Room / Sisyphus Statue)
+local rowG = MakeQuestButtonsRow(cardG)
+MakeQuestButtonIn(rowG, "Treasure Room", LOCATIONS["Treasure Room"])
+MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
 
 ----------------------------------------------------------------
--- SPACER
+-- SPACER ANTAR CARD
 ----------------------------------------------------------------
 
 local spacerQ = Instance.new("Frame")
-spacerQ.Size = UDim2.new(1, 0, 0, 6)
+spacerQ.Size = UDim2.new(1, -4, 0, 10)
 spacerQ.BackgroundTransparency = 1
-spacerQ.Parent = questContainer
+spacerQ.Parent = pageQuest
 
 ----------------------------------------------------------------
--- BAGIAN 2: QUEST ELEMENT + TOGGLE
+-- CARD 2: ELEMENT QUEST
 ----------------------------------------------------------------
 
-local secE = AddSection(questContainer, "Quest Element", "Spot elemen Hutan Kuno, Sacred, Underground")
+local cardE = MakeQuestCard("Element Quest", "Teleport ke spot elemen utama")
 
--- frame isi element (2 kolom tombol + 1 toggle di bawah)
-local elemFrame = Instance.new("Frame")
-elemFrame.Size = UDim2.new(1, 0, 0, 110)
-elemFrame.BackgroundTransparency = 1
-elemFrame.Parent = questContainer
-
-local elemLayout = Instance.new("UIListLayout", elemFrame)
-elemLayout.Padding = UDim.new(0, 6)
-elemLayout.FillDirection = Enum.FillDirection.Vertical
-elemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-elemLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-
--- baris tombol 2 kolom
-local elemButtons = CreateTwoColumnFrame(elemFrame)
-MakeQuestButton(elemButtons, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
-MakeQuestButton(elemButtons, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
-MakeQuestButton(elemButtons, "Underground Cellar", CFrame.new(2136, -91.448585, -701))
-
--- contoh toggle di dalam frame (misal: Auto TP balik ke Spawn setelah selesai)
-AddToggle(elemFrame, "Auto TP ke Spawn sesudah quest", false, function(v)
-    _G.RAY_AutoQuestReturn = v
+-- toggle fitur quest element
+AddToggle(cardE, "Auto Progress Quest Features", false, function(v)
+    _G.RAY_AutoElementQuest = v
 end)
+
+-- baris tombol bawah (3 spot elemen)
+local rowE = MakeQuestButtonsRow(cardE)
+MakeQuestButtonIn(rowE, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
+MakeQuestButtonIn(rowE, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
+MakeQuestButtonIn(rowE, "Underground Cellar", CFrame.new(2136, -91.448585, -701))
+
 
 
 
