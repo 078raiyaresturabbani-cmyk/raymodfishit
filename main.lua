@@ -751,10 +751,11 @@ AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
 end)
 
 
--- ===== GUI: TELEPORT BARU =====
+-- ===== GUI: TELEPORT (PLAYERS + ISLANDS) =====
 
 pageTeleport:ClearAllChildren()
 
+-- header utama
 AddSection(pageTeleport, "Teleport", nil)
 
 --------------------------------------------------
@@ -821,7 +822,9 @@ listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
 local function RefreshPlayerList()
     for _, c in ipairs(listScroll:GetChildren()) do
-        if c:IsA("TextButton") then c:Destroy() end
+        if c:IsA("TextButton") then
+            c:Destroy()
+        end
     end
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= Players.LocalPlayer then
@@ -847,14 +850,16 @@ end
 
 dropBtn.MouseButton1Click:Connect(function()
     listFrame.Visible = not listFrame.Visible
-    if listFrame.Visible then RefreshPlayerList() end
+    if listFrame.Visible then
+        RefreshPlayerList()
+    end
 end)
 
 local tpPlayerBtn = Instance.new("TextButton")
 tpPlayerBtn.Size = UDim2.new(1, -4, 0, 30)
 tpPlayerBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 170)
 tpPlayerBtn.Text = "Teleport To Player"
-tpPlayerBtn.TextColor3 = Color3.new(1,1,1)
+tpPlayerBtn.TextColor3 = Color3.new(1, 1, 1)
 tpPlayerBtn.Font = Enum.Font.GothamBold
 tpPlayerBtn.TextSize = 13
 tpPlayerBtn.Parent = pageTeleport
@@ -890,6 +895,7 @@ for name, _ in pairs(LOCATIONS) do
         TeleportTo(name)
     end)
 end
+
 
 
 
