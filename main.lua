@@ -655,19 +655,29 @@ local LOCATIONS = {
     ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
--- fungsi TP asli kamu:
-local function TeleportTo(name)
-    local cf = LOCATIONS[name]
-    if not cf then
-        Notify("TP: lokasi tidak dikenal")
-        return
-    end
-    local char = Players.LocalPlayer.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    hrp.CFrame = cf
+-- ===== GUI: TELEPORT (OLD SIMPLE) =====
+
+pageTeleport:ClearAllChildren()
+
+AddSection(pageTeleport, "Teleport", "Klik untuk teleport ke pulau")
+
+for name, _ in pairs(LOCATIONS) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -4, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    btn.BackgroundTransparency = 0.2
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.Parent = pageTeleport
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+    btn.MouseButton1Click:Connect(function()
+        TeleportTo(name)
+    end)
 end
+
 
 
 
