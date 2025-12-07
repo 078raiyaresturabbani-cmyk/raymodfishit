@@ -730,6 +730,24 @@ AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
     _G.RAY_SellDelay = v; SaveConfig()
 end)
 
+-- ===== GUI: TELEPORT =====
+
+
+AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
+for name, _ in pairs(LOCATIONS) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -4, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    btn.BackgroundTransparency = 0.2
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.Parent = pageTeleport
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
+end
+
 
 
 
