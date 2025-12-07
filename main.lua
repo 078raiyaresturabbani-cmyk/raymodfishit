@@ -750,7 +750,7 @@ end
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 100) -- pendek, rapih
+    card.Size = UDim2.new(1, -4, 0, 100) -- tinggi card
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
@@ -837,14 +837,31 @@ local cardE = MakeQuestCard(
     "Teleport ke spot elemen utama"
 )
 
-local rowE = MakeQuestButtonsRow(cardE)
-MakeQuestButtonIn(rowE, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
-MakeQuestButtonIn(rowE, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
-MakeQuestButtonIn(rowE, "Underground Cellar", CFrame.new(2136, -91.448585, -701))
+-- baris pertama: 2 tombol kiri–kanan
+local rowE1 = MakeQuestButtonsRow(cardE)
+MakeQuestButtonIn(rowE1, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
+MakeQuestButtonIn(rowE1, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
 
+-- baris kedua: 1 tombol di tengah
+local rowE2 = MakeQuestButtonsRow(cardE)
+rowE2:FindFirstChildOfClass("UIListLayout").HorizontalAlignment = Enum.HorizontalAlignment.Center
 
+local b3 = Instance.new("TextButton")
+b3.Size = UDim2.new(0.5, -8, 0, 28)
+b3.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+b3.BackgroundTransparency = 0.2
+b3.Text = "Underground Cellar"
+b3.TextColor3 = Color3.fromRGB(230, 230, 255)
+b3.Font = Enum.Font.Gotham
+b3.TextSize = 13
+b3.Parent = rowE2
+Instance.new("UICorner", b3).CornerRadius = UDim.new(0, 8)
 
-
+b3.MouseButton1Click:Connect(function()
+    local char = Players.LocalPlayer.Character
+    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then hrp.CFrame = CFrame.new(2136, -91.448585, -701) end
+end)
 
 
 -- ===== GUI: BOAT =====
