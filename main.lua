@@ -313,25 +313,32 @@ Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
 
 
 local Pages = {}
+local PageLayouts = {}  -- TAMBAHAN
+
 local function CreatePage(name)
     local Page = Instance.new("ScrollingFrame")
     Page.Name = name
     Page.Size = UDim2.new(1, -14, 1, -14)
     Page.Position = UDim2.new(0, 7, 0, 7)
     Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 4
-    Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    Page.ScrollBarThickness = 8
+    Page.AutomaticCanvasSize = Enum.AutomaticSize.None   -- GANTI
     Page.CanvasSize = UDim2.new(0,0,0,0)
     Page.Visible = false
     Page.Parent = pageHolder
+
     local layout = Instance.new("UIListLayout", Page)
     layout.Padding = UDim.new(0, 0)
     layout.FillDirection = Enum.FillDirection.Vertical
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
+
     Pages[name] = Page
+    PageLayouts[name] = layout   -- SIMPAN
+
     return Page
 end
+
 local function SwitchPage(name)
     for _,p in pairs(Pages) do p.Visible = false end
     if Pages[name] then Pages[name].Visible = true end
@@ -358,6 +365,15 @@ local pageTeleport  = CreatePage("Teleport")
 local pageQuest     = CreatePage("Quest")
 local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
+
+-- AUTO SCROLL UNTUK QUEST
+local questLayout = PageLayouts["Quest"]
+questLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    local h = questLayout.AbsoluteContentSize.Y
+    pageQuest.CanvasSize = UDim2.new(0, 0, 0, 400)
+end)
+
+
 
 
 CreateTabButton(" Fishing",   "Fishing")
