@@ -164,8 +164,10 @@ end
 
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 460, 0, 320)
-pageHolder.Size = UDim2.new(1, -140, 1, -8)
+print("DBG main", main)
+print("DBG pageHolder", pageHolder)
+main.Size = UDim2.new(0, 420, 0, 260)
+pageHolder.Size = UDim2.new(1, -140, 1, -16)
 main.BackgroundColor3 = Color3.fromRGB(8, 10, 20)
 main.BackgroundTransparency = 0.25
 main.BorderSizePixel = 0
