@@ -745,12 +745,12 @@ for name, _ in pairs(LOCATIONS) do
 end
 
 
--- ===== GUI: QUEST (BLESSED STYLE) =====
+-- ===== GUI: QUEST (BLESSED STYLE 2 CARD) =====
 
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 150)
+    card.Size = UDim2.new(1, -4, 0, 120) -- lebih pendek supaya card bawah naik
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
@@ -814,17 +814,21 @@ local cardG = MakeQuestCard(
     "Deep Sea Panel helper + teleport"
 )
 
--- baris tombol bawah: Treasure Room / Sisyphus Statue
+-- (opsional) toggle auto quest di dalam card, kalau mau:
+-- AddToggle(cardG, "Auto Deep Sea Quest", false, function(v)
+--     _G.RAY_AutoDeepSeaQuest = v
+-- end)
+
 local rowG = MakeQuestButtonsRow(cardG)
 MakeQuestButtonIn(rowG, "Treasure Room", LOCATIONS["Treasure Room"])
 MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
 
 ----------------------------------------------------------------
--- SPACER ANTAR CARD
+-- SPACER ANTAR CARD (dibikin kecil biar card bawah naik)
 ----------------------------------------------------------------
 
 local spacerQ = Instance.new("Frame")
-spacerQ.Size = UDim2.new(1, -4, 0, 10)
+spacerQ.Size = UDim2.new(1, -4, 0, 4)
 spacerQ.BackgroundTransparency = 1
 spacerQ.Parent = pageQuest
 
@@ -838,10 +842,16 @@ local cardE = MakeQuestCard(
     "Teleport ke spot elemen utama"
 )
 
+-- (opsional) toggle fitur quest element
+-- AddToggle(cardE, "Auto Progress Quest Features", false, function(v)
+--     _G.RAY_AutoElementQuest = v
+-- end)
+
 local rowE = MakeQuestButtonsRow(cardE)
 MakeQuestButtonIn(rowE, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
 MakeQuestButtonIn(rowE, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
 MakeQuestButtonIn(rowE, "Underground Cellar", CFrame.new(2136, -91.448585, -701))
+
 
 
 
