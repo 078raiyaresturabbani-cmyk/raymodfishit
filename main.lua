@@ -745,15 +745,16 @@ for name, _ in pairs(LOCATIONS) do
 end
 
 
--- ===== GUI: QUEST (STYLE BLESSED) =====
+-- ===== GUI: QUEST (BLESSED STYLE) =====
 
-local function MakeQuestCard(titleText, subText)
+-- helper bikin CARD quest
+local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
     card.Size = UDim2.new(1, -4, 0, 150)
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
-    card.Parent = pageQuest
+    card.Parent = parent
     Instance.new("UICorner", card).CornerRadius = UDim.new(0, 10)
 
     local layout = Instance.new("UIListLayout", card)
@@ -762,30 +763,13 @@ local function MakeQuestCard(titleText, subText)
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
+    -- judul + subtext di atas card
     AddSection(card, titleText, subText)
 
     return card
 end
 
-local function MakeQuestButtonIn(card, text, cf)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0.5, -8, 0, 28)
-    b.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-    b.BackgroundTransparency = 0.2
-    b.Text = text
-    b.TextColor3 = Color3.fromRGB(230, 230, 255)
-    b.Font = Enum.Font.Gotham
-    b.TextSize = 13
-    b.Parent = card
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
-
-    b.MouseButton1Click:Connect(function()
-        local char = Players.LocalPlayer.Character
-        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp then hrp.CFrame = cf end
-    end)
-end
-
+-- helper baris tombol (dalam satu card)
 local function MakeQuestButtonsRow(card)
     local row = Instance.new("Frame")
     row.Size = UDim2.new(1, -8, 0, 30)
@@ -801,18 +785,41 @@ local function MakeQuestButtonsRow(card)
     return row
 end
 
+local function MakeQuestButtonIn(row, text, cf)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0.5, -8, 0, 28)
+    b.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
+    b.BackgroundTransparency = 0.2
+    b.Text = text
+    b.TextColor3 = Color3.fromRGB(230, 230, 255)
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 13
+    b.Parent = row
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+
+    b.MouseButton1Click:Connect(function()
+        local char = Players.LocalPlayer.Character
+        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then hrp.CFrame = cf end
+    end)
+end
+
 ----------------------------------------------------------------
 -- CARD 1: SISYPHUS STATUE QUEST
 ----------------------------------------------------------------
 
-local cardG = MakeQuestCard("Sisyphus Statue Quest", "Deep Sea Panel & teleport helper")
+local cardG = MakeQuestCard(
+    pageQuest,
+    "Sisyphus Statue Quest",
+    "Deep Sea Panel helper + teleport"
+)
 
--- toggle auto quest (kanan atas card)
+-- toggle auto quest di dalam card (mirip kanan atas di SS)
 AddToggle(cardG, "Auto Deep Sea Quest", false, function(v)
     _G.RAY_AutoDeepSeaQuest = v
 end)
 
--- baris tombol bawah (Treasure Room / Sisyphus Statue)
+-- baris tombol bawah: Treasure Room / Sisyphus Statue
 local rowG = MakeQuestButtonsRow(cardG)
 MakeQuestButtonIn(rowG, "Treasure Room", LOCATIONS["Treasure Room"])
 MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
@@ -830,14 +837,16 @@ spacerQ.Parent = pageQuest
 -- CARD 2: ELEMENT QUEST
 ----------------------------------------------------------------
 
-local cardE = MakeQuestCard("Element Quest", "Teleport ke spot elemen utama")
+local cardE = MakeQuestCard(
+    pageQuest,
+    "Element Quest",
+    "Teleport ke spot elemen utama"
+)
 
--- toggle fitur quest element
 AddToggle(cardE, "Auto Progress Quest Features", false, function(v)
     _G.RAY_AutoElementQuest = v
 end)
 
--- baris tombol bawah (3 spot elemen)
 local rowE = MakeQuestButtonsRow(cardE)
 MakeQuestButtonIn(rowE, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
 MakeQuestButtonIn(rowE, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
