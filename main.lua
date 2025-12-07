@@ -655,8 +655,6 @@ local LOCATIONS = {
     ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
--- ===== GUI: TELEPORT (OLD SIMPLE) =====
-
 pageTeleport:ClearAllChildren()
 
 AddSection(pageTeleport, "Teleport", "Klik untuk teleport ke pulau")
@@ -677,6 +675,7 @@ for name, _ in pairs(LOCATIONS) do
         TeleportTo(name)
     end)
 end
+
 
 
 
