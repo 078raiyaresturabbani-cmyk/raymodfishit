@@ -276,8 +276,8 @@ end)
 
 
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 150, 1, -16)
-sidebar.Position = UDim2.new(0, 10, 0, 8)
+sidebar.Size = UDim2.new(0, 150, 1, -32)   -- sidebar sedikit lebih pendek
+sidebar.Position = UDim2.new(0, 10, 0, 16)
 sidebar.BackgroundColor3 = Color3.fromRGB(14, 18, 40)
 sidebar.BackgroundTransparency = 0.25
 sidebar.BorderSizePixel = 0
@@ -303,8 +303,8 @@ sideHeader.Parent = sidebar
 
 
 local pageHolder = Instance.new("Frame")
-pageHolder.Size = UDim2.new(1, -140, 1, -16)
-pageHolder.Position = UDim2.new(0, 140, 0, 8)
+pageHolder.Size = UDim2.new(1, -140, 1, -8)   -- tinggi +8 px
+pageHolder.Position = UDim2.new(0, 140, 0, 4)
 pageHolder.BackgroundColor3 = Color3.fromRGB(18, 20, 42)
 pageHolder.BackgroundTransparency = 0.3
 pageHolder.BorderSizePixel = 0
