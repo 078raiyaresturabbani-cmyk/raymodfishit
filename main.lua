@@ -755,9 +755,6 @@ end)
 
 pageTeleport:ClearAllChildren()
 
--- header utama
-AddSection(pageTeleport, "Teleport", nil)
-
 --------------------------------------------------
 -- TELEPORT TO PLAYERS
 --------------------------------------------------
@@ -767,7 +764,7 @@ local selectedPlayerName = nil
 AddSection(pageTeleport, "Teleport To Players", "Pilih player lalu teleport")
 
 local rowSelect = Instance.new("Frame")
-rowSelect.Size = UDim2.new(1, -4, 0, 34)
+rowSelect.Size = UDim2.new(1, -4, 0, 40)
 rowSelect.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
 rowSelect.BackgroundTransparency = 0.2
 rowSelect.BorderSizePixel = 0
