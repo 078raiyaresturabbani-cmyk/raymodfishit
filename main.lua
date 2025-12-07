@@ -993,6 +993,18 @@ end)
 
 -- ===== AUTO SELL =====
 
+-- helper: refresh backpack UI biar isi ke-update tanpa dibuka manual
+local function RefreshBackpackUI()
+    local pg  = Players.LocalPlayer:FindFirstChild("PlayerGui")
+    if not pg then return end
+    local bpGui = pg:FindFirstChild("Backpack") or pg:FindFirstChild("Inventory")
+    if bpGui and bpGui:IsA("ScreenGui") then
+        local old = bpGui.Enabled
+        bpGui.Enabled = false
+        task.wait(0.05)
+        bpGui.Enabled = old
+    end
+end
 
 local sellCount = 0
 Safety.SafeLoop(1.0, function()
@@ -1006,9 +1018,12 @@ Safety.SafeLoop(1.0, function()
         return
     end
     if Events.sell then
-        pcall(function() Events.sell:InvokeServer() end)
-    end
-    Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
+    pcall(function()
+        Events.sell:InvokeServer()
+        RefreshBackpackUI()  -- auto refresh backpack setelah sell
+    end)
+end
+Safety.HumanWait(_G.RAY_SellDelay - 1, _G.RAY_SellDelay + 1)
 end)
 
 
