@@ -635,52 +635,38 @@ local Events = {
 }
 
 
--- ===== TELEPORT SIMPLE (RAYMOD) =====
+-- ===== TELEPORT LOCATIONS =====
 
--- Data posisi pulau
-local RAY_LOCATIONS = {
-    {Name = "Spawn",              CF = CFrame.new(45.2788086, 252.562927, 2987.10913)},
-    {Name = "Sisyphus Statue",    CF = CFrame.new(-3728.21606, -135.074417, -1012.12744)},
-    {Name = "Coral Reefs",        CF = CFrame.new(-3114.78198, 1.32066584, 2237.52295)},
-    {Name = "Esoteric Depths",    CF = CFrame.new(3248.37109, -1301.53027, 1403.82727)},
-    {Name = "Crater Island",      CF = CFrame.new(1016.49072, 20.0919304, 5069.27295)},
-    {Name = "Lost Isle",          CF = CFrame.new(-3618.15698, 240.836655, -1317.45801)},
-    {Name = "Weather Machine",    CF = CFrame.new(-1488.51196, 83.1732635, 1876.30298)},
-    {Name = "Tropical Grove",     CF = CFrame.new(-2095.34106, 197.199997, 3718.08008)},
-    {Name = "Mount Hallow",       CF = CFrame.new(2136.62305, 78.9163895, 3272.50439)},
-    {Name = "Treasure Room",      CF = CFrame.new(-3606.34985, -266.57373, -1580.97339)},
-    {Name = "Kohana",             CF = CFrame.new(-663.904236, 3.04580712, 718.796875)},
-    {Name = "Underground Cellar", CF = CFrame.new(2109.52148, -94.1875076, -708.609131)},
-    {Name = "Ancient Jungle",     CF = CFrame.new(1831.71362, 6.62499952, -299.279175)},
-    {Name = "Sacred Temple",      CF = CFrame.new(1466.92151, -21.8750591, -622.835693)},
+
+local LOCATIONS = {
+    ["Spawn"]            = CFrame.new(45.2788086, 252.562927, 2987.10913),
+    ["Sisyphus Statue"]  = CFrame.new(-3728.21606, -135.074417, -1012.12744),
+    ["Coral Reefs"]      = CFrame.new(-3114.78198, 1.32066584, 2237.52295),
+    ["Esoteric Depths"]  = CFrame.new(3248.37109, -1301.53027, 1403.82727),
+    ["Crater Island"]    = CFrame.new(1016.49072, 20.0919304, 5069.27295),
+    ["Lost Isle"]        = CFrame.new(-3618.15698, 240.836655, -1317.45801),
+    ["Weather Machine"]  = CFrame.new(-1488.51196, 83.1732635, 1876.30298),
+    ["Tropical Grove"]   = CFrame.new(-2095.34106, 197.199997, 3718.08008),
+    ["Mount Hallow"]     = CFrame.new(2136.62305, 78.9163895, 3272.50439),
+    ["Treasure Room"]    = CFrame.new(-3606.34985, -266.57373, -1580.97339),
+    ["Kohana"]           = CFrame.new(-663.904236, 3.04580712, 718.796875),
+    ["Underground Cellar"]=CFrame.new(2109.52148, -94.1875076, -708.609131),
+    ["Ancient Jungle"]   = CFrame.new(1831.71362, 6.62499952, -299.279175),
+    ["Sacred Temple"]    = CFrame.new(1466.92151, -21.8750591, -622.835693),
 }
 
-local function RAY_TeleportTo(cf)
+
+local function TeleportTo(name)
+    local cf = LOCATIONS[name]
+    if not cf then
+        Notify("TP: lokasi tidak dikenal")
+        return
+    end
     local char = Players.LocalPlayer.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     hrp.CFrame = cf
-end
-
-pageTeleport:ClearAllChildren()
-AddSection(pageTeleport, "Teleport", "Klik salah satu pulau di bawah")
-
-for _, info in ipairs(RAY_LOCATIONS) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -4, 0, 30)
-    btn.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
-    btn.BackgroundTransparency = 0.2
-    btn.Text = info.Name
-    btn.TextColor3 = Color3.fromRGB(230, 230, 255)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 13
-    btn.Parent = pageTeleport
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-    btn.MouseButton1Click:Connect(function()
-        RAY_TeleportTo(info.CF)
-    end)
 end
 
 
