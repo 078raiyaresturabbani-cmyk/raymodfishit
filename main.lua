@@ -325,7 +325,7 @@ local function CreatePage(name)
     Page.Visible = false
     Page.Parent = pageHolder
     local layout = Instance.new("UIListLayout", Page)
-    layout.Padding = UDim.new(0, 6)
+    layout.Padding = UDim.new(0, 0)
     layout.FillDirection = Enum.FillDirection.Vertical
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
