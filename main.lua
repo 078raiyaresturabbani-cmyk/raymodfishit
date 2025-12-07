@@ -313,7 +313,7 @@ Instance.new("UICorner", pageHolder).CornerRadius = UDim.new(0, 10)
 
 
 local Pages = {}
-local PageLayouts = {}  -- TAMBAHAN
+local PageLayouts = {}
 
 local function CreatePage(name)
     local Page = Instance.new("ScrollingFrame")
@@ -321,8 +321,8 @@ local function CreatePage(name)
     Page.Size = UDim2.new(1, -14, 1, -14)
     Page.Position = UDim2.new(0, 7, 0, 7)
     Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 8
-    Page.AutomaticCanvasSize = Enum.AutomaticSize.None   -- GANTI
+    Page.ScrollBarThickness = 6
+    Page.AutomaticCanvasSize = Enum.AutomaticSize.None
     Page.CanvasSize = UDim2.new(0,0,0,0)
     Page.Visible = false
     Page.Parent = pageHolder
@@ -333,8 +333,15 @@ local function CreatePage(name)
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
+    -- SIMPAN
     Pages[name] = Page
-    PageLayouts[name] = layout   -- SIMPAN
+    PageLayouts[name] = layout
+
+    -- AUTO CANVAS UNTUK PAGE INI
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        local h = layout.AbsoluteContentSize.Y
+        Page.CanvasSize = UDim2.new(0, 0, 0, h + 10)
+    end)
 
     return Page
 end
@@ -365,13 +372,6 @@ local pageTeleport  = CreatePage("Teleport")
 local pageQuest     = CreatePage("Quest")
 local pageBoat      = CreatePage("Boat")
 local pageMisc      = CreatePage("Misc")
-
--- AUTO SCROLL UNTUK QUEST
-local questLayout = PageLayouts["Quest"]
-questLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    local h = questLayout.AbsoluteContentSize.Y
-    pageQuest.CanvasSize = UDim2.new(0, 0, 0, 400)
-end)
 
 
 
