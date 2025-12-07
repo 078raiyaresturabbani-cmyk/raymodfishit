@@ -845,9 +845,6 @@ end)
 
 
 
-
-
-
 -- ===== GUI: BOAT =====
 
 
@@ -1232,6 +1229,7 @@ local function RAY_SetupHideFishNotif()
 end
 
 task.delay(5, RAY_SetupHideFishNotif)
+
 
 
 
