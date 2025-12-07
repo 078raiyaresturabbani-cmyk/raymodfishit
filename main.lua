@@ -9,6 +9,144 @@ local Lighting            = game:GetService("Lighting")
 
 local DEVICE_FILE = "raymod_fishit_device.json"
 
+-- ===== OFFLINE KEY SYSTEM (PER DEVICE) =====
+
+local KEY_FILE = "raymod_fishit_key.json"
+
+-- daftar 10 key offline
+local RAYMOD_KEYS = {
+    "RAYMOD-1",
+    "RAYMOD-2",
+    "RAYMOD-3",
+    "RAYMOD-4",
+    "RAYMOD-5",
+    "RAYMOD-6",
+    "RAYMOD-7",
+    "RAYMOD-8",
+    "RAYMOD-9",
+    "RAYMOD-10",
+}
+
+local function loadSavedKey()
+    if not (isfile and readfile and isfile(KEY_FILE)) then return nil end
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(readfile(KEY_FILE))
+    end)
+    if ok and type(data) == "table" then
+        return data
+    end
+    return nil
+end
+
+local function saveKeyOk()
+    if not writefile then return end
+    local data = {
+        ok   = true,
+        hwid = getHWID(),
+    }
+    writefile(KEY_FILE, HttpService:JSONEncode(data))
+end
+
+local function isValidKey(str)
+    for _, k in ipairs(RAYMOD_KEYS) do
+        if str == k then
+            return true
+        end
+    end
+    return false
+end
+
+local function CheckKey()
+    local saved = loadSavedKey()
+    local hwid  = getHWID()
+
+    -- sudah pernah isi key yang valid di device ini
+    if saved and saved.ok and saved.hwid == hwid then
+        return true
+    end
+
+    -- GUI input key sederhana
+    local keyGui = Instance.new("ScreenGui")
+    keyGui.Name = "RAYMOD_KEY_GUI"
+    keyGui.ResetOnSpawn = false
+    keyGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 280, 0, 130)
+    frame.Position = UDim2.new(0.5, -140, 0.5, -65)
+    frame.BackgroundColor3 = Color3.fromRGB(10, 12, 25)
+    frame.BorderSizePixel = 0
+    frame.Parent = keyGui
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -20, 0, 24)
+    title.Position = UDim2.new(0, 10, 0, 8)
+    title.BackgroundTransparency = 1
+    title.Text = "RAYMOD FISHIT V2"
+    title.TextColor3 = Color3.fromRGB(235, 240, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 16
+    title.Parent = frame
+
+    local info = Instance.new("TextLabel")
+    info.Size = UDim2.new(1, -20, 0, 18)
+    info.Position = UDim2.new(0, 10, 0, 32)
+    info.BackgroundTransparency = 1
+    info.Text = "Masukkan key untuk unlock script"
+    info.TextColor3 = Color3.fromRGB(190, 195, 230)
+    info.Font = Enum.Font.Gotham
+    info.TextSize = 12
+    info.TextWrapped = true
+    info.Parent = frame
+
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, -20, 0, 28)
+    box.Position = UDim2.new(0, 10, 0, 58)
+    box.BackgroundColor3 = Color3.fromRGB(18, 22, 50)
+    box.TextColor3 = Color3.fromRGB(230, 230, 255)
+    box.PlaceholderText = "RAYMOD-1 ..."
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 14
+    box.ClearTextOnFocus = false
+    box.TextXAlignment = Enum.TextXAlignment.Center
+    box.Parent = frame
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 26)
+    btn.Position = UDim2.new(0, 10, 0, 94)
+    btn.BackgroundColor3 = Color3.fromRGB(90, 140, 255)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.Text = "CONFIRM KEY"
+    btn.Parent = frame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+    local result = false
+
+    btn.MouseButton1Click:Connect(function()
+        local input = (box.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+        if isValidKey(input) then
+            saveKeyOk()
+            Notify("Key valid. Script unlocked untuk device ini.")
+            result = true
+            keyGui:Destroy()
+        else
+            Notify("Key salah. Coba lagi.")
+        end
+    end)
+
+    -- tunggu sampai key benar atau GUI ditutup paksa
+    while keyGui.Parent and not result do
+        task.wait(0.1)
+    end
+
+    return result
+end
+
+
 
 local function getHWID()
     local hwid
@@ -134,6 +272,12 @@ Players.LocalPlayer.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
 end)
+
+-- wajib lolos key offline dulu
+if not CheckKey() then
+    return
+end
+
 
 
 -- ===== GUI BASE (SMALL + TRANSPARENT + BLUR) =====
@@ -1285,4 +1429,4 @@ task.delay(5, RAY_SetupHideFishNotif)
 
 
 
-Notify("RAYMOD FISHIT V2 loaded (Update 1 | 1 Script 1 Device | Small Premium GUI).")
+Notify("RAYMOD FISHIT V2 loaded. ")
