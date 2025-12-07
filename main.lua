@@ -814,11 +814,6 @@ local cardG = MakeQuestCard(
     "Deep Sea Panel helper + teleport"
 )
 
--- toggle auto quest di dalam card (mirip kanan atas di SS)
-AddToggle(cardG, "Auto Deep Sea Quest", false, function(v)
-    _G.RAY_AutoDeepSeaQuest = v
-end)
-
 -- baris tombol bawah: Treasure Room / Sisyphus Statue
 local rowG = MakeQuestButtonsRow(cardG)
 MakeQuestButtonIn(rowG, "Treasure Room", LOCATIONS["Treasure Room"])
@@ -843,14 +838,11 @@ local cardE = MakeQuestCard(
     "Teleport ke spot elemen utama"
 )
 
-AddToggle(cardE, "Auto Progress Quest Features", false, function(v)
-    _G.RAY_AutoElementQuest = v
-end)
-
 local rowE = MakeQuestButtonsRow(cardE)
 MakeQuestButtonIn(rowE, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
 MakeQuestButtonIn(rowE, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
 MakeQuestButtonIn(rowE, "Underground Cellar", CFrame.new(2136, -91.448585, -701))
+
 
 
 
