@@ -640,25 +640,21 @@ local Events = {
 
 -- Data posisi pulau
 local RAY_LOCATIONS = {
-    {Name = "Spawn",             CF = CFrame.new(45.2788086, 252.562927, 2987.10913)},
-    {Name = "Sisyphus Statue",   CF = CFrame.new(-3728.21606, -135.074417, -1012.12744)},
-    {Name = "Coral Reefs",       CF = CFrame.new(-3114.78198, 1.32066584, 2237.52295)},
-    {Name = "Esoteric Depths",   CF = CFrame.new(3248.37109, -1301.53027, 1403.82727)},
-    {Name = "Crater Island",     CF = CFrame.new(1016.49072, 20.0919304, 5069.27295)},
-    {Name = "Lost Isle",         CF = CFrame.new(-3618.15698, 240.836655, -1317.45801)},
-    {Name = "Weather Machine",   CF = CFrame.new(-1488.51196, 83.1732635, 1876.30298)},
-    {Name = "Tropical Grove",    CF = CFrame.new(-2095.34106, 197.199997, 3718.08008)},
-    {Name = "Mount Hallow",      CF = CFrame.new(2136.62305, 78.9163895, 3272.50439)},
-    {Name = "Treasure Room",     CF = CFrame.new(-3606.34985, -266.57373, -1580.97339)},
-    {Name = "Kohana",            CF = CFrame.new(-663.904236, 3.04580712, 718.796875)},
-    {Name = "Underground Cellar",CF = CFrame.new(2109.52148, -94.1875076, -708.609131)},
-    {Name = "Ancient Jungle",    CF = CFrame.new(1831.71362, 6.62499952, -299.279175)},
-    {Name = "Sacred Temple",     CF = CFrame.new(1466.92151, -21.8750591, -622.835693)},
+    {Name = "Spawn",              CF = CFrame.new(45.2788086, 252.562927, 2987.10913)},
+    {Name = "Sisyphus Statue",    CF = CFrame.new(-3728.21606, -135.074417, -1012.12744)},
+    {Name = "Coral Reefs",        CF = CFrame.new(-3114.78198, 1.32066584, 2237.52295)},
+    {Name = "Esoteric Depths",    CF = CFrame.new(3248.37109, -1301.53027, 1403.82727)},
+    {Name = "Crater Island",      CF = CFrame.new(1016.49072, 20.0919304, 5069.27295)},
+    {Name = "Lost Isle",          CF = CFrame.new(-3618.15698, 240.836655, -1317.45801)},
+    {Name = "Weather Machine",    CF = CFrame.new(-1488.51196, 83.1732635, 1876.30298)},
+    {Name = "Tropical Grove",     CF = CFrame.new(-2095.34106, 197.199997, 3718.08008)},
+    {Name = "Mount Hallow",       CF = CFrame.new(2136.62305, 78.9163895, 3272.50439)},
+    {Name = "Treasure Room",      CF = CFrame.new(-3606.34985, -266.57373, -1580.97339)},
+    {Name = "Kohana",             CF = CFrame.new(-663.904236, 3.04580712, 718.796875)},
+    {Name = "Underground Cellar", CF = CFrame.new(2109.52148, -94.1875076, -708.609131)},
+    {Name = "Ancient Jungle",     CF = CFrame.new(1831.71362, 6.62499952, -299.279175)},
+    {Name = "Sacred Temple",      CF = CFrame.new(1466.92151, -21.8750591, -622.835693)},
 }
-
--- ===== TELEPORT SIMPLE (RAYMOD) =====
-
-local RAY_LOCATIONS = { ... }    -- daftar CFrame
 
 local function RAY_TeleportTo(cf)
     local char = Players.LocalPlayer.Character
