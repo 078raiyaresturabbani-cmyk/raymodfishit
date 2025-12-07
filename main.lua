@@ -835,7 +835,7 @@ MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
 ----------------------------------------------------------------
 
 local spacerQ = Instance.new("Frame")
-spacerQ.Size = UDim2.new(1, -4, 0, 0)
+spacerQ.Size = UDim2.new(1, -4, 0, 2)
 spacerQ.BackgroundTransparency = 1
 spacerQ.Parent = pageQuest
 
