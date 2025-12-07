@@ -190,7 +190,7 @@ local function CheckKey()
     box.Position = UDim2.new(0, 10, 0, 58)
     box.BackgroundColor3 = Color3.fromRGB(18, 22, 50)
     box.TextColor3 = Color3.fromRGB(230, 230, 255)
-    box.PlaceholderText = "RAYMOD-1 ..."
+    box.PlaceholderText = "Masukan Key ..."
     box.Font = Enum.Font.Gotham
     box.TextSize = 14
     box.ClearTextOnFocus = false
