@@ -37,24 +37,6 @@ local function loadSavedKey()
     return nil
 end
 
-local function saveKeyOk()
-    if not writefile then return end
-    local data = {
-        ok   = true,
-        hwid = getHWID(),
-    }
-    writefile(KEY_FILE, HttpService:JSONEncode(data))
-end
-
-local function isValidKey(str)
-    for _, k in ipairs(RAYMOD_KEYS) do
-        if str == k then
-            return true
-        end
-    end
-    return false
-end
-
 -- SAFETY + Notify
 local Safety = {}
 function Safety.HumanWait(min, max)
@@ -91,6 +73,24 @@ local function getHWID()
         hwid = RbxAnalyticsService:GetClientId()
     end)
     return hwid or "UNKNOWN_HWID"
+end
+
+local function saveKeyOk()
+    if not writefile then return end
+    local data = {
+        ok   = true,
+        hwid = getHWID(),
+    }
+    writefile(KEY_FILE, HttpService:JSONEncode(data))
+end
+
+local function isValidKey(str)
+    for _, k in ipairs(RAYMOD_KEYS) do
+        if str == k then
+            return true
+        end
+    end
+    return false
 end
 
 local function loadDevice()
@@ -247,170 +247,7 @@ if not CheckKey() then
 end
 
 -- ===== LANJUTAN SCRIPT ASLI =====
--- (lanjut kode kamu: ReplicatedStorage, UIS, Anti AFK, GUI, dst.)
 
-
-
-    -- GUI input key sederhana
-    local keyGui = Instance.new("ScreenGui")
-    keyGui.Name = "RAYMOD_KEY_GUI"
-    keyGui.ResetOnSpawn = false
-    keyGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 280, 0, 130)
-    frame.Position = UDim2.new(0.5, -140, 0.5, -65)
-    frame.BackgroundColor3 = Color3.fromRGB(10, 12, 25)
-    frame.BorderSizePixel = 0
-    frame.Parent = keyGui
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
-
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, -20, 0, 24)
-    title.Position = UDim2.new(0, 10, 0, 8)
-    title.BackgroundTransparency = 1
-    title.Text = "RAYMOD FISHIT V2"
-    title.TextColor3 = Color3.fromRGB(235, 240, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 16
-    title.Parent = frame
-
-    local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(1, -20, 0, 18)
-    info.Position = UDim2.new(0, 10, 0, 32)
-    info.BackgroundTransparency = 1
-    info.Text = "Masukkan key untuk unlock script"
-    info.TextColor3 = Color3.fromRGB(190, 195, 230)
-    info.Font = Enum.Font.Gotham
-    info.TextSize = 12
-    info.TextWrapped = true
-    info.Parent = frame
-
-    local box = Instance.new("TextBox")
-    box.Size = UDim2.new(1, -20, 0, 28)
-    box.Position = UDim2.new(0, 10, 0, 58)
-    box.BackgroundColor3 = Color3.fromRGB(18, 22, 50)
-    box.TextColor3 = Color3.fromRGB(230, 230, 255)
-    box.PlaceholderText = "RAYMOD-1 ..."
-    box.Font = Enum.Font.Gotham
-    box.TextSize = 14
-    box.ClearTextOnFocus = false
-    box.TextXAlignment = Enum.TextXAlignment.Center
-    box.Parent = frame
-    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
-
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 26)
-    btn.Position = UDim2.new(0, 10, 0, 94)
-    btn.BackgroundColor3 = Color3.fromRGB(90, 140, 255)
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.Text = "CONFIRM KEY"
-    btn.Parent = frame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-
-    local result = false
-
-    btn.MouseButton1Click:Connect(function()
-        local input = (box.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
-        if isValidKey(input) then
-            saveKeyOk()
-            Notify("Key valid. Script unlocked untuk device ini.")
-            result = true
-            keyGui:Destroy()
-        else
-            Notify("Key salah. Coba lagi.")
-        end
-    end)
-
-    -- tunggu sampai key benar atau GUI ditutup paksa
-    while keyGui.Parent and not result do
-        task.wait(0.1)
-    end
-
-    return result
-end
-
-
-
-local function getHWID()
-    local hwid
-    pcall(function()
-        hwid = RbxAnalyticsService:GetClientId()
-    end)
-    return hwid or "UNKNOWN_HWID"
-end
-
-
-local function loadDevice()
-    if not (isfile and readfile and isfile(DEVICE_FILE)) then return nil end
-    local ok, data = pcall(function()
-        return HttpService:JSONDecode(readfile(DEVICE_FILE))
-    end)
-    if ok and type(data) == "table" then
-        return data
-    end
-    return nil
-end
-
-
-local function saveDevice(tbl)
-    if not writefile then return end
-    local ok, js = pcall(function()
-        return HttpService:JSONEncode(tbl)
-    end)
-    if ok then
-        writefile(DEVICE_FILE, js)
-    end
-end
-
-
-local function deleteDevice()
-    if delfile and isfile and isfile(DEVICE_FILE) then
-        pcall(function() delfile(DEVICE_FILE) end)
-    end
-end
-
-
-local function checkOneDevice()
-    local uid  = Players.LocalPlayer.UserId
-    local hwid = getHWID()
-    local saved = loadDevice()
-
-
-    if saved then
-        if saved.UserId == uid and saved.HWID == hwid then
-            return true
-        else
-            return false
-        end
-    end
-
-
-    saveDevice({
-        UserId = uid,
-        HWID   = hwid,
-    })
-
-
-    return true
-end
-
-
-if not checkOneDevice() then
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "RAYMOD FISHIT V2",
-            Text = "Script ini sudah ke-bind ke device lain.",
-            Duration = 5
-        })
-    end)
-    return
-end
-
-
--- ===== LANJUTAN SCRIPT ASLI =====
 
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
