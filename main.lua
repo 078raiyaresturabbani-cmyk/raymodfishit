@@ -896,6 +896,7 @@ end
 
 
 
+
 -- ===== GUI: QUEST (CLEAN CARD STYLE) =====
 
 -- helper bikin CARD quest
