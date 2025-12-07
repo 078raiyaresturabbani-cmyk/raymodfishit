@@ -778,7 +778,7 @@ end
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 90) -- tinggi card, muat 2 row
+    card.Size = UDim2.new(1, -4, 0, 82) -- tinggi card, muat 2 row
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
