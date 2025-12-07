@@ -164,10 +164,8 @@ end
 
 
 local main = Instance.new("Frame")
-print("DBG main", main)
-print("DBG pageHolder", pageHolder)
 main.Size = UDim2.new(0, 420, 0, 260)
-pageHolder.Size = UDim2.new(1, -140, 1, -16)
+main.Position = UDim2.new(0.5, -210, 0.5, -130)
 main.BackgroundColor3 = Color3.fromRGB(8, 10, 20)
 main.BackgroundTransparency = 0.25
 main.BorderSizePixel = 0
@@ -430,13 +428,12 @@ LoadConfig()
 
 local function AddSection(parent, titleText, subText)
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -4, 0, 40)
+    frame.Size = UDim2.new(1, -4, 0, subText and 56 or 40)
     frame.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
     frame.BackgroundTransparency = 0.2
     frame.BorderSizePixel = 0
     frame.Parent = parent
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
-
 
     local bar = Instance.new("Frame")
     bar.Size = UDim2.new(1, 0, 0, 2)
