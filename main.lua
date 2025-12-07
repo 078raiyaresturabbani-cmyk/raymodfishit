@@ -656,6 +656,10 @@ local RAY_LOCATIONS = {
     {Name = "Sacred Temple",     CF = CFrame.new(1466.92151, -21.8750591, -622.835693)},
 }
 
+-- ===== TELEPORT SIMPLE (RAYMOD) =====
+
+local RAY_LOCATIONS = { ... }    -- daftar CFrame
+
 local function RAY_TeleportTo(cf)
     local char = Players.LocalPlayer.Character
     if not char then return end
@@ -683,6 +687,7 @@ for _, info in ipairs(RAY_LOCATIONS) do
         RAY_TeleportTo(info.CF)
     end)
 end
+
 
 
 
