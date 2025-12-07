@@ -750,7 +750,7 @@ end
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 100) -- tinggi card
+    card.Size = UDim2.new(1, -4, 0, 120) -- tinggi card, muat 2 row
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
@@ -844,7 +844,8 @@ MakeQuestButtonIn(rowE1, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -62
 
 -- baris kedua: 1 tombol di tengah
 local rowE2 = MakeQuestButtonsRow(cardE)
-rowE2:FindFirstChildOfClass("UIListLayout").HorizontalAlignment = Enum.HorizontalAlignment.Center
+local layout2 = rowE2:FindFirstChildOfClass("UIListLayout")
+layout2.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 local b3 = Instance.new("TextButton")
 b3.Size = UDim2.new(0.5, -8, 0, 28)
@@ -862,6 +863,7 @@ b3.MouseButton1Click:Connect(function()
     local hrp  = char and char:FindFirstChild("HumanoidRootPart")
     if hrp then hrp.CFrame = CFrame.new(2136, -91.448585, -701) end
 end)
+
 
 
 -- ===== GUI: BOAT =====
