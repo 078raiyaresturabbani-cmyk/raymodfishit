@@ -303,8 +303,8 @@ sideHeader.Parent = sidebar
 
 
 local pageHolder = Instance.new("Frame")
-pageHolder.Size = UDim2.new(1, -150, 1, -16)   -- lebih lebar
-pageHolder.Position = UDim2.new(0, 150, 0, 8)  -- geser dikit
+pageHolder.Size = UDim2.new(1, -140, 1, -16)
+pageHolder.Position = UDim2.new(0, 140, 0, 8)
 pageHolder.BackgroundColor3 = Color3.fromRGB(18, 20, 42)
 pageHolder.BackgroundTransparency = 0.3
 pageHolder.BorderSizePixel = 0
@@ -750,7 +750,7 @@ end
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 110) -- pendek, rapih
+    card.Size = UDim2.new(1, -4, 0, 100) -- pendek, rapih
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
@@ -823,7 +823,7 @@ MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
 ----------------------------------------------------------------
 
 local spacerQ = Instance.new("Frame")
-spacerQ.Size = UDim2.new(1, -4, 0, 4)
+spacerQ.Size = UDim2.new(1, -4, 0, 2)
 spacerQ.BackgroundTransparency = 1
 spacerQ.Parent = pageQuest
 
