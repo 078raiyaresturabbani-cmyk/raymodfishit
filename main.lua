@@ -303,8 +303,8 @@ sideHeader.Parent = sidebar
 
 
 local pageHolder = Instance.new("Frame")
-pageHolder.Size = UDim2.new(1, -180, 1, -16)
-pageHolder.Position = UDim2.new(0, 170, 0, 8)
+pageHolder.Size = UDim2.new(1, -150, 1, -16)   -- lebih lebar
+pageHolder.Position = UDim2.new(0, 150, 0, 8)  -- geser dikit
 pageHolder.BackgroundColor3 = Color3.fromRGB(18, 20, 42)
 pageHolder.BackgroundTransparency = 0.3
 pageHolder.BorderSizePixel = 0
@@ -745,12 +745,12 @@ for name, _ in pairs(LOCATIONS) do
 end
 
 
--- ===== GUI: QUEST (BLESSED STYLE 2 CARD) =====
+-- ===== GUI: QUEST (CLEAN CARD STYLE) =====
 
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 100) -- lebih pendek supaya card bawah naik
+    card.Size = UDim2.new(1, -4, 0, 110) -- pendek, rapih
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
@@ -814,17 +814,12 @@ local cardG = MakeQuestCard(
     "Deep Sea Panel helper + teleport"
 )
 
--- (opsional) toggle auto quest di dalam card, kalau mau:
--- AddToggle(cardG, "Auto Deep Sea Quest", false, function(v)
---     _G.RAY_AutoDeepSeaQuest = v
--- end)
-
 local rowG = MakeQuestButtonsRow(cardG)
 MakeQuestButtonIn(rowG, "Treasure Room", LOCATIONS["Treasure Room"])
 MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
 
 ----------------------------------------------------------------
--- SPACER ANTAR CARD (dibikin kecil biar card bawah naik)
+-- SPACER ANTAR CARD (kecil, biar elemen naik)
 ----------------------------------------------------------------
 
 local spacerQ = Instance.new("Frame")
@@ -841,11 +836,6 @@ local cardE = MakeQuestCard(
     "Element Quest",
     "Teleport ke spot elemen utama"
 )
-
--- (opsional) toggle fitur quest element
--- AddToggle(cardE, "Auto Progress Quest Features", false, function(v)
---     _G.RAY_AutoElementQuest = v
--- end)
 
 local rowE = MakeQuestButtonsRow(cardE)
 MakeQuestButtonIn(rowE, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
