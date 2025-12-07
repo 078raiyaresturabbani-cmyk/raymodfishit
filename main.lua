@@ -164,26 +164,14 @@ end
 
 
 local main = Instance.new("Frame")
-main.AnchorPoint = Vector2.new(0.5, 0.5)
-main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.Size = UDim2.new(0, 420, 0, 260)
+main.Position = UDim2.new(0.5, -210, 0.5, -130)
 main.BackgroundColor3 = Color3.fromRGB(8, 10, 20)
 main.BackgroundTransparency = 0.25
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.Parent = gui
-
--- beda ukuran HP vs PC
-if UIS.TouchEnabled and not UIS.KeyboardEnabled then
-    -- MOBILE: lebih besar, hampir full tapi masih ada margin
-    main.Size = UDim2.new(0.9, 0, 0.9, 0)
-else
-    -- PC: sedang
-    main.Size = UDim2.new(0.5, 0, 0.6, 0)
-end
-
-
-
 do
     local corner = Instance.new("UICorner", main); corner.CornerRadius = UDim.new(0, 14)
     local stroke = Instance.new("UIStroke", main)
