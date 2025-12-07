@@ -669,6 +669,31 @@ local function TeleportTo(name)
     if not hrp then return end
     hrp.CFrame = cf
 end
+local function TeleportToPlayer(targetName)
+    local lp   = Players.LocalPlayer
+    local char = lp.Character or lp.CharacterAdded:Wait()
+    local hrp  = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local target
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= lp and p.Name:lower():sub(1, #targetName) == targetName:lower() then
+            target = p
+            break
+        end
+    end
+    if not target then
+        Notify("Player tidak ditemukan")
+        return
+    end
+
+    local tChar = target.Character or target.CharacterAdded:Wait()
+    local tHRP  = tChar:FindFirstChild("HumanoidRootPart")
+    if not tHRP then return end
+
+    hrp.CFrame = tHRP.CFrame * CFrame.new(0, 0, -3)
+end
+
 
 
 -- ===== GUI: FISHING TAB =====
@@ -726,10 +751,129 @@ AddDelayBox(pageBackpack, "Sell Delay (s)", _G.RAY_SellDelay, function(v)
 end)
 
 
--- ===== GUI: TELEPORT =====
+-- ===== GUI: TELEPORT BARU =====
 
+pageTeleport:ClearAllChildren()
 
-AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
+AddSection(pageTeleport, "Teleport", nil)
+
+--------------------------------------------------
+-- TELEPORT TO PLAYERS
+--------------------------------------------------
+
+local selectedPlayerName = nil
+
+AddSection(pageTeleport, "Teleport To Players", "Pilih player lalu teleport")
+
+local rowSelect = Instance.new("Frame")
+rowSelect.Size = UDim2.new(1, -4, 0, 34)
+rowSelect.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+rowSelect.BackgroundTransparency = 0.2
+rowSelect.BorderSizePixel = 0
+rowSelect.Parent = pageTeleport
+Instance.new("UICorner", rowSelect).CornerRadius = UDim.new(0, 8)
+
+local lblSelect = Instance.new("TextLabel")
+lblSelect.Size = UDim2.new(0.4, -10, 1, 0)
+lblSelect.Position = UDim2.new(0, 10, 0, 0)
+lblSelect.BackgroundTransparency = 1
+lblSelect.Text = "Select Player"
+lblSelect.TextColor3 = Color3.fromRGB(220, 225, 255)
+lblSelect.Font = Enum.Font.Gotham
+lblSelect.TextSize = 13
+lblSelect.TextXAlignment = Enum.TextXAlignment.Left
+lblSelect.Parent = rowSelect
+
+local dropBtn = Instance.new("TextButton")
+dropBtn.Size = UDim2.new(0.6, -14, 0, 24)
+dropBtn.Position = UDim2.new(0.4, 4, 0.5, -12)
+dropBtn.BackgroundColor3 = Color3.fromRGB(12, 16, 40)
+dropBtn.TextColor3 = Color3.fromRGB(230, 230, 255)
+dropBtn.Text = "Select Option"
+dropBtn.Font = Enum.Font.Gotham
+dropBtn.TextSize = 13
+dropBtn.TextXAlignment = Enum.TextXAlignment.Left
+dropBtn.Parent = rowSelect
+Instance.new("UICorner", dropBtn).CornerRadius = UDim.new(0, 6)
+
+local listFrame = Instance.new("Frame")
+listFrame.Size = UDim2.new(0.6, -14, 0, 110)
+listFrame.Position = UDim2.new(0.4, 4, 1, 2)
+listFrame.BackgroundColor3 = Color3.fromRGB(10, 12, 30)
+listFrame.Visible = false
+listFrame.Parent = rowSelect
+Instance.new("UICorner", listFrame).CornerRadius = UDim.new(0, 6)
+
+local listScroll = Instance.new("ScrollingFrame")
+listScroll.Size = UDim2.new(1, -4, 1, -4)
+listScroll.Position = UDim2.new(0, 2, 0, 2)
+listScroll.BackgroundTransparency = 1
+listScroll.ScrollBarThickness = 3
+listScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+listScroll.CanvasSize = UDim2.new()
+listScroll.Parent = listFrame
+
+local listLayout = Instance.new("UIListLayout", listScroll)
+listLayout.Padding = UDim.new(0, 2)
+listLayout.FillDirection = Enum.FillDirection.Vertical
+listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+local function RefreshPlayerList()
+    for _, c in ipairs(listScroll:GetChildren()) do
+        if c:IsA("TextButton") then c:Destroy() end
+    end
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= Players.LocalPlayer then
+            local b = Instance.new("TextButton")
+            b.Size = UDim2.new(1, -4, 0, 22)
+            b.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+            b.BackgroundTransparency = 0.1
+            b.Text = p.Name
+            b.TextColor3 = Color3.fromRGB(230, 230, 255)
+            b.Font = Enum.Font.Gotham
+            b.TextSize = 12
+            b.Parent = listScroll
+            Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+
+            b.MouseButton1Click:Connect(function()
+                selectedPlayerName = p.Name
+                dropBtn.Text = p.Name
+                listFrame.Visible = false
+            end)
+        end
+    end
+end
+
+dropBtn.MouseButton1Click:Connect(function()
+    listFrame.Visible = not listFrame.Visible
+    if listFrame.Visible then RefreshPlayerList() end
+end)
+
+local tpPlayerBtn = Instance.new("TextButton")
+tpPlayerBtn.Size = UDim2.new(1, -4, 0, 30)
+tpPlayerBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 170)
+tpPlayerBtn.Text = "Teleport To Player"
+tpPlayerBtn.TextColor3 = Color3.new(1,1,1)
+tpPlayerBtn.Font = Enum.Font.GothamBold
+tpPlayerBtn.TextSize = 13
+tpPlayerBtn.Parent = pageTeleport
+Instance.new("UICorner", tpPlayerBtn).CornerRadius = UDim.new(0, 8)
+
+tpPlayerBtn.MouseButton1Click:Connect(function()
+    if not selectedPlayerName then
+        Notify("Pilih player dulu")
+        return
+    end
+    TeleportToPlayer(selectedPlayerName)
+end)
+
+--------------------------------------------------
+-- TELEPORT TO ISLANDS (PAKAI LOCATIONS LAMA)
+--------------------------------------------------
+
+AddSection(pageTeleport, "Teleport To Islands", "Klik untuk teleport ke pulau")
+
 for name, _ in pairs(LOCATIONS) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -4, 0, 28)
@@ -741,8 +885,12 @@ for name, _ in pairs(LOCATIONS) do
     btn.TextSize = 13
     btn.Parent = pageTeleport
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
+
+    btn.MouseButton1Click:Connect(function()
+        TeleportTo(name)
+    end)
 end
+
 
 
 -- ===== GUI: QUEST (CLEAN CARD STYLE) =====
