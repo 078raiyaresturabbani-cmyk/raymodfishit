@@ -732,8 +732,8 @@ end)
 
 -- ===== GUI: TELEPORT =====
 
-
 AddSection(pageTeleport, "Teleport Lokasi", "Klik tombol untuk TP")
+
 for name, _ in pairs(LOCATIONS) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -4, 0, 28)
@@ -745,8 +745,12 @@ for name, _ in pairs(LOCATIONS) do
     btn.TextSize = 13
     btn.Parent = pageTeleport
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
+
+    btn.MouseButton1Click:Connect(function()
+        TeleportTo(name)
+    end)
 end
+
 
 
 
