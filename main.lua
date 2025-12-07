@@ -164,7 +164,6 @@ end
 
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0.45, 0, 0.55, 0)          -- 45% lebar, 55% tinggi layar
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.Position = UDim2.new(0.5, 0, 0.5, 0)
 main.BackgroundColor3 = Color3.fromRGB(8, 10, 20)
@@ -173,14 +172,16 @@ main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.Parent = gui
-local UIScale = Instance.new("UIScale")
-UIScale.Parent = main
 
+-- beda ukuran HP vs PC
 if UIS.TouchEnabled and not UIS.KeyboardEnabled then
-    UIScale.Scale = 1.0   -- mobile
+    -- MOBILE: lebih besar, hampir full tapi masih ada margin
+    main.Size = UDim2.new(0.9, 0, 0.9, 0)
 else
-    UIScale.Scale = 0.9   -- PC
+    -- PC: sedang
+    main.Size = UDim2.new(0.5, 0, 0.6, 0)
 end
+
 
 
 do
