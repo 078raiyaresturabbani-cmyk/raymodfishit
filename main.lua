@@ -55,6 +55,33 @@ local function isValidKey(str)
     end
     return false
 end
+local Safety = {}
+function Safety.HumanWait(min, max)
+    local r = math.random()
+    local t = min + (max - min) * r
+    task.wait(t)
+end
+function Safety.SafeLoop(step, fn)
+    task.spawn(function()
+        while task.wait(step) do
+            local ok, err = pcall(fn)
+            if not ok then
+                warn("RAYMOD SAFELOOP ERROR:", err)
+                Safety.HumanWait(0.5, 1.5)
+            end
+        end
+    end)
+end
+local function Notify(msg)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "RAYMOD FISHIT V2",
+            Text = msg,
+            Duration = 3
+        })
+    end)
+end
+_G.RAY_Safety = Safety
 
 local function CheckKey()
     local saved = loadSavedKey()
@@ -231,39 +258,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 local RunService = game:GetService("RunService")
-
-
--- ===== SAFETY =====
-
-
-local Safety = {}
-function Safety.HumanWait(min, max)
-    local r = math.random()
-    local t = min + (max - min) * r
-    task.wait(t)
-end
-function Safety.SafeLoop(step, fn)
-    task.spawn(function()
-        while task.wait(step) do
-            local ok, err = pcall(fn)
-            if not ok then
-                warn("RAYMOD SAFELOOP ERROR:", err)
-                Safety.HumanWait(0.5, 1.5)
-            end
-        end
-    end)
-end
-local function Notify(msg)
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "RAYMOD FISHIT V2",
-            Text = msg,
-            Duration = 3
-        })
-    end)
-end
-_G.RAY_Safety = Safety
-
 
 -- ===== ANTI AFK =====
 
@@ -1422,11 +1416,5 @@ local function RAY_SetupHideFishNotif()
 end
 
 task.delay(5, RAY_SetupHideFishNotif)
-
-
-
-
-
-
 
 Notify("RAYMOD FISHIT V2 loaded. ")
