@@ -962,14 +962,33 @@ end
 local Player = game.Players.LocalPlayer
 local PG = Player:WaitForChild("PlayerGui")
 
+-- cari sekali path TextLabel Deep Sea (Treasure Room / Sisyphus)
+local DeepSeaPathObject = nil
+
+local function FindDeepSeaLabel()
+    if DeepSeaPathObject and DeepSeaPathObject.Parent then
+        return DeepSeaPathObject
+    end
+
+    for _, obj in ipairs(PG:GetDescendants()) do
+        if obj:IsA("TextLabel") then
+            local txt = (obj.Text or ""):lower()
+            -- cari teks yang biasa muncul di panel Deep Sea, bukan GUI RAYMOD
+            if (txt:find("treasure room") or txt:find("sisyphus statue"))
+                and not obj:GetFullName():find("RAYMOD_FISHIT_GUI") then
+                DeepSeaPathObject = obj
+                break
+            end
+        end
+    end
+
+    return DeepSeaPathObject
+end
+
 local function GetDeepSeaLocation()
-    local ok, locLabel = pcall(function()
-        return PG.Events.Frame.Location.Label
-        -- path hasil scan:
-        -- Players.<Name>.PlayerGui.Events.Frame.Location.Label
-    end)
-    if ok and locLabel and locLabel.Text then
-        return locLabel.Text
+    local lbl = FindDeepSeaLabel()
+    if lbl and lbl.Text and lbl.Text ~= "" then
+        return lbl.Text
     end
     return "Unknown"
 end
@@ -1006,6 +1025,7 @@ end)
 local rowG = MakeQuestButtonsRow(cardG)
 MakeQuestButtonIn(rowG, "Kamar Harta Karun", LOCATIONS["Treasure Room"])
 MakeQuestButtonIn(rowG, "Patung Sisyphus",   LOCATIONS["Sisyphus Statue"])
+
 ----------------------------------------------------------------
 -- SPACER ANTAR CARD (kecil, biar elemen naik)
 ----------------------------------------------------------------
