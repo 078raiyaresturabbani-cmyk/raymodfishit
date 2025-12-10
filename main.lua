@@ -896,146 +896,111 @@ end
 -- HALAMAN QUEST
 local pageQuest = CreatePage("Quest")
 
--- ===== QUEST: MISI LAUT DALAM (AUTO READ BOARD) =====
+-- ===== QUEST: SISYPHUS / GHOSTFINN + DEEP SEA =====
 
-local Player = game.Players.LocalPlayer
-local PG = Player:WaitForChild("PlayerGui")
+-- helper bikin CARD quest
+local function MakeQuestCard(parent, titleText, subText)
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(1, -4, 0, 82)
+    card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
+    card.BackgroundTransparency = 0.1
+    card.BorderSizePixel = 0
+    card.Parent = parent
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 10)
 
--- cari label papan "Misi Laut Dalam" sekali lalu cache
-local DeepSeaBoard = {
-    Title = nil,
-    Line1 = nil,
-    Line2 = nil,
-    Line3 = nil,
-    Line4 = nil,
-}
+    local layout = Instance.new("UIListLayout", card)
+    layout.Padding = UDim.new(0, 6)
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
-local function ScanDeepSeaBoard()
-    -- kalau sudah ketemu dan masih ada parent, tidak perlu scan lagi
-    if DeepSeaBoard.Title and DeepSeaBoard.Title.Parent then
-        return
-    end
-
-    for _, obj in ipairs(PG:GetDescendants()) do
-        if obj:IsA("TextLabel") then
-            local t = tostring(obj.Text or "")
-
-            -- judul
-            if t:find("Misi Laut Dalam") then
-                DeepSeaBoard.Title = obj
-            -- baris-baris quest; gunakan potongan teks yang pasti ada
-            elseif t:find("300 Ikan") or t:find("300 ikan") then
-                DeepSeaBoard.Line1 = obj
-            elseif t:find("3 Ikan Mitos") or t:find("3 ikan mitos") then
-                DeepSeaBoard.Line2 = obj
-            elseif t:find("1 Ikan RAHASIA") or t:find("1 ikan rahasia") then
-                DeepSeaBoard.Line3 = obj
-            elseif t:find("1M Koin") or t:find("1M koin") then
-                DeepSeaBoard.Line4 = obj
-            end
-        end
-    end
+    AddSection(card, titleText, subText)
+    return card
 end
 
-local function GetDeepSeaBoardText()
-    ScanDeepSeaBoard()
+-- helper baris tombol (dalam satu card)
+local function MakeQuestButtonsRow(card)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -8, 0, 26)
+    row.BackgroundTransparency = 1
+    row.Parent = card
 
-    local title = DeepSeaBoard.Title and DeepSeaBoard.Title.Text or "Misi Laut Dalam"
-    local l1    = DeepSeaBoard.Line1 and DeepSeaBoard.Line1.Text or ""
-    local l2    = DeepSeaBoard.Line2 and DeepSeaBoard.Line2.Text or ""
-    local l3    = DeepSeaBoard.Line3 and DeepSeaBoard.Line3.Text or ""
-    local l4    = DeepSeaBoard.Line4 and DeepSeaBoard.Line4.Text or ""
+    local layout = Instance.new("UIListLayout", row)
+    layout.FillDirection = Enum.FillDirection.Horizontal
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    layout.Padding = UDim.new(0, 8)
 
-    return title, l1, l2, l3, l4
+    return row
 end
 
--- CARD di tab Quest
-local cardGF = Instance.new("Frame")
-cardGF.Size = UDim2.new(1, -4, 0, 120)
-cardGF.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
-cardGF.BackgroundTransparency = 0.1
-cardGF.BorderSizePixel = 0
-cardGF.Parent = pageQuest
-Instance.new("UICorner", cardGF).CornerRadius = UDim.new(0, 10)
-
-local layoutGF = Instance.new("UIListLayout", cardGF)
-layoutGF.Padding = UDim.new(0, 4)
-layoutGF.FillDirection = Enum.FillDirection.Vertical
-layoutGF.HorizontalAlignment = Enum.HorizontalAlignment.Left
-layoutGF.VerticalAlignment = Enum.VerticalAlignment.Top
-
--- judul card
-AddSection(cardGF, "Misi Laut Dalam (Ghostfinn)", "Baca progres quest + teleport spot misi")
-
--- label teks papan quest (multi-line)
-local boardLabel = Instance.new("TextLabel")
-boardLabel.Size = UDim2.new(1, -20, 0, 56)
-boardLabel.Position = UDim2.new(0, 10, 0, 0)
-boardLabel.BackgroundTransparency = 1
-boardLabel.TextColor3 = Color3.fromRGB(200, 210, 255)
-boardLabel.Font = Enum.Font.Gotham
-boardLabel.TextSize = 13
-boardLabel.TextXAlignment = Enum.TextXAlignment.Left
-boardLabel.TextYAlignment = Enum.TextYAlignment.Top
-boardLabel.TextWrapped = true
-boardLabel.Text = "Misi Laut Dalam:\n(membaca papan quest...)"
-boardLabel.Parent = cardGF
-
--- update teks tiap 2 detik (otomatis ikut akun masing-masing)
-task.spawn(function()
-    while task.wait(2) do
-        local title, l1, l2, l3, l4 = GetDeepSeaBoardText()
-        boardLabel.Text = table.concat({
-            title,
-            l1,
-            l2,
-            l3,
-            l4
-        }, "\n")
-    end
-end)
-
--- baris tombol teleport untuk bantu quest
-local tpRow = Instance.new("Frame")
-tpRow.Size = UDim2.new(1, -8, 0, 26)
-tpRow.BackgroundTransparency = 1
-tpRow.Parent = cardGF
-
-local tpLayout = Instance.new("UIListLayout", tpRow)
-tpLayout.FillDirection = Enum.FillDirection.Horizontal
-tpLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-tpLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-tpLayout.Padding = UDim.new(0, 8)
-
-local function MakeTPButton(parent, text, locName)
+local function MakeQuestButtonIn(row, text, cf)
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0.5, -8, 0, 26)
+    b.Size = UDim2.new(0.5, -8, 0, 28)
     b.BackgroundColor3 = Color3.fromRGB(24, 28, 60)
     b.BackgroundTransparency = 0.2
     b.Text = text
     b.TextColor3 = Color3.fromRGB(230, 230, 255)
     b.Font = Enum.Font.Gotham
     b.TextSize = 13
-    b.Parent = parent
+    b.Parent = row
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
 
     b.MouseButton1Click:Connect(function()
-        local cf = LOCATIONS[locName]
-        local char = Player.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if cf and hrp then
+        local char = Players.LocalPlayer.Character
+        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp and cf then
             hrp.CFrame = cf
         end
     end)
 end
 
-MakeTPButton(tpRow, "Kamar Harta Karun", "Treasure Room")
-MakeTPButton(tpRow, "Patung Sisyphus",   "Sisyphus Statue")
+-- ===== DEEP SEA PANEL (AUTO READ DARI MASTERY) =====
 
+local Player = game.Players.LocalPlayer
+local PG = Player:WaitForChild("PlayerGui")
 
+local function GetDeepSeaLocation()
+    local ok, locLabel = pcall(function()
+        return PG.Mastery.Main.Left.Inside.Areas.Tile.Label
+    end)
+    if ok and locLabel and locLabel.Text and locLabel.Text ~= "" then
+        return locLabel.Text
+    end
+    return "Unknown"
+end
+
+-- ===== CARD: SISYPHUS STATUE QUEST / GHOSTFINN =====
+
+local cardG = MakeQuestCard(
+    pageQuest,
+    "Sisyphus Statue Quest",
+    "Deep Sea Panel helper + teleport"
+)
+
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, -20, 0, 18)
+infoLabel.Position = UDim2.new(0, 10, 0, 40)
+infoLabel.BackgroundTransparency = 1
+infoLabel.TextColor3 = Color3.fromRGB(200, 210, 255)
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.TextSize = 13
+infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+infoLabel.Text = "Deep Sea Location: Unknown"
+infoLabel.Parent = cardG
+
+task.spawn(function()
+    while task.wait(2) do
+        infoLabel.Text = "Deep Sea Location: " .. GetDeepSeaLocation()
+    end
+end)
+
+local rowG = MakeQuestButtonsRow(cardG)
+MakeQuestButtonIn(rowG, "Kamar Harta Karun", LOCATIONS["Treasure Room"])
+MakeQuestButtonIn(rowG, "Patung Sisyphus",   LOCATIONS["Sisyphus Statue"])
 
 ----------------------------------------------------------------
--- SPACER ANTAR CARD (kecil, biar elemen naik)
+-- SPACER ANTAR CARD
 ----------------------------------------------------------------
 
 local spacerQ = Instance.new("Frame")
@@ -1053,12 +1018,10 @@ local cardE = MakeQuestCard(
     "Teleport ke spot elemen utama"
 )
 
--- baris pertama: 2 tombol kiri–kanan
 local rowE1 = MakeQuestButtonsRow(cardE)
-MakeQuestButtonIn(rowE1, "Hutan Kuno", CFrame.new(1491.9374, 2.755493, -337.64642))
+MakeQuestButtonIn(rowE1, "Hutan Kuno",    CFrame.new(1491.9374, 2.755493, -337.64642))
 MakeQuestButtonIn(rowE1, "Sacred Temple", CFrame.new(1454.14417, -22.125002, -621.98749))
 
--- baris kedua: 1 tombol di tengah
 local rowE2 = MakeQuestButtonsRow(cardE)
 local layout2 = rowE2:FindFirstChildOfClass("UIListLayout")
 layout2.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -1077,8 +1040,11 @@ Instance.new("UICorner", b3).CornerRadius = UDim.new(0, 8)
 b3.MouseButton1Click:Connect(function()
     local char = Players.LocalPlayer.Character
     local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-    if hrp then hrp.CFrame = CFrame.new(2136, -91.448585, -701) end
+    if hrp then
+        hrp.CFrame = CFrame.new(2136, -91.448585, -701)
+    end
 end)
+
 
 
 
