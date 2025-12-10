@@ -898,10 +898,13 @@ local pageQuest = CreatePage("Quest")
 
 -- ===== QUEST: SISYPHUS / GHOSTFINN + DEEP SEA =====
 
+-- pastikan pageQuest sudah dibuat di atas:
+-- local pageQuest = CreatePage("Quest")
+
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
     local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, -4, 0, 82) -- tinggi card, muat 2 row
+    card.Size = UDim2.new(1, -4, 0, 82)
     card.BackgroundColor3 = Color3.fromRGB(18, 20, 44)
     card.BackgroundTransparency = 0.1
     card.BorderSizePixel = 0
@@ -914,9 +917,7 @@ local function MakeQuestCard(parent, titleText, subText)
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
-    -- judul + subtext di atas card
     AddSection(card, titleText, subText)
-
     return card
 end
 
@@ -957,45 +958,23 @@ local function MakeQuestButtonIn(row, text, cf)
     end)
 end
 
--- ===== DEEP SEA PANEL (AUTO READ) =====
+-- ===== DEEP SEA PANEL (AUTO READ DARI MASTERY) =====
 
 local Player = game.Players.LocalPlayer
 local PG = Player:WaitForChild("PlayerGui")
 
--- cari sekali path TextLabel Deep Sea (Treasure Room / Sisyphus)
-local DeepSeaPathObject = nil
-
-local function FindDeepSeaLabel()
-    if DeepSeaPathObject and DeepSeaPathObject.Parent then
-        return DeepSeaPathObject
-    end
-
-    for _, obj in ipairs(PG:GetDescendants()) do
-        if obj:IsA("TextLabel") then
-            local txt = (obj.Text or ""):lower()
-            -- cari teks yang biasa muncul di panel Deep Sea, bukan GUI RAYMOD
-            if (txt:find("treasure room") or txt:find("sisyphus statue"))
-                and not obj:GetFullName():find("RAYMOD_FISHIT_GUI") then
-                DeepSeaPathObject = obj
-                break
-            end
-        end
-    end
-
-    return DeepSeaPathObject
-end
-
 local function GetDeepSeaLocation()
-    local lbl = FindDeepSeaLabel()
-    if lbl and lbl.Text and lbl.Text ~= "" then
-        return lbl.Text
+    local ok, locLabel = pcall(function()
+        -- path dari panel Mastery yang berisi "Treasure Room - Lost Isle" / "Sisyphus Statue - Lost Isle"
+        return PG.Mastery.Main.Left.Inside.Areas.Tile.Label
+    end)
+    if ok and locLabel and locLabel.Text and locLabel.Text ~= "" then
+        return locLabel.Text
     end
     return "Unknown"
 end
 
-----------------------------------------------------------------
--- CARD: SISYPHUS STATUE QUEST / GHOSTFINN
-----------------------------------------------------------------
+-- ===== CARD: SISYPHUS STATUE QUEST / GHOSTFINN =====
 
 local cardG = MakeQuestCard(
     pageQuest,
@@ -1025,6 +1004,7 @@ end)
 local rowG = MakeQuestButtonsRow(cardG)
 MakeQuestButtonIn(rowG, "Kamar Harta Karun", LOCATIONS["Treasure Room"])
 MakeQuestButtonIn(rowG, "Patung Sisyphus",   LOCATIONS["Sisyphus Statue"])
+
 
 ----------------------------------------------------------------
 -- SPACER ANTAR CARD (kecil, biar elemen naik)
