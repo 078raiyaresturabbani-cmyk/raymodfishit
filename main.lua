@@ -896,7 +896,7 @@ end
 -- HALAMAN QUEST
 local pageQuest = CreatePage("Quest")
 
--- ===== GUI: QUEST (CLEAN CARD STYLE) =====
+-- ===== QUEST: SISYPHUS / GHOSTFINN + DEEP SEA =====
 
 -- helper bikin CARD quest
 local function MakeQuestCard(parent, titleText, subText)
@@ -957,7 +957,7 @@ local function MakeQuestButtonIn(row, text, cf)
     end)
 end
 
--- ===== DEEP SEA PANEL (AUTO READ) + GHOSTFINN QUEST CARD =====
+-- ===== DEEP SEA PANEL (AUTO READ) =====
 
 local Player = game.Players.LocalPlayer
 local PG = Player:WaitForChild("PlayerGui")
@@ -975,7 +975,7 @@ local function GetDeepSeaLocation()
 end
 
 ----------------------------------------------------------------
--- CARD 1: SISYPHUS STATUE QUEST (GHOSTFINN / DEEP SEA)
+-- CARD: SISYPHUS STATUE QUEST / GHOSTFINN
 ----------------------------------------------------------------
 
 local cardG = MakeQuestCard(
@@ -1004,8 +1004,8 @@ end)
 
 -- Baris tombol teleport (Treasure Room & Sisyphus)
 local rowG = MakeQuestButtonsRow(cardG)
-MakeQuestButtonIn(rowG, "Treasure Room",   LOCATIONS["Treasure Room"])
-MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
+MakeQuestButtonIn(rowG, "Kamar Harta Karun", LOCATIONS["Treasure Room"])
+MakeQuestButtonIn(rowG, "Patung Sisyphus",   LOCATIONS["Sisyphus Statue"])
 ----------------------------------------------------------------
 -- SPACER ANTAR CARD (kecil, biar elemen naik)
 ----------------------------------------------------------------
