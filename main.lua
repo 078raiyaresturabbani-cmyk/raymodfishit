@@ -893,6 +893,9 @@ for name, _ in pairs(LOCATIONS) do
     btn.MouseButton1Click:Connect(function() TeleportTo(name) end)
 end
 
+-- HALAMAN QUEST
+local pageQuest = CreatePage("Quest")
+
 -- ===== GUI: QUEST (CLEAN CARD STYLE) =====
 
 -- helper bikin CARD quest
@@ -948,7 +951,9 @@ local function MakeQuestButtonIn(row, text, cf)
     b.MouseButton1Click:Connect(function()
         local char = Players.LocalPlayer.Character
         local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp then hrp.CFrame = cf end
+        if hrp and cf then
+            hrp.CFrame = cf
+        end
     end)
 end
 
@@ -960,7 +965,7 @@ local PG = Player:WaitForChild("PlayerGui")
 local function GetDeepSeaLocation()
     local ok, locLabel = pcall(function()
         return PG.Events.Frame.Location.Label
-        -- path dari scan:
+        -- path hasil scan:
         -- Players.<Name>.PlayerGui.Events.Frame.Location.Label
     end)
     if ok and locLabel and locLabel.Text then
@@ -970,7 +975,7 @@ local function GetDeepSeaLocation()
 end
 
 ----------------------------------------------------------------
--- CARD 1: SISYPHUS STATUE QUEST
+-- CARD 1: SISYPHUS STATUE QUEST (GHOSTFINN / DEEP SEA)
 ----------------------------------------------------------------
 
 local cardG = MakeQuestCard(
@@ -999,8 +1004,8 @@ end)
 
 -- Baris tombol teleport (Treasure Room & Sisyphus)
 local rowG = MakeQuestButtonsRow(cardG)
-MakeQuestButtonIn(rowG, "Treasure Room",     LOCATIONS["Treasure Room"])
-MakeQuestButtonIn(rowG, "Sisyphus Statue",   LOCATIONS["Sisyphus Statue"])
+MakeQuestButtonIn(rowG, "Treasure Room",   LOCATIONS["Treasure Room"])
+MakeQuestButtonIn(rowG, "Sisyphus Statue", LOCATIONS["Sisyphus Statue"])
 ----------------------------------------------------------------
 -- SPACER ANTAR CARD (kecil, biar elemen naik)
 ----------------------------------------------------------------
