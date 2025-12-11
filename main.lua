@@ -837,7 +837,7 @@ AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
 end)
 
 
-AddSection(pageFishing, "Blatant Auto Fishing (V2)", "2x cast paralel + spam reel")
+AddSection(pageFishing, "Blatant Auto Fishing (V2)", "3x cast paralel + spam reel")
 AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
 
 
@@ -1156,7 +1156,8 @@ local function BlatantCycle_V2()
     pcall(function()
         Events.equip:FireServer(1)
         task.wait(0.01)
-        for _ = 1,2 do
+        -- 3x cast paralel (dulu 2x)
+        for _ = 1,3 do
             task.spawn(function()
                 Events.charge:InvokeServer(1755848498.4834)
                 task.wait(0.01)
@@ -1165,14 +1166,17 @@ local function BlatantCycle_V2()
             task.wait(0.03)
         end
     end)
+    -- pakai delay setting lu sendiri
     task.wait(_G.RAY_DelayCast_V2)
-    for _ = 1,5 do
+    -- reel agak lebih banyak biar chance 5 ikan
+    for _ = 1,6 do
         reelIn()
         task.wait(0.01)
     end
     task.wait(_G.RAY_DelayFinish_V2 * 0.5)
     isFishing = false
 end
+
 
 
 local function BlatantCycle_V3()
