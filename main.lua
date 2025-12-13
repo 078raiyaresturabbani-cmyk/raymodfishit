@@ -1167,10 +1167,9 @@ local function BlatantCycle_V2()
         end
     end)
 
-    -- tunggu sesuai setting lu
     task.wait(_G.RAY_DelayCast_V2)
 
-    -- spam reel 2 burst (lebih rapi daripada 1x 8 spam)
+    -- total 8x reel: 4 klik + jeda + 4 klik
     for _ = 1,4 do
         reelIn()
         task.wait(0.01)
