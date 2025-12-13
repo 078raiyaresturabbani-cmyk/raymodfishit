@@ -837,7 +837,7 @@ AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
 end)
 
 
-AddSection(pageFishing, "Blatant Auto Fishing (V2)", "3x cast paralel + spam reel")
+AddSection(pageFishing, "Blatant Auto Fishing (V2)", "3x cast paralel + 2x spam reel")
 AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
 
 
