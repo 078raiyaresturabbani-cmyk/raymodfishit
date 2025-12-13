@@ -1156,23 +1156,35 @@ local function BlatantCycle_V2()
     pcall(function()
         Events.equip:FireServer(1)
         task.wait(0.01)
-        for _ = 1,4 do
+        -- 3x cast paralel
+        for _ = 1,3 do
             task.spawn(function()
                 Events.charge:InvokeServer(1755848498.4834)
-                task.wait(0.008)
+                task.wait(0.01)
                 Events.minigame:InvokeServer(1.2854545116425, 1)
             end)
-            task.wait(0.02)
+            task.wait(0.03)
         end
     end)
-    task.wait(_G.RAY_DelayCast_V2)      -- misal 1.0–1.1
-    for _ = 1,8 do                      -- reel bener‑bener brutal
+
+    -- tunggu sesuai setting lu
+    task.wait(_G.RAY_DelayCast_V2)
+
+    -- spam reel 2 burst (lebih rapi daripada 1x 8 spam)
+    for _ = 1,4 do
         reelIn()
-        task.wait(0.005)
+        task.wait(0.01)
     end
+    task.wait(0.03)
+    for _ = 1,4 do
+        reelIn()
+        task.wait(0.01)
+    end
+
     task.wait(_G.RAY_DelayFinish_V2 * 0.5)
     isFishing = false
 end
+
 
 
 
