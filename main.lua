@@ -837,7 +837,7 @@ AddDelayBox(pageFishing, "Catch Delay V1 (s)", _G.RAY_DelayFinish, function(v)
 end)
 
 
-AddSection(pageFishing, "Blatant Auto Fishing (V2)", "3x cast paralel + 2x spam reel")
+AddSection(pageFishing, "Blatant Auto Fishing (V2)", "3x cast paralel + 5x spam reel")
 AddToggle(pageFishing, "Auto Fish (Blatant V2)", false, function(v) _G.RAY_Fish_AutoV2 = v end)
 
 
@@ -1169,13 +1169,8 @@ local function BlatantCycle_V2()
 
     task.wait(_G.RAY_DelayCast_V2)
 
-    -- total 8x reel: 4 klik + jeda + 4 klik
-    for _ = 1,4 do
-        reelIn()
-        task.wait(0.01)
-    end
-    task.wait(0.03)
-    for _ = 1,4 do
+    -- 5x reel total
+    for _ = 1,5 do
         reelIn()
         task.wait(0.01)
     end
@@ -1183,6 +1178,7 @@ local function BlatantCycle_V2()
     task.wait(_G.RAY_DelayFinish_V2 * 0.5)
     isFishing = false
 end
+
 
 
 
